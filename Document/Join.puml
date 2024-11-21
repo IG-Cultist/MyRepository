@@ -1,0 +1,34 @@
+@startuml
+'入室シーケンス図
+
+participant ClientA
+participant ClientB
+participant ClientC
+participant Server
+
+autonumber
+ClientA -> Server : 参加
+ClientA <- Server : 参加者情報
+
+note over ClientA
+参加者(ClientA)
+を表示
+end note
+
+autonumber
+ClientB -> Server : 参加
+ClientB <- Server : 参加者情報
+note over ClientB
+参加者(ClientA,ClientB)
+を表示
+end note
+
+autonumber
+ClientC -> Server : 参加
+ClientC <- Server : 参加者情報
+note over ClientC
+参加者(ClientA,ClientB,ClientC)
+を表示
+end note
+
+@enduml

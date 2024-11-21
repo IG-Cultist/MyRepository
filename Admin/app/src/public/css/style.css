@@ -1,0 +1,26 @@
+table {
+    font-family: sans-serif;
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+    background-color: white;
+    text-align: center;
+    color: black;
+    border-radius: 20px;
+}
+
+thead {
+    background-color: rgb(66, 66, 66);
+}
+
+th {
+    color: white;
+    padding: 8px 10px;
+}
+
+td {
+    padding: 8px 10px;
+}
+
+td:last-of-type {
+    text-align: center;
+}

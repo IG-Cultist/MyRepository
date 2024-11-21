@@ -1,0 +1,33 @@
+@startuml
+'退室シーケンス図
+
+participant ClientA
+participant ClientB
+participant ClientC
+participant Server
+
+autonumber
+ClientC -> Server : 退室
+ClientC <- Server : 表示ユーザ全削除
+ClientC <- Server : 切断
+note over ClientC
+退出者(ClientC) を
+他のユーザ(ClientA,ClientB)の
+画面から削除
+end note
+
+autonumber
+ClientB -> Server : 退室
+ClientB <- Server : 表示ユーザ全削除
+ClientB <- Server : 切断
+note over ClientB
+退出者(ClientB) を
+他のユーザ(ClientA)の
+画面から削除
+end note
+
+autonumber
+ClientA -> Server : 退室
+ClientA <- Server : 表示ユーザ全削除
+ClientA <- Server : 部屋削除
+@enduml
