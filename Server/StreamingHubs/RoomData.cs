@@ -1,4 +1,5 @@
 ﻿using Shared.Interfaces.StreamingHubs;
+using UnityEngine;
 
 namespace Server.StreamingHubs
 {
@@ -11,5 +12,15 @@ namespace Server.StreamingHubs
         /// 参加ユーザ
         /// </summary>
         public JoinedUser JoinedUser { get; set; }
+
+        /// <summary>
+        /// ユーザの位置
+        /// </summary>
+        public Vector3 Position { get; set; }
+
+        /// <summary>
+        /// ユーザの向き
+        /// </summary>
+        public Vector3 Rotation { get; set;}
     }
 }

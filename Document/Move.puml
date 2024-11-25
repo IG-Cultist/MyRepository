@@ -1,0 +1,28 @@
+@startuml
+'移動シーケンス図
+
+participant ClientA
+participant ClientB
+participant Server
+
+autonumber
+ClientA -> Server : 移動
+
+note over ClientA
+移動者(ClientA) を
+他のユーザ(ClientB)の
+画面上での位置を移動
+end note
+ClientA <- Server : 移動情報
+
+autonumber
+ClientB -> Server : 移動
+
+note over ClientB
+移動者(ClientB) を
+他のユーザ(ClientA)の
+画面上での位置を移動
+end note
+ClientB <- Server : 移動情報
+
+@enduml

@@ -4,9 +4,6 @@ using Grpc.Net.Client;
 using MagicOnion.Client;
 using Shared.Interfaces.StreamingHubs;
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using UnityEngine;
 
 public class RoomHubModel : BaseModel, IRoomHubReceiver
@@ -22,6 +19,9 @@ public class RoomHubModel : BaseModel, IRoomHubReceiver
 
     // ユーザ退室通知
     public Action<Guid> OnLeavedUser { get; set; }
+
+    // ユーザ移動通知
+    public Action<Guid, Vector3, Vector3> OnMovedUser { get; set; }
 
     /// <summary>
     /// MagicOnion接続処理
@@ -105,5 +105,24 @@ public class RoomHubModel : BaseModel, IRoomHubReceiver
     public void OnLeave(Guid connectionID)
     {
         OnLeavedUser(connectionID);
+    }
+
+    /// <summary>
+    /// 移動処理
+    /// </summary>
+    /// <returns></returns>
+    /// <param name="pos">ユーザ位置</param>
+    public async UniTask MoveAsync(Vector3 pos, Vector3 rot)
+    {
+        await roomHub.MoveAsync(pos, rot);
+        //OnMovedUser(this.ConnectionID, pos, rot);
+    }
+
+    /// <summary>
+    /// 移動通知
+    /// </summary>
+    public void OnMove(Guid connectionID, Vector3 pos, Vector3 rot)
+    {
+        OnMovedUser(connectionID, pos, rot);
     }
 }

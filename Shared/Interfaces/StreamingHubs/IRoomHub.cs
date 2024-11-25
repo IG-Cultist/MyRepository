@@ -1,5 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿//using System.Numerics;
+using System;
+using System.Threading.Tasks;
 using MagicOnion;
+using UnityEngine;
 
 namespace Shared.Interfaces.StreamingHubs
 {
@@ -8,9 +11,6 @@ namespace Shared.Interfaces.StreamingHubs
     /// </summary>
     public interface IRoomHub : IStreamingHub<IRoomHub,IRoomHubReceiver>
     {
-        // サーバからクライアントを呼ぶ関数を定義
-
-
         /// <summary>
         /// ユーザ入室
         /// </summary>
@@ -26,5 +26,13 @@ namespace Shared.Interfaces.StreamingHubs
         /// <param name="userID">ユーザID</param>
         /// <returns></returns>
         Task LeaveAsync(string roomHub, int userID);
+
+        /// <summary>
+        /// ユーザ移動
+        /// </summary>
+        /// <param name="pos">位置</param>
+        /// <param name="rot">向き</param>
+        /// <returns></returns>
+        Task MoveAsync(Vector3 pos, Vector3 rot);
     }
 }

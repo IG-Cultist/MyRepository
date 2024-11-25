@@ -2,12 +2,24 @@
 using Server.Model.Context;
 using Shared.Interfaces.StreamingHubs;
 using Shared.Model.Entity;
+using UnityEngine;
 
 namespace Server.StreamingHubs
 {
     public class RoomHub : StreamingHubBase<IRoomHub,IRoomHubReceiver>,IRoomHub
     {
         private IGroup room;
+
+        protected override ValueTask OnDisconnected()
+        {
+            // ルームデータを削除
+            this.room.GetInMemoryStorage<RoomData>().Remove(this.ConnectionId);
+            // 退室を全メンバーに通知
+            this.Broadcast(room).OnLeave(this.ConnectionId);
+            // ルーム内のメンバから削除
+            room.RemoveAsync(this.Context);
+            return CompletedTask;
+        }
 
         /// <summary>
         /// 参加処理
@@ -26,7 +38,7 @@ namespace Server.StreamingHubs
 
             // グループストレージにユーザデータを格納
             var roomStrage = this.room.GetInMemoryStorage<RoomData>();
-            var joinedUser = new JoinedUser() { ConnectionID = this.ConnectionId ,UserData = user};
+            var joinedUser = new JoinedUser() { ConnectionID = this.ConnectionId, UserData = user};
             var roomData = new RoomData() { JoinedUser = joinedUser};
             roomStrage.Set(this.ConnectionId, roomData);
 
@@ -57,11 +69,27 @@ namespace Server.StreamingHubs
             // グループデータから削除
             this.room.GetInMemoryStorage<RoomData>().Remove(this.ConnectionId);
 
+            // ルーム参加者全員に、ユーザの通知を送信
+            this.BroadcastExceptSelf(room).OnLeave(this.ConnectionId);
+
             // ルーム内のデータから自身を削除
             await room.RemoveAsync(this.Context);
+        }
 
-            // ルーム参加者全員に、ユーザの通知を送信 (Broadcast(room)で自身も含む)
-            this.BroadcastExceptSelf(room).OnLeave(this.ConnectionId);
+        /// <summary>
+        /// 移動処理
+        /// </summary>
+        /// <param name="pos">位置</param>
+        /// <param name="rot">向き</param>
+        /// <returns></returns>
+        public async Task MoveAsync(Vector3 pos, Vector3 rot)
+        {
+            var roomStrage = this.room.GetInMemoryStorage<RoomData>();
+            var roomData = roomStrage.Get(this.ConnectionId);
+            roomData.Rotation = rot;
+            roomData.Position = pos;
+            // ルーム参加者全員に、ユーザの通知を送信
+            this.BroadcastExceptSelf(room).OnMove(this.ConnectionId, pos, rot);
         }
     }
 }
