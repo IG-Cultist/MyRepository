@@ -34,5 +34,17 @@ namespace Shared.Interfaces.StreamingHubs
         /// <param name="rot">向き</param>
         /// <returns></returns>
         Task MoveAsync(Vector3 pos, Vector3 rot);
+
+        /// <summary>
+        /// ゲーム開始
+        /// </summary>
+        /// <returns></returns>
+        Task ReadyAsync();
+
+        /// <summary>
+        /// ゲーム終了
+        /// </summary>
+        /// <returns></returns>
+        Task FinishAsync();
     }
 }

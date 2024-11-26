@@ -1,0 +1,32 @@
+@startuml
+'時間制限シーケンス図(マスタークライアント方式を採用)
+
+participant ClientA
+participant Server
+participant ClientB
+
+autonumber
+ClientA <- Server : ゲーム開始
+ClientB <- Server : ゲーム開始
+
+ClientA -> Server : 60sec
+
+ClientA <- Server : 残り60秒
+ClientB <- Server : 残り60秒
+
+note over Server
+Aのタイマーを軸にカウント
+これを時間切れまで繰り返す
+end note
+
+ClientA -> Server : 0sec
+
+ClientA <- Server : 残り0秒
+ClientA <- Server : 結果表示
+ClientB <- Server : 残り0秒
+ClientB <- Server : 結果表示
+
+ClientA -> Server : 退室
+ClientB -> Server : 退室
+
+@enduml

@@ -22,5 +22,15 @@ namespace Server.StreamingHubs
         /// ユーザの向き
         /// </summary>
         public Vector3 Rotation { get; set;}
+
+        /// <summary>
+        /// ユーザの準備判定
+        /// </summary>
+        public bool Ready { get; set; }
+
+        /// <summary>
+        /// ユーザのゲーム終了判定
+        /// </summary>
+        public bool Finish {  get; set; }
     }
 }

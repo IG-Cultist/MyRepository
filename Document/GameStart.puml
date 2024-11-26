@@ -1,0 +1,41 @@
+@startuml
+'ゲーム開始シーケンス図
+
+participant ClientA
+participant Server
+participant ClientB
+autonumber
+ClientA -> Server : 参加
+
+note over Server
+参加者人数が
+2人になったか判定
+end note
+
+ClientB -> Server : 参加
+
+note over Server
+参加者人数が
+2人になったか判定
+end note
+
+ClientA <- Server : 開始タイマー送信
+ClientB <- Server : 開始タイマー送信
+
+ClientA -> Server : 準備完了
+
+note over Server
+参加者が
+準備完了したか判定
+end note
+
+ClientB -> Server : 準備完了
+
+note over Server
+参加者が
+準備完了したか判定
+end note
+
+ClientA <- Server : ゲーム開始
+ClientB <- Server : ゲーム開始
+@enduml

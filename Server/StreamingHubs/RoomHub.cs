@@ -84,12 +84,79 @@ namespace Server.StreamingHubs
         /// <returns></returns>
         public async Task MoveAsync(Vector3 pos, Vector3 rot)
         {
-            var roomStrage = this.room.GetInMemoryStorage<RoomData>();
-            var roomData = roomStrage.Get(this.ConnectionId);
+            var roomDataStorage = this.room.GetInMemoryStorage<RoomData>();
+            var roomData = roomDataStorage.Get(this.ConnectionId);
+            roomData.Position = pos;  
             roomData.Rotation = rot;
-            roomData.Position = pos;
             // ルーム参加者全員に、ユーザの通知を送信
             this.BroadcastExceptSelf(room).OnMove(this.ConnectionId, pos, rot);
+        }
+
+        /// <summary>
+        /// ゲーム開始処理
+        /// </summary>
+        /// <returns></returns>
+        public async Task ReadyAsync()
+        {
+            // 準備完了状態を自身のroomDataに保存
+            var roomDataStorage = this.room.GetInMemoryStorage<RoomData>();
+            var roomData = roomDataStorage.Get(this.ConnectionId);
+            roomData.Ready = true;
+
+            // 全員準備できたか判定
+            bool isReady = true;
+            var roomDataList = roomDataStorage.AllValues.ToArray<RoomData>();
+
+            // 参加人数が2人に満たない場合処理しない
+            if (roomDataList.Length >= 2)
+            {
+                foreach (var data in roomDataList)
+                {
+                    // 1人でも準備中の場合開始しない
+                    if (data.Ready == false)
+                    {
+                        isReady = false;
+                    }
+                }
+            }
+            else isReady = false;
+
+            if (isReady == true)
+            { 
+                // ルーム参加者全員に、ゲーム開始を送信
+                this.Broadcast(room).OnReady();
+            }
+        }
+
+        /// <summary>
+        /// ゲーム終了処理
+        /// </summary>
+        /// <returns></returns>
+        public async Task FinishAsync()
+        {
+            // 準備完了状態を自身のroomDataに保存
+            var roomDataStorage = this.room.GetInMemoryStorage<RoomData>();
+            var roomData = roomDataStorage.Get(this.ConnectionId);
+            roomData.Finish = true;
+
+            // 全員準備できたか判定
+            bool isFinish = true;
+            var roomDataList = roomDataStorage.AllValues.ToArray<RoomData>();
+
+            foreach (var data in roomDataList)
+            {
+                // 1人でも未クリアの場合開始しない
+                if (data.Finish == false)
+                {
+                    isFinish = false;
+                }
+            }
+
+            if (isFinish == true)
+            {
+                // ルーム参加者全員に、ゲーム終了を送信
+                this.Broadcast(room).OnFinish();
+            }
         }
     }
 }

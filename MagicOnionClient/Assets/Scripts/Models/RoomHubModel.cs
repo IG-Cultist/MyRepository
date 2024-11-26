@@ -23,6 +23,12 @@ public class RoomHubModel : BaseModel, IRoomHubReceiver
     // ユーザ移動通知
     public Action<Guid, Vector3, Vector3> OnMovedUser { get; set; }
 
+    // ユーザ準備通知
+    public Action OnReadyUser {  get; set; }
+
+    //ユーザ終了通知
+    public Action OnFinishUser { get; set; }
+
     /// <summary>
     /// MagicOnion接続処理
     /// </summary>
@@ -124,5 +130,39 @@ public class RoomHubModel : BaseModel, IRoomHubReceiver
     public void OnMove(Guid connectionID, Vector3 pos, Vector3 rot)
     {
         OnMovedUser(connectionID, pos, rot);
+    }
+
+    /// <summary>
+    /// ゲーム開始処理
+    /// </summary>
+    /// <returns></returns>
+    public async UniTask ReadyAsync()
+    {
+        await roomHub.ReadyAsync();
+    }
+
+    /// <summary>
+    /// ゲーム開始
+    /// </summary>
+    public void OnReady()
+    {
+        OnReadyUser();
+    }
+
+    /// <summary>
+    /// ゲーム終了処理
+    /// </summary>
+    /// <returns></returns>
+    public async UniTask FinishAsync()
+    {
+        await roomHub.FinishAsync();
+    }
+
+    /// <summary>
+    /// ゲーム終了
+    /// </summary>
+    public void OnFinish()
+    {
+        OnFinishUser();
     }
 }

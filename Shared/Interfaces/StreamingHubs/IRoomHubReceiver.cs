@@ -32,5 +32,15 @@ namespace Shared.Interfaces.StreamingHubs
         /// <param name="pos">位置</param>
         /// <param name="rot">向き</param>
         void OnMove(Guid connectionID, Vector3 pos, Vector3 rot);
+
+        /// <summary>
+        /// ゲーム開始処理
+        /// </summary>
+        void OnReady();
+
+        /// <summary>
+        /// ゲーム終了通知
+        /// </summary>
+        void OnFinish();
     }
 }

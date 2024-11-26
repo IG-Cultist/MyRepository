@@ -1,0 +1,28 @@
+@startuml
+'ゲーム終了シーケンス図
+
+participant ClientA
+participant Server
+participant ClientB
+
+autonumber
+ClientA -> Server : 終了通知
+
+note over Server
+全ユーザが
+ゲーム終了したか判定
+end note
+
+ClientB -> Server : 終了通知
+
+note over Server
+全ユーザが
+ゲーム終了したか判定
+end note
+
+ClientB <- Server : 勝者名表示
+ClientA <- Server : 勝者名表示
+
+ClientA -> Server : 退室
+ClientB -> Server : 退室
+@enduml
