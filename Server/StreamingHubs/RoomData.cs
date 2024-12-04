@@ -32,5 +32,15 @@ namespace Server.StreamingHubs
         /// ユーザのゲーム終了判定
         /// </summary>
         public bool Finish {  get; set; }
+
+        /// <summary>
+        /// アニメーション状態
+        /// </summary>
+        public IRoomHubReceiver.PlayerState State { get; set; }
+
+        /// <summary>
+        /// 体力
+        /// </summary>
+        public int Health { get; set; }
     }
 }

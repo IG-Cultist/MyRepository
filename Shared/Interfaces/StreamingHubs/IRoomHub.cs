@@ -32,8 +32,9 @@ namespace Shared.Interfaces.StreamingHubs
         /// </summary>
         /// <param name="pos">位置</param>
         /// <param name="rot">向き</param>
+        /// <param name="state">アニメーション状態</param>
         /// <returns></returns>
-        Task MoveAsync(Vector3 pos, Vector3 rot);
+        Task MoveAsync(Vector3 pos, Vector3 rot, IRoomHubReceiver.PlayerState state);
 
         /// <summary>
         /// ゲーム開始
@@ -46,5 +47,12 @@ namespace Shared.Interfaces.StreamingHubs
         /// </summary>
         /// <returns></returns>
         Task FinishAsync();
+
+        /// <summary>
+        /// 攻撃
+        /// </summary>
+        /// <param name="connectionID">ユーザID</param>
+        /// <returns></returns>
+        Task AttackAsync(Guid connectionID);
     }
 }

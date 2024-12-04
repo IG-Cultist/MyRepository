@@ -1,0 +1,24 @@
+@startuml
+'攻撃シーケンス図
+
+participant ClientA
+participant Server
+participant ClientB
+
+autonumber
+note over ClientA
+攻撃判定
+end note
+ClientA -> Server : Bを攻撃
+ClientB <- Server : Bを攻撃
+
+ClientB -> Server : 被弾
+
+ClientA <- Server : 被弾通知
+ClientB <- Server : 被弾通知
+ClientB <- Server : 体力-1
+
+ClientA <- Server : 速度低下
+ClientB <- Server : 視界悪化＆速度上昇
+
+@enduml

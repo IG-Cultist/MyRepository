@@ -1,3 +1,8 @@
+/// ==============================
+/// ゲームディレクタースクリプト
+/// Name:西浦晃太 Update:11/26
+/// ==============================
+using Cysharp.Threading.Tasks.Triggers;
 using DG.Tweening;
 using Shared.Interfaces.Services;
 using Shared.Interfaces.StreamingHubs;
@@ -5,13 +10,20 @@ using Shared.Model.Entity;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class GameDirector : MonoBehaviour
 {
     // 生成するユーザプレハブ
     [SerializeField] GameObject characterPrefabs;
+
+    // 接続パネル
+    [SerializeField] GameObject ConnectPanel;
+
     // 入力されたユーザID
     [SerializeField] Text userID;
     // 部屋モデル
@@ -24,8 +36,15 @@ public class GameDirector : MonoBehaviour
     [SerializeField] Text countText;
     // 準備完了ボタン
     [SerializeField] GameObject readyButton;
+    Player playerScript;
     // ゲーム開始判定変数
     bool isStart = false;
+
+    bool isFinish = false;
+
+    bool isJoin = false;
+
+    float moveSpeed = 1f;
 
     // Start is called before the first frame update
     async void Start()
@@ -39,6 +58,8 @@ public class GameDirector : MonoBehaviour
         roomModel.OnLeavedUser += this.OnLeavedUser;
         roomModel.OnMovedUser += this.OnMovedUser;
         roomModel.OnReadyUser += this.OnReadyUser;
+        roomModel.OnFinishUser += this.OnFinishUser;
+        roomModel.OnAttackUser += this.OnAttackUser;
         // 接続
         await roomModel.ConnectAsync();
     }
@@ -46,6 +67,26 @@ public class GameDirector : MonoBehaviour
     void Update()
     {
         MovePlayer();
+
+        if (Input.GetKeyDown(KeyCode.X))
+        {
+            Finish();
+        }
+
+        if (Input.GetKeyDown(KeyCode.Y))
+        {
+            Ready();
+        }
+        if (Input.GetKeyDown(KeyCode.Z))
+        {
+            Attack();
+        }
+        // ゲーム終了状態かつ画面タップをした場合
+        if (isFinish == true && Input.GetMouseButtonDown(0))
+        {
+            LeaveRoom();
+            SceneManager.LoadScene("Result");
+        }
     }
 
     /// <summary>
@@ -53,11 +94,30 @@ public class GameDirector : MonoBehaviour
     /// </summary>
     /// <param name="user"></param>
     void OnJoinedUser(JoinedUser user)
-    {
-        GameObject characterGameObject = Instantiate(characterPrefabs); //インスタンス生成
+    {  
+        // インスタンス生成
+        GameObject characterGameObject = Instantiate(characterPrefabs); 
+
+        // プレイヤースクリプト取得
+        playerScript =  characterGameObject.GetComponent<Player>();
+
         // 生成位置を設定
-        characterGameObject.transform.position = new Vector3(-6 + user.UserData.Id, 0, 0);
+        characterGameObject.transform.position = new Vector3(-7.5f + (user.UserData.Id + 2), 2f, -10f);
+
+        // 自分以外のカメラを非アクティブにする
+        if(roomModel.ConnectionID != user.ConnectionID){
+            characterGameObject.transform.GetChild(0).gameObject.SetActive(false);
+        }
+
+        // 識別番号を各子オブジェクトの名前に付ける
+        foreach (Transform obj in characterGameObject.transform)
+        {
+            obj.name += "_" + user.UserData.Id;
+        }
+        characterGameObject.name = characterPrefabs.name + "_" + user.UserData.Id;
+
         characterList[user.ConnectionID] = characterGameObject; // フィールドで保持
+        playerScript.connectionID = user.ConnectionID;
         readyButton.SetActive(true);
     }
 
@@ -67,9 +127,9 @@ public class GameDirector : MonoBehaviour
     /// <param name="connectionID"></param>
     void OnLeavedUser(Guid connectionID)
     {
-        // 受け取った接続IDと自信の接続IDが一致している場合
+        // 受け取った接続IDと自身の接続IDが一致している場合
         if (connectionID == roomModel.ConnectionID)
-        {  
+        {
             // 準備完了ボタンを非表示
             readyButton.SetActive(false);
             // 表示されているすべてのオブジェクトを破壊
@@ -80,14 +140,13 @@ public class GameDirector : MonoBehaviour
         }
         // 退室ユーザのオブジェクトのみ破壊
         else Destroy(characterList[connectionID]);
-
     }
 
     /// <summary>
     /// ユーザ移動処理
     /// </summary>
     /// <param name="pos">位置</param>
-    void OnMovedUser(Guid connectionID, Vector3 pos, Vector3 rot)
+    void OnMovedUser(Guid connectionID, Vector3 pos, Vector3 rot, IRoomHubReceiver.PlayerState state)
     {
         // 各トランスフォームをアニメーション
         characterList[connectionID].transform.DOLocalMove(pos,0.1f).SetEase(Ease.Linear);
@@ -103,21 +162,44 @@ public class GameDirector : MonoBehaviour
     }
 
     /// <summary>
+    /// ユーザゲーム終了処理
+    /// </summary>
+    void OnFinishUser()
+    {
+        FinishGame();
+    }
+
+    /// <summary>
     /// ゲーム開始処理
     /// </summary>
     void StartGame()
     {
         readyButton.SetActive(false);
         countPanel.SetActive(true);
-        float countdownSeconds = 4;
+        float limitTime = 4;
 
-        while (countdownSeconds > 0)
+        while (limitTime > 0)
         {
-            countdownSeconds -= Time.deltaTime;
-            var span = new TimeSpan(0, 0, (int)countdownSeconds);
-            countText.text = span.ToString(@"mm\:ss");
+            limitTime -= Time.deltaTime;
+
+            if (limitTime < 0)
+            {
+                limitTime = 0;
+            }
+
+            countText.text = limitTime.ToString("F0"); // 残り時間を整数で表示
+
         }
         isStart = true;
+    }
+
+    /// <summary>
+    /// ゲーム終了処理
+    /// </summary>
+    void FinishGame()
+    {
+        countText.text = "クリックで退室";
+        isFinish = true;
     }
 
     /// <summary>
@@ -125,17 +207,21 @@ public class GameDirector : MonoBehaviour
     /// </summary>
     public async void JoinRoom()
     {
+        ConnectPanel.SetActive(false);
         int.TryParse(userID.text, out int id);
         // 入室
         await roomModel.JoinAsync("sampleRoom", id);
         InvokeRepeating("Move", 0.1f, 0.1f);
+        await Task.Delay(60);
+        isJoin= true;
     }
 
     /// <summary>
     /// 退室ボタン処理
     /// </summary>
     public async void LeaveRoom()
-    { 
+    {
+        ConnectPanel.SetActive(true);
         CancelInvoke("Move");
         int.TryParse(userID.text, out int id);
         // 退室
@@ -149,7 +235,8 @@ public class GameDirector : MonoBehaviour
     {
         // 移動
         await roomModel.MoveAsync(characterList[roomModel.ConnectionID].transform.position,
-            characterList[roomModel.ConnectionID].transform.eulerAngles);
+            characterList[roomModel.ConnectionID].transform.eulerAngles,
+            IRoomHubReceiver.PlayerState.Move);
     }
 
     /// <summary>
@@ -160,32 +247,53 @@ public class GameDirector : MonoBehaviour
         await roomModel.ReadyAsync();
     }
 
+    public async void Finish()
+    {
+        await roomModel.FinishAsync();
+    }
+
+    async void Attack()
+    {
+        await roomModel.AttackAsync(roomModel.ConnectionID);
+    }
+
+    /// <summary>
+    /// ユーザ攻撃通知
+    /// </summary>
+    void OnAttackUser(Guid connectionID)
+    {
+        Debug.Log("fuck");
+    }
+
     /// <summary>
     /// キー入力移動処理
     /// </summary>
     void MovePlayer()
     {
-        if (isStart != true) return;
+        // ゲームが開始していない、かつ終了している場合処理しない
+        if (isStart != true || isFinish == true || isJoin != true) return;
 
-        if (Input.GetKey(KeyCode.RightArrow))
+        Rigidbody rb = characterList[roomModel.ConnectionID].GetComponent<Rigidbody>();  // rigidbodyを取得
+
+        if (Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.D))
         {
-            characterList[roomModel.ConnectionID].transform.position += new Vector3(0.1f, 0f, 0f);
-            characterList[roomModel.ConnectionID].transform.eulerAngles += new Vector3(0f, 5f, 0f);
+            rb.AddForce(new Vector3(moveSpeed, 0f, 0f), ForceMode.Impulse);
+            //characterList[roomModel.ConnectionID].transform.position += new Vector3(moveSpeed, 0f, 0f);
         }
-        if (Input.GetKey(KeyCode.LeftArrow))
+
+        if (Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.A))
         {
-            characterList[roomModel.ConnectionID].transform.position -= new Vector3(0.1f, 0f, 0f);
-            characterList[roomModel.ConnectionID].transform.eulerAngles -= new Vector3(0f, 5f, 0f);
+            rb.AddForce(new Vector3(-moveSpeed, 0f, 0f), ForceMode.Impulse);
         }
-        if (Input.GetKey(KeyCode.UpArrow))
+        
+        if (Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.W))
         {
-            characterList[roomModel.ConnectionID].transform.position += new Vector3(0f, 0f, 0.1f);
-            characterList[roomModel.ConnectionID].transform.eulerAngles += new Vector3(0f, 5f, 0f);
+            rb.AddForce(new Vector3(0f, 0f, moveSpeed), ForceMode.Impulse);
         }
-        if (Input.GetKey(KeyCode.DownArrow))
+        
+        if (Input.GetKey(KeyCode.DownArrow) || Input.GetKey(KeyCode.S))
         {
-            characterList[roomModel.ConnectionID].transform.position -= new Vector3(0f, 0f, 0.1f);
-            characterList[roomModel.ConnectionID].transform.eulerAngles -= new Vector3(0f, 5f, 0f);
+            rb.AddForce(new Vector3(0f, 0f, -moveSpeed), ForceMode.Impulse);
         }
     }
 }

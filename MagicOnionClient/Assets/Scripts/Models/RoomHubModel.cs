@@ -1,3 +1,7 @@
+/// ==============================
+/// ルームハブモデルスクリプト
+/// Name:西浦晃太 Update:11/26
+/// ==============================
 using Cysharp.Net.Http;
 using Cysharp.Threading.Tasks;
 using Grpc.Net.Client;
@@ -21,13 +25,16 @@ public class RoomHubModel : BaseModel, IRoomHubReceiver
     public Action<Guid> OnLeavedUser { get; set; }
 
     // ユーザ移動通知
-    public Action<Guid, Vector3, Vector3> OnMovedUser { get; set; }
+    public Action<Guid, Vector3, Vector3, IRoomHubReceiver.PlayerState> OnMovedUser { get; set; }
 
     // ユーザ準備通知
     public Action OnReadyUser {  get; set; }
 
     //ユーザ終了通知
     public Action OnFinishUser { get; set; }
+
+    //ユーザ攻撃通知
+    public Action<Guid> OnAttackUser { get; set; }
 
     /// <summary>
     /// MagicOnion接続処理
@@ -77,7 +84,7 @@ public class RoomHubModel : BaseModel, IRoomHubReceiver
                 // 自分の接続IDを保存
                 this.ConnectionID = user.ConnectionID;
             }
-            //  モデルを使うクラスに通知
+            // モデルを使うクラスに通知
             OnJoinedUser(user);
         }
     }
@@ -118,18 +125,18 @@ public class RoomHubModel : BaseModel, IRoomHubReceiver
     /// </summary>
     /// <returns></returns>
     /// <param name="pos">ユーザ位置</param>
-    public async UniTask MoveAsync(Vector3 pos, Vector3 rot)
+    public async UniTask MoveAsync(Vector3 pos, Vector3 rot, IRoomHubReceiver.PlayerState state)
     {
-        await roomHub.MoveAsync(pos, rot);
+        await roomHub.MoveAsync(pos, rot, state);
         //OnMovedUser(this.ConnectionID, pos, rot);
     }
 
     /// <summary>
     /// 移動通知
     /// </summary>
-    public void OnMove(Guid connectionID, Vector3 pos, Vector3 rot)
+    public void OnMove(Guid connectionID, Vector3 pos, Vector3 rot, IRoomHubReceiver.PlayerState state)
     {
-        OnMovedUser(connectionID, pos, rot);
+        OnMovedUser(connectionID, pos, rot, state);
     }
 
     /// <summary>
@@ -164,5 +171,27 @@ public class RoomHubModel : BaseModel, IRoomHubReceiver
     public void OnFinish()
     {
         OnFinishUser();
+    }
+
+    /// <summary>
+    /// 攻撃処理
+    /// </summary>
+    /// <param name="roomName">部屋名</param>
+    /// <param name="userID">ユーザID</param>
+    /// <returns></returns>
+    public async UniTask AttackAsync(Guid connectionID)
+    {
+        await roomHub.AttackAsync(connectionID);
+
+        OnAttack(connectionID);
+    }
+
+    /// <summary>
+    /// 攻撃通知
+    /// </summary>
+    /// <param name="connectionID"></param>
+    public void OnAttack(Guid connectionID)
+    {
+        OnAttackUser(connectionID);
     }
 }

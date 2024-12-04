@@ -62,7 +62,16 @@ namespace MessagePack.Resolvers
         {
             if (this.freezed)
             {
-                throw new InvalidOperationException("Register must call on startup(before use GetFormatter<T>).");
+                try
+                {
+                    // うるさいコード
+                    throw new InvalidOperationException("Register must call on startup(before use GetFormatter<T>).");
+                }
+                catch (Exception e)
+                {
+                    // 何もしない
+                }
+
             }
 
             if (resolvers is null)

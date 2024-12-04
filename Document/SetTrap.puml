@@ -1,0 +1,40 @@
+@startuml
+'トラップ設置シーケンス図
+
+participant ClientA
+participant Server
+participant ClientB
+
+autonumber
+note over ClientA
+トラップ設置判定
+end note
+ClientA -> Server : トラップ_1を設置
+ClientA <- Server : トラップ_1を設置
+ClientB <- Server : トラップ_1を設置
+
+note over ClientA
+Bがトラップ_1に引っかかる
+(何もしない)
+end note
+
+note over ClientB
+トラップ_1に引っかかる
+end note
+
+ClientB -> Server : トラップ_1に引っかかった
+
+ClientA <- Server : Bがトラップ_1に引っかかった
+ClientB <- Server : Bがトラップ_1に引っかかった
+
+note over ClientA
+Bの速度低下 位置表示
+トラップ破壊
+end note
+
+note over ClientB
+速度低下
+トラップ破壊
+end note
+
+@enduml

@@ -6,12 +6,26 @@ using MagicOnion;
 
 namespace Shared.Interfaces.StreamingHubs
 {
+
     /// <summary>
     /// ユーザ入退室通知処理
     /// </summary>
     public interface IRoomHubReceiver
     {
-        // サーバからクライアントを呼ぶ関数を定義
+        /// <summary>
+        /// プレイヤーアニメーション状態
+        /// </summary>
+        public enum PlayerState
+        {
+            /// <summary>
+            /// 待機状態
+            /// </summary>
+            Idle = 0,
+            /// <summary>
+            /// 移動状態
+            /// </summary>
+            Move =1,
+        }
 
         /// <summary>
         /// ユーザ入室通知
@@ -31,7 +45,8 @@ namespace Shared.Interfaces.StreamingHubs
         /// <param name="connectionID">接続ID</param>
         /// <param name="pos">位置</param>
         /// <param name="rot">向き</param>
-        void OnMove(Guid connectionID, Vector3 pos, Vector3 rot);
+        /// <param name="state">アニメーション状態</param>
+        void OnMove(Guid connectionID, Vector3 pos, Vector3 rot, PlayerState state);
 
         /// <summary>
         /// ゲーム開始処理
@@ -42,5 +57,10 @@ namespace Shared.Interfaces.StreamingHubs
         /// ゲーム終了通知
         /// </summary>
         void OnFinish();
+
+        /// <summary>
+        /// 攻撃通知
+        /// </summary>
+        void OnAttack(Guid connectionID);
     }
 }

@@ -6,18 +6,22 @@ using UnityEngine;
 
 namespace Server.StreamingHubs
 {
-    public class RoomHub : StreamingHubBase<IRoomHub,IRoomHubReceiver>,IRoomHub
+    public class RoomHub : StreamingHubBase<IRoomHub, IRoomHubReceiver>, IRoomHub
     {
         private IGroup room;
 
         protected override ValueTask OnDisconnected()
         {
-            // ルームデータを削除
-            this.room.GetInMemoryStorage<RoomData>().Remove(this.ConnectionId);
-            // 退室を全メンバーに通知
-            this.Broadcast(room).OnLeave(this.ConnectionId);
-            // ルーム内のメンバから削除
-            room.RemoveAsync(this.Context);
+            if (room != null && this.room.GetInMemoryStorage<RoomData>() != null)
+            {
+                // ルームデータを削除
+                this.room.GetInMemoryStorage<RoomData>().Remove(this.ConnectionId);
+                // 退室を全メンバーに通知
+                this.Broadcast(room).OnLeave(this.ConnectionId);
+                // ルーム内のメンバから削除
+                room.RemoveAsync(this.Context);
+
+            }
             return CompletedTask;
         }
 
@@ -38,8 +42,8 @@ namespace Server.StreamingHubs
 
             // グループストレージにユーザデータを格納
             var roomStrage = this.room.GetInMemoryStorage<RoomData>();
-            var joinedUser = new JoinedUser() { ConnectionID = this.ConnectionId, UserData = user};
-            var roomData = new RoomData() { JoinedUser = joinedUser};
+            var joinedUser = new JoinedUser() { ConnectionID = this.ConnectionId, UserData = user };
+            var roomData = new RoomData() { JoinedUser = joinedUser };
             roomStrage.Set(this.ConnectionId, roomData);
 
             // ルーム参加者全員に、ユーザの通知を送信 (Broadcast(room)で自身も含む)
@@ -50,7 +54,7 @@ namespace Server.StreamingHubs
             // 参加中のユーザ情報を返す
             JoinedUser[] joinedUserList = new JoinedUser[roomDataList.Length];
 
-            for(int i = 0; i < roomDataList.Length; i++)
+            for (int i = 0; i < roomDataList.Length; i++)
             {
                 joinedUserList[i] = roomDataList[i].JoinedUser;
             }
@@ -82,14 +86,15 @@ namespace Server.StreamingHubs
         /// <param name="pos">位置</param>
         /// <param name="rot">向き</param>
         /// <returns></returns>
-        public async Task MoveAsync(Vector3 pos, Vector3 rot)
+        public async Task MoveAsync(Vector3 pos, Vector3 rot, IRoomHubReceiver.PlayerState state)
         {
             var roomDataStorage = this.room.GetInMemoryStorage<RoomData>();
             var roomData = roomDataStorage.Get(this.ConnectionId);
-            roomData.Position = pos;  
+            roomData.Position = pos;
             roomData.Rotation = rot;
+            roomData.State = state;
             // ルーム参加者全員に、ユーザの通知を送信
-            this.BroadcastExceptSelf(room).OnMove(this.ConnectionId, pos, rot);
+            this.BroadcastExceptSelf(room).OnMove(this.ConnectionId, pos, rot, state);
         }
 
         /// <summary>
@@ -122,7 +127,7 @@ namespace Server.StreamingHubs
             else isReady = false;
 
             if (isReady == true)
-            { 
+            {
                 // ルーム参加者全員に、ゲーム開始を送信
                 this.Broadcast(room).OnReady();
             }
@@ -157,6 +162,17 @@ namespace Server.StreamingHubs
                 // ルーム参加者全員に、ゲーム終了を送信
                 this.Broadcast(room).OnFinish();
             }
+        }
+
+        /// <summary>
+        /// 攻撃通知処理
+        /// </summary>
+        /// <param name="userID">ユーザID</param>
+        /// <returns></returns>
+        public async Task AttackAsync(Guid connectionID)
+        {
+            // ルーム参加者全員に、ユーザの通知を送信
+            this.Broadcast(room).OnAttack(connectionID);
         }
     }
 }
