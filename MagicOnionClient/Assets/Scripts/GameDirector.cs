@@ -68,19 +68,11 @@ public class GameDirector : MonoBehaviour
     {
         MovePlayer();
 
-        if (Input.GetKeyDown(KeyCode.X))
+        if (Input.GetKeyDown(KeyCode.X) && isStart == true)
         {
             Finish();
         }
 
-        if (Input.GetKeyDown(KeyCode.Y))
-        {
-            Ready();
-        }
-        if (Input.GetKeyDown(KeyCode.Z))
-        {
-            Attack();
-        }
         // ゲーム終了状態かつ画面タップをした場合
         if (isFinish == true && Input.GetMouseButtonDown(0))
         {
@@ -102,7 +94,7 @@ public class GameDirector : MonoBehaviour
         playerScript =  characterGameObject.GetComponent<Player>();
 
         // 生成位置を設定
-        characterGameObject.transform.position = new Vector3(-7.5f + (user.UserData.Id + 2), 2f, -10f);
+        characterGameObject.transform.position = new Vector3(-7.5f + (user.UserData.Id *2), 2f, -10f);
 
         // 自分以外のカメラを非アクティブにする
         if(roomModel.ConnectionID != user.ConnectionID){
@@ -207,7 +199,7 @@ public class GameDirector : MonoBehaviour
     /// </summary>
     public async void JoinRoom()
     {
-        ConnectPanel.SetActive(false);
+        //ConnectPanel.SetActive(false);
         int.TryParse(userID.text, out int id);
         // 入室
         await roomModel.JoinAsync("sampleRoom", id);
@@ -252,17 +244,21 @@ public class GameDirector : MonoBehaviour
         await roomModel.FinishAsync();
     }
 
-    async void Attack()
+    public async void Attack(Guid connectionID)
     {
-        await roomModel.AttackAsync(roomModel.ConnectionID);
+        await roomModel.AttackAsync(connectionID);
     }
 
     /// <summary>
     /// ユーザ攻撃通知
     /// </summary>
-    void OnAttackUser(Guid connectionID)
+    void OnAttackUser(Guid connectionID, int health)
     {
-        Debug.Log("fuck");
+        Debug.Log(characterList[roomModel.ConnectionID] + "のHP：" + health);
+        if (health <= 0)
+        { 
+            Finish();
+        }
     }
 
     /// <summary>

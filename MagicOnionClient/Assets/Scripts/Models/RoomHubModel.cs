@@ -34,7 +34,7 @@ public class RoomHubModel : BaseModel, IRoomHubReceiver
     public Action OnFinishUser { get; set; }
 
     //ユーザ攻撃通知
-    public Action<Guid> OnAttackUser { get; set; }
+    public Action<Guid, int> OnAttackUser { get; set; }
 
     /// <summary>
     /// MagicOnion接続処理
@@ -181,17 +181,17 @@ public class RoomHubModel : BaseModel, IRoomHubReceiver
     /// <returns></returns>
     public async UniTask AttackAsync(Guid connectionID)
     {
-        await roomHub.AttackAsync(connectionID);
+        int health = await roomHub.AttackAsync(connectionID);
 
-        OnAttack(connectionID);
+        OnAttack(connectionID, health);
     }
 
     /// <summary>
     /// 攻撃通知
     /// </summary>
     /// <param name="connectionID"></param>
-    public void OnAttack(Guid connectionID)
+    public void OnAttack(Guid connectionID, int health)
     {
-        OnAttackUser(connectionID);
+        OnAttackUser(connectionID, health);
     }
 }

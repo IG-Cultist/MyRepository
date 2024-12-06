@@ -53,6 +53,6 @@ namespace Shared.Interfaces.StreamingHubs
         /// </summary>
         /// <param name="connectionID">ユーザID</param>
         /// <returns></returns>
-        Task AttackAsync(Guid connectionID);
+        Task<int> AttackAsync(Guid connectionID);
     }
 }

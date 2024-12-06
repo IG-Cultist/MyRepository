@@ -17,12 +17,16 @@ public class Player : MonoBehaviour
     /// <param name="obj"></param>
     async void GetID(GameObject obj)
     {
+        GameDirector gameDirector = GameObject.Find("GameDirector").GetComponent<GameDirector>();
+
         // 踏んだ相手の接続IDを取得
         otherConnectionID = obj.transform.parent.GetComponent<Player>().connectionID;
 
-        // 踏んだ相手のレンダラーを取得
+        // 踏んだ相手の影のレンダラーを取得
         Material material = obj.GetComponent<Renderer>().material;
 
+
+        gameDirector.Attack(otherConnectionID);
         // 色を赤くし、少ししたら戻す
         material.color = new Color(127,0,0);
         await Task.Delay(1000);

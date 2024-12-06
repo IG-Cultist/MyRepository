@@ -45,6 +45,7 @@ namespace Server.StreamingHubs
             var joinedUser = new JoinedUser() { ConnectionID = this.ConnectionId, UserData = user };
             var roomData = new RoomData() { JoinedUser = joinedUser };
             roomStrage.Set(this.ConnectionId, roomData);
+            roomData.Health = 3;
 
             // ルーム参加者全員に、ユーザの通知を送信 (Broadcast(room)で自身も含む)
             this.BroadcastExceptSelf(room).OnJoin(joinedUser);
@@ -169,10 +170,32 @@ namespace Server.StreamingHubs
         /// </summary>
         /// <param name="userID">ユーザID</param>
         /// <returns></returns>
-        public async Task AttackAsync(Guid connectionID)
+        public async Task<int> AttackAsync(Guid connectionID)
         {
+
+            // 受け取ったIDのHPを-1
+            var roomDataStorage = this.room.GetInMemoryStorage<RoomData>();
+            var roomData = roomDataStorage.Get(this.ConnectionId);
+
+            if (roomData.Health > 0)
+            {
+                roomData.Health--;
+            }
+            else
+            {
+                // 終了処理
+                var roomDataList = roomDataStorage.AllValues.ToArray<RoomData>();
+                foreach (var data in roomDataList)
+                {
+                    data.Finish = true;
+                }
+            } 
+            
             // ルーム参加者全員に、ユーザの通知を送信
-            this.Broadcast(room).OnAttack(connectionID);
+            this.Broadcast(room).OnAttack(connectionID, roomData.Health);
+
+
+            return roomData.Health;
         }
     }
 }

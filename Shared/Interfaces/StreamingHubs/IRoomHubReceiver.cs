@@ -61,6 +61,6 @@ namespace Shared.Interfaces.StreamingHubs
         /// <summary>
         /// 攻撃通知
         /// </summary>
-        void OnAttack(Guid connectionID);
+        void OnAttack(Guid connectionID, int health);
     }
 }
