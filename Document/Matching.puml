@@ -1,0 +1,56 @@
+@startuml
+'自動マッチングシーケンス図
+
+participant ClientA
+participant ClientB
+participant Server
+participant DataBase
+autonumber
+
+ClientA -> Server : Lobby入室
+
+note over Server
+同じマッチング条件(レート等)の
+ユーザが集まったか判定
+end note
+
+ClientB -> Server : Lobby入室
+Server -> ClientA : 参加通知
+
+note over ClientA
+参加者一覧更新
+end note
+
+note over Server
+同じマッチング条件(レート等)の
+ユーザが集まったか判定
+end note
+
+note over Server
+ルーム名設定
+end note
+
+Server -> DataBase : ログ登録
+
+note over DataBase
+レコード追加
+end note
+
+Server <- DataBase : id
+Server -> ClientA : マッチング(ルーム名)
+Server -> ClientB : マッチング(ルーム名)
+
+Server <- ClientA : Lobby退室
+Server <- ClientB : Lobby退室
+
+note over ClientA
+インゲームに遷移
+end note
+note over ClientB
+インゲームに遷移
+end note
+
+Server -> ClientA : 受け取ったルーム名に入室
+Server -> ClientB : 受け取ったルーム名に入室
+
+@enduml

@@ -3,6 +3,7 @@ using Server.Model.Context;
 using Shared.Interfaces.StreamingHubs;
 using Shared.Model.Entity;
 using UnityEngine;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Server.StreamingHubs
 {
@@ -106,31 +107,36 @@ namespace Server.StreamingHubs
         {
             // 準備完了状態を自身のroomDataに保存
             var roomDataStorage = this.room.GetInMemoryStorage<RoomData>();
-            var roomData = roomDataStorage.Get(this.ConnectionId);
-            roomData.Ready = true;
 
-            // 全員準備できたか判定
-            bool isReady = true;
-            var roomDataList = roomDataStorage.AllValues.ToArray<RoomData>();
-
-            // 参加人数が2人に満たない場合処理しない
-            if (roomDataList.Length >= 2)
+            // 排他制御
+            lock (roomDataStorage) // 整合性を保つため1人にのみ処理させる (これなしで処理をすると通知が重複しておかしくなる)
             {
-                foreach (var data in roomDataList)
+                var roomData = roomDataStorage.Get(this.ConnectionId);
+                roomData.Ready = true;
+
+                // 全員準備できたか判定
+                bool isReady = true;
+                var roomDataList = roomDataStorage.AllValues.ToArray<RoomData>();
+
+                // 参加人数が2人に満たない場合処理しない
+                if (roomDataList.Length >= 2)
                 {
-                    // 1人でも準備中の場合開始しない
-                    if (data.Ready == false)
+                    foreach (var data in roomDataList)
                     {
-                        isReady = false;
+                        // 1人でも準備中の場合開始しない
+                        if (data.Ready == false)
+                        {
+                            isReady = false;
+                        }
                     }
                 }
-            }
-            else isReady = false;
+                else isReady = false;
 
-            if (isReady == true)
-            {
-                // ルーム参加者全員に、ゲーム開始を送信
-                this.Broadcast(room).OnReady();
+                if (isReady == true)
+                {
+                    // ルーム参加者全員に、ゲーム開始を送信
+                    this.Broadcast(room).OnReady();
+                }
             }
         }
 
@@ -142,26 +148,31 @@ namespace Server.StreamingHubs
         {
             // 準備完了状態を自身のroomDataに保存
             var roomDataStorage = this.room.GetInMemoryStorage<RoomData>();
-            var roomData = roomDataStorage.Get(this.ConnectionId);
-            roomData.Finish = true;
 
-            // 全員準備できたか判定
-            bool isFinish = true;
-            var roomDataList = roomDataStorage.AllValues.ToArray<RoomData>();
-
-            foreach (var data in roomDataList)
+            // 排他制御
+            lock (roomDataStorage)
             {
-                // 1人でも未クリアの場合開始しない
-                if (data.Finish == false)
+                var roomData = roomDataStorage.Get(this.ConnectionId);
+                roomData.Finish = true;
+
+                // 全員準備できたか判定
+                bool isFinish = true;
+                var roomDataList = roomDataStorage.AllValues.ToArray<RoomData>();
+
+                foreach (var data in roomDataList)
                 {
-                    isFinish = false;
+                    // 1人でも未クリアの場合開始しない
+                    if (data.Finish == false)
+                    {
+                        isFinish = false;
+                    }
                 }
-            }
 
-            if (isFinish == true)
-            {
-                // ルーム参加者全員に、ゲーム終了を送信
-                this.Broadcast(room).OnFinish();
+                if (isFinish == true)
+                {
+                    // ルーム参加者全員に、ゲーム終了を送信
+                    this.Broadcast(room).OnFinish();
+                }
             }
         }
 
@@ -172,7 +183,6 @@ namespace Server.StreamingHubs
         /// <returns></returns>
         public async Task<int> AttackAsync(Guid connectionID)
         {
-
             // 受け取ったIDのHPを-1
             var roomDataStorage = this.room.GetInMemoryStorage<RoomData>();
             var roomData = roomDataStorage.Get(this.ConnectionId);
@@ -194,8 +204,25 @@ namespace Server.StreamingHubs
             // ルーム参加者全員に、ユーザの通知を送信
             this.Broadcast(room).OnAttack(connectionID, roomData.Health);
 
-
             return roomData.Health;
+        }
+
+        /// <summary>
+        /// ロビー入室処理
+        /// </summary>
+        /// <returns></returns>
+        public async Task<JoinedUser[]> JoinLobbyAsync(int userID)
+        {
+            // 参加中のユーザ情報を返す
+            JoinedUser[] joinedUserList = await JoinAsync("Lobby",userID);
+
+            // 参加人数が2人になったらマッチング
+            if(joinedUserList.Length == 2)
+            {
+                // ルーム参加者全員に、マッチング通知を送信
+                this.Broadcast(room).OnMatching("Lobby");
+            }
+            return joinedUserList;
         }
     }
 }

@@ -62,5 +62,11 @@ namespace Shared.Interfaces.StreamingHubs
         /// 攻撃通知
         /// </summary>
         void OnAttack(Guid connectionID, int health);
+
+        /// <summary>
+        /// マッチング通知
+        /// </summary>
+        /// <param name="roomName"></param>
+        void OnMatching(string roomName);
     }
 }

@@ -54,5 +54,12 @@ namespace Shared.Interfaces.StreamingHubs
         /// <param name="connectionID">ユーザID</param>
         /// <returns></returns>
         Task<int> AttackAsync(Guid connectionID);
+
+        /// <summary>
+        /// ロビー参加
+        /// </summary>
+        /// <param name="userID">ユーザID</param>
+        /// <returns></returns>
+        Task<JoinedUser[]> JoinLobbyAsync(int userID);
     }
 }

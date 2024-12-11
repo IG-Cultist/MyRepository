@@ -36,6 +36,9 @@ public class RoomHubModel : BaseModel, IRoomHubReceiver
     //ユーザ攻撃通知
     public Action<Guid, int> OnAttackUser { get; set; }
 
+    //マッチング通知
+    public Action<string> OnMatchingUser { get; set; }
+
     /// <summary>
     /// MagicOnion接続処理
     /// </summary>
@@ -193,5 +196,24 @@ public class RoomHubModel : BaseModel, IRoomHubReceiver
     public void OnAttack(Guid connectionID, int health)
     {
         OnAttackUser(connectionID, health);
+    }
+
+    /// <summary>
+    /// ロビー参加処理
+    /// </summary>
+    /// <param name="userID">ユーザID</param>
+    /// <returns></returns>
+    public async UniTask JoinLobbyAsync(int userID)
+    {
+        await JoinAsync("Lobby", userID);
+    }
+
+    /// <summary>
+    /// マッチング通知
+    /// </summary>
+    /// <param name="roomName"></param>
+    public void OnMatching(string roomName)
+    {
+        OnMatchingUser(roomName);
     }
 }

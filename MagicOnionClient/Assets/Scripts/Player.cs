@@ -10,6 +10,7 @@ public class Player : MonoBehaviour
 {
     public Guid connectionID;
     Guid otherConnectionID;
+    bool isHit = false;
 
     /// <summary>
     /// çUåÇèàóù
@@ -29,15 +30,17 @@ public class Player : MonoBehaviour
         gameDirector.Attack(otherConnectionID);
         // êFÇê‘Ç≠ÇµÅAè≠ÇµÇµÇΩÇÁñﬂÇ∑
         material.color = new Color(127,0,0);
-        await Task.Delay(1000);
+        await Task.Delay(1200);
         material.color = Color.black;
+        isHit = false;
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.tag == "Shadow")
+        if (other.gameObject.tag == "Shadow" && isHit == false)
         {
             GetID(other.gameObject);
+            isHit = true;
         }
     }
 }

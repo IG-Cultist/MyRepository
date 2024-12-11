@@ -10,6 +10,7 @@ using Shared.Model.Entity;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -24,6 +25,9 @@ public class GameDirector : MonoBehaviour
     // 接続パネル
     [SerializeField] GameObject ConnectPanel;
 
+    // 参加者表示パネル
+    [SerializeField] Text[] JoinedUserPanel;
+
     // 入力されたユーザID
     [SerializeField] Text userID;
     // 部屋モデル
@@ -34,8 +38,7 @@ public class GameDirector : MonoBehaviour
     [SerializeField] GameObject countPanel;
     // カウントダウンテキスト
     [SerializeField] Text countText;
-    // 準備完了ボタン
-    [SerializeField] GameObject readyButton;
+
     Player playerScript;
     // ゲーム開始判定変数
     bool isStart = false;
@@ -51,7 +54,7 @@ public class GameDirector : MonoBehaviour
     {
         // 非表示にする
         countPanel.SetActive(false);
-        readyButton.SetActive(false);
+        //ConnectPanel.SetActive(false);
 
         // ユーザが入室したときにメソッドを実行するようモデルに登録
         roomModel.OnJoinedUser += this.OnJoinedUser;
@@ -60,8 +63,14 @@ public class GameDirector : MonoBehaviour
         roomModel.OnReadyUser += this.OnReadyUser;
         roomModel.OnFinishUser += this.OnFinishUser;
         roomModel.OnAttackUser += this.OnAttackUser;
+        roomModel.OnMatchingUser += this.OnMatchingUser;
+
         // 接続
         await roomModel.ConnectAsync();
+
+        await Task.Delay(300);
+
+        JoinRoom();
     }
 
     void Update()
@@ -93,8 +102,15 @@ public class GameDirector : MonoBehaviour
         // プレイヤースクリプト取得
         playerScript =  characterGameObject.GetComponent<Player>();
 
+        int count = 1;
+        if (characterList.Count >= 0)
+        {
+            count = 1;
+        }
+        else count = characterList.Count;
+
         // 生成位置を設定
-        characterGameObject.transform.position = new Vector3(-7.5f + (user.UserData.Id *2), 2f, -10f);
+        characterGameObject.transform.position = new Vector3(-7.5f + (user.UserData.Id * count), 2f, -10f);
 
         // 自分以外のカメラを非アクティブにする
         if(roomModel.ConnectionID != user.ConnectionID){
@@ -106,11 +122,19 @@ public class GameDirector : MonoBehaviour
         {
             obj.name += "_" + user.UserData.Id;
         }
-        characterGameObject.name = characterPrefabs.name + "_" + user.UserData.Id;
+
+
+        characterGameObject.name = user.UserData.Id.ToString();
 
         characterList[user.ConnectionID] = characterGameObject; // フィールドで保持
         playerScript.connectionID = user.ConnectionID;
-        readyButton.SetActive(true);
+
+        int cnt = 0;
+        foreach (var character in characterList.Keys)
+        {
+            JoinedUserPanel[cnt].text = character.ToString();
+            cnt++;
+        }
     }
 
     /// <summary>
@@ -122,8 +146,6 @@ public class GameDirector : MonoBehaviour
         // 受け取った接続IDと自身の接続IDが一致している場合
         if (connectionID == roomModel.ConnectionID)
         {
-            // 準備完了ボタンを非表示
-            readyButton.SetActive(false);
             // 表示されているすべてのオブジェクトを破壊
             foreach (var character in characterList.Values)
             {
@@ -166,7 +188,6 @@ public class GameDirector : MonoBehaviour
     /// </summary>
     void StartGame()
     {
-        readyButton.SetActive(false);
         countPanel.SetActive(true);
         float limitTime = 4;
 
@@ -199,13 +220,21 @@ public class GameDirector : MonoBehaviour
     /// </summary>
     public async void JoinRoom()
     {
+        System.Random rand = new System.Random();
+        // 1～10までの乱数を代入
+        int id = rand.Next(1, 4);
+
         //ConnectPanel.SetActive(false);
-        int.TryParse(userID.text, out int id);
+
+        //int.TryParse(userID.text, out int id);
+
         // 入室
-        await roomModel.JoinAsync("sampleRoom", id);
+        await roomModel.JoinLobbyAsync(id);
         InvokeRepeating("Move", 0.1f, 0.1f);
         await Task.Delay(60);
-        isJoin= true;
+        isJoin = true;
+
+        Ready();
     }
 
     /// <summary>
@@ -256,9 +285,14 @@ public class GameDirector : MonoBehaviour
     {
         Debug.Log(characterList[roomModel.ConnectionID] + "のHP：" + health);
         if (health <= 0)
-        { 
+        {
             Finish();
         }
+    }
+
+    void OnMatchingUser(string roomName)
+    {
+        Guid rndName = Guid.NewGuid();
     }
 
     /// <summary>
@@ -266,29 +300,35 @@ public class GameDirector : MonoBehaviour
     /// </summary>
     void MovePlayer()
     {
-        // ゲームが開始していない、かつ終了している場合処理しない
         if (isStart != true || isFinish == true || isJoin != true) return;
 
         Rigidbody rb = characterList[roomModel.ConnectionID].GetComponent<Rigidbody>();  // rigidbodyを取得
 
+        // RightArrowキーまたはDキーを押した場合
         if (Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.D))
         {
+            // 自身のオブジェクトの東方面に力を加える
             rb.AddForce(new Vector3(moveSpeed, 0f, 0f), ForceMode.Impulse);
-            //characterList[roomModel.ConnectionID].transform.position += new Vector3(moveSpeed, 0f, 0f);
         }
 
+        // LeftArrowキーまたはAキーを押した場合
         if (Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.A))
         {
+            // 自身のオブジェクトの西方面に力を加える
             rb.AddForce(new Vector3(-moveSpeed, 0f, 0f), ForceMode.Impulse);
         }
-        
+
+        // UpArrowキーまたはWキーを押した場合
         if (Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.W))
         {
+            // 自身のオブジェクトの南方面に力を加える
             rb.AddForce(new Vector3(0f, 0f, moveSpeed), ForceMode.Impulse);
         }
-        
+
+        // DownArrowキーまたはSキーを押した場合
         if (Input.GetKey(KeyCode.DownArrow) || Input.GetKey(KeyCode.S))
         {
+            // 自身のオブジェクトの北方面に力を加える
             rb.AddForce(new Vector3(0f, 0f, -moveSpeed), ForceMode.Impulse);
         }
     }
