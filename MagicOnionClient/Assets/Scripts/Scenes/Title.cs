@@ -7,7 +7,7 @@ public class Title : MonoBehaviour
     {
         if (Input.GetMouseButtonUp(0))
         {
-        SceneManager.LoadScene("Main");
+            SceneManager.LoadScene("Lobby");
         }
     }
 }

@@ -22,7 +22,7 @@ note over ClientA
 end note
 
 note over Server
-同じマッチング条件(レート等)の
+同じマッチング条件の
 ユーザが集まったか判定
 end note
 

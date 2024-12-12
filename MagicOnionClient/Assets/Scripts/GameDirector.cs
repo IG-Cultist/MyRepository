@@ -1,6 +1,6 @@
 /// ==============================
 /// ゲームディレクタースクリプト
-/// Name:西浦晃太 Update:11/26
+/// Name:西浦晃太 Update:12/11
 /// ==============================
 using Cysharp.Threading.Tasks.Triggers;
 using DG.Tweening;
@@ -21,13 +21,8 @@ public class GameDirector : MonoBehaviour
 {
     // 生成するユーザプレハブ
     [SerializeField] GameObject characterPrefabs;
-
-    // 接続パネル
-    [SerializeField] GameObject ConnectPanel;
-
-    // 参加者表示パネル
-    [SerializeField] Text[] JoinedUserPanel;
-
+    // 退室ボタン
+    [SerializeField] GameObject exitButton;
     // 入力されたユーザID
     [SerializeField] Text userID;
     // 部屋モデル
@@ -45,16 +40,14 @@ public class GameDirector : MonoBehaviour
 
     bool isFinish = false;
 
-    bool isJoin = false;
-
     float moveSpeed = 1f;
 
     // Start is called before the first frame update
     async void Start()
     {
         // 非表示にする
+        exitButton.SetActive(false);
         countPanel.SetActive(false);
-        //ConnectPanel.SetActive(false);
 
         // ユーザが入室したときにメソッドを実行するようモデルに登録
         roomModel.OnJoinedUser += this.OnJoinedUser;
@@ -63,12 +56,10 @@ public class GameDirector : MonoBehaviour
         roomModel.OnReadyUser += this.OnReadyUser;
         roomModel.OnFinishUser += this.OnFinishUser;
         roomModel.OnAttackUser += this.OnAttackUser;
-        roomModel.OnMatchingUser += this.OnMatchingUser;
-
         // 接続
         await roomModel.ConnectAsync();
 
-        await Task.Delay(300);
+        await Task.Delay(600);
 
         JoinRoom();
     }
@@ -102,15 +93,15 @@ public class GameDirector : MonoBehaviour
         // プレイヤースクリプト取得
         playerScript =  characterGameObject.GetComponent<Player>();
 
-        int count = 1;
-        if (characterList.Count >= 0)
+        int count;
+        if (characterList.Count <= 0)
         {
-            count = 1;
+            count =1;
         }
-        else count = characterList.Count;
+        else count = 3;
 
         // 生成位置を設定
-        characterGameObject.transform.position = new Vector3(-7.5f + (user.UserData.Id * count), 2f, -10f);
+        characterGameObject.transform.position = new Vector3(-7.5f + (2 * count), 2f, -10f);
 
         // 自分以外のカメラを非アクティブにする
         if(roomModel.ConnectionID != user.ConnectionID){
@@ -123,18 +114,10 @@ public class GameDirector : MonoBehaviour
             obj.name += "_" + user.UserData.Id;
         }
 
-
         characterGameObject.name = user.UserData.Id.ToString();
 
         characterList[user.ConnectionID] = characterGameObject; // フィールドで保持
         playerScript.connectionID = user.ConnectionID;
-
-        int cnt = 0;
-        foreach (var character in characterList.Keys)
-        {
-            JoinedUserPanel[cnt].text = character.ToString();
-            cnt++;
-        }
     }
 
     /// <summary>
@@ -201,8 +184,8 @@ public class GameDirector : MonoBehaviour
             }
 
             countText.text = limitTime.ToString("F0"); // 残り時間を整数で表示
-
         }
+        countText.text = "Start";
         isStart = true;
     }
 
@@ -211,29 +194,21 @@ public class GameDirector : MonoBehaviour
     /// </summary>
     void FinishGame()
     {
+        exitButton.SetActive(false);
         countText.text = "クリックで退室";
         isFinish = true;
     }
 
-    /// <summary>
-    /// 入室ボタン処理
-    /// </summary>
     public async void JoinRoom()
     {
         System.Random rand = new System.Random();
-        // 1～10までの乱数を代入
         int id = rand.Next(1, 4);
 
         //ConnectPanel.SetActive(false);
-
         //int.TryParse(userID.text, out int id);
 
-        // 入室
-        await roomModel.JoinLobbyAsync(id);
+        await roomModel.JoinAsync(SendData.roomName, id);
         InvokeRepeating("Move", 0.1f, 0.1f);
-        await Task.Delay(60);
-        isJoin = true;
-
         Ready();
     }
 
@@ -242,11 +217,11 @@ public class GameDirector : MonoBehaviour
     /// </summary>
     public async void LeaveRoom()
     {
-        ConnectPanel.SetActive(true);
         CancelInvoke("Move");
         int.TryParse(userID.text, out int id);
         // 退室
-        await roomModel.LeaveAsync("sampleRoom", id);
+        await roomModel.LeaveAsync(SendData.roomName, id);
+        SceneManager.LoadScene("Title");
     }
 
     /// <summary>
@@ -290,17 +265,12 @@ public class GameDirector : MonoBehaviour
         }
     }
 
-    void OnMatchingUser(string roomName)
-    {
-        Guid rndName = Guid.NewGuid();
-    }
-
     /// <summary>
     /// キー入力移動処理
     /// </summary>
     void MovePlayer()
     {
-        if (isStart != true || isFinish == true || isJoin != true) return;
+        if (isStart != true || isFinish == true) return;
 
         Rigidbody rb = characterList[roomModel.ConnectionID].GetComponent<Rigidbody>();  // rigidbodyを取得
 

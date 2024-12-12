@@ -213,6 +213,8 @@ namespace Server.StreamingHubs
         /// <returns></returns>
         public async Task<JoinedUser[]> JoinLobbyAsync(int userID)
         {
+            string roomName = randomName();
+
             // 参加中のユーザ情報を返す
             JoinedUser[] joinedUserList = await JoinAsync("Lobby",userID);
 
@@ -220,9 +222,46 @@ namespace Server.StreamingHubs
             if(joinedUserList.Length == 2)
             {
                 // ルーム参加者全員に、マッチング通知を送信
-                this.Broadcast(room).OnMatching("Lobby");
+                this.Broadcast(room).OnMatching(roomName);
             }
             return joinedUserList;
+        }
+
+        /// <summary>
+        /// ランダムネーム出力処理
+        /// </summary>
+        /// <returns></returns>
+        public string randomName()
+        {
+            System.Random rand = new System.Random();
+            // ファストネーム定義
+            string[] firstName = new string[]{
+            "Nice","Great","Delicious","Crazy","Hottest",
+            "Mrs","Master","Huge","Tiny","Clever",
+            "Wetty","Pretty","Golden","Giga","Godly",
+            "Cool","Burning","Creepy","Fishy","Metallic",
+            "Oriental","Rock&","Mudly","More","Strong",
+            "Shiny","Sparkle","Legal","Crazy","Dancing"
+        };
+            // セカンドネーム定義
+            string[] secondtName = new string[]{
+            "Cake","Rock","Slime","Clover","Animal",
+            "Fish","Earth","Throat","City","Chad",
+            "Ghost","Hotel","Knight","Candy","Worm",
+            "Tree","Dice","Baby","Machine","Dog",
+            "Room","Bird","Cat","Water","CowBoy",
+            "Skelton","Boots","Game","Gun","Data"
+        };
+            // 1～30までの乱数を代入
+            int num = rand.Next(1, 30);
+            int num2 = rand.Next(1, 30);
+            Guid num3 = Guid.NewGuid();
+
+            string[] resultStr = {"",""};
+            resultStr[0] = firstName[num] + secondtName[num2];
+            resultStr[1] = firstName[num] + secondtName[num2];
+
+            return firstName[num] + secondtName[num2];
         }
     }
 }

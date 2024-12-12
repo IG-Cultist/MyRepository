@@ -205,6 +205,7 @@ public class RoomHubModel : BaseModel, IRoomHubReceiver
     /// <returns></returns>
     public async UniTask JoinLobbyAsync(int userID)
     {
+        await roomHub.JoinLobbyAsync(userID);
         await JoinAsync("Lobby", userID);
     }
 
