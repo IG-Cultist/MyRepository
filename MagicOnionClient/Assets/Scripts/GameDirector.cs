@@ -13,9 +13,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Unity.VisualScripting;
+using UnityEditor.MemoryProfiler;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using static UnityEditor.PlayerSettings;
+using static UnityEngine.Rendering.DebugUI.Table;
 
 public class GameDirector : MonoBehaviour
 {
@@ -34,6 +38,11 @@ public class GameDirector : MonoBehaviour
     // カウントダウンテキスト
     [SerializeField] Text countText;
 
+    List<GameObject> skinList = new List<GameObject>();
+    int skinNum = 0;
+
+    GameObject myCamera;
+
     Player playerScript;
     // ゲーム開始判定変数
     bool isStart = false;
@@ -45,6 +54,22 @@ public class GameDirector : MonoBehaviour
     // Start is called before the first frame update
     async void Start()
     {
+#if UNITY_EDITOR
+        //エディター実行時
+        SendData.roomName = "RoomRoom";
+#endif
+
+        if (Input.GetKey(KeyCode.Escape))
+        {//ESC押した際の処理
+#if UNITY_EDITOR
+            //エディター実行時
+            UnityEditor.EditorApplication.isPlaying = false;
+#else
+            //ビルド時
+            Application.Quit();
+#endif
+        }
+
         // 非表示にする
         exitButton.SetActive(false);
         countPanel.SetActive(false);
@@ -68,16 +93,27 @@ public class GameDirector : MonoBehaviour
     {
         MovePlayer();
 
-        if (Input.GetKeyDown(KeyCode.X) && isStart == true)
-        {
-            Finish();
-        }
-
         // ゲーム終了状態かつ画面タップをした場合
         if (isFinish == true && Input.GetMouseButtonDown(0))
         {
             LeaveRoom();
             SceneManager.LoadScene("Result");
+        }
+
+        // ゲーム終了状態かつ画面タップをした場合
+        if (Input.GetKeyDown(KeyCode.L))
+        {
+            isStart = true;
+        }
+
+        if (Input.GetKeyDown(KeyCode.LeftAlt))
+        {
+            ChangeSkin();
+        }
+
+        if (myCamera != null)
+        {
+            LookUp();
         }
     }
 
@@ -105,7 +141,53 @@ public class GameDirector : MonoBehaviour
 
         // 自分以外のカメラを非アクティブにする
         if(roomModel.ConnectionID != user.ConnectionID){
-            characterGameObject.transform.GetChild(0).gameObject.SetActive(false);
+            // 対象ののカメラを取得
+            GameObject obj = characterGameObject.transform.GetChild(0).gameObject;
+            // カメラを非アクティブ化
+            obj.SetActive(false);
+        }
+        else if (roomModel.ConnectionID == user.ConnectionID)
+        {
+            // 自身のカメラを取得
+            GameObject obj = characterGameObject.transform.GetChild(0).gameObject;
+            myCamera = obj;
+            // カメラのコンポネントを取得
+            Camera camera = obj.GetComponent<Camera>();
+            // カメラのコンポネントからデータを取得
+            var cameraData = camera.GetUniversalAdditionalCameraData();
+            // シーン内にあるヘルスカメラを取得
+            GameObject stackObj = GameObject.Find("HealthCamera");
+            // ハートカメラのコンポネントを取得
+            Camera stackCamera = stackObj.GetComponent<Camera>();
+            // 自身のカメラにハートカメラをスタックさせる
+            cameraData.cameraStack.Add(stackCamera);
+        }
+
+        Transform children = characterGameObject.GetComponentInChildren<Transform>();
+
+        foreach (Transform ob in children)
+        {
+            GameObject obj;
+            switch (ob.name)
+            {
+                case "shadow":
+                    obj = GameObject.Find (ob.name);
+                    obj.SetActive(true);
+                    skinList.Add(obj);
+                    break;
+                case "shadow_face":
+                    obj = GameObject.Find(ob.name);
+                    obj.SetActive(false);
+                    skinList.Add(obj);
+                    break;
+                case "shadow_eye":
+                    obj = GameObject.Find(ob.name);
+                    obj.SetActive(false);
+                    skinList.Add (obj);
+                    break;
+                default:
+                    break;
+            }
         }
 
         // 識別番号を各子オブジェクトの名前に付ける
@@ -270,8 +352,8 @@ public class GameDirector : MonoBehaviour
     /// </summary>
     void MovePlayer()
     {
+        // 開始前とゲーム終了後は移動させない
         if (isStart != true || isFinish == true) return;
-
         Rigidbody rb = characterList[roomModel.ConnectionID].GetComponent<Rigidbody>();  // rigidbodyを取得
 
         // RightArrowキーまたはDキーを押した場合
@@ -279,6 +361,7 @@ public class GameDirector : MonoBehaviour
         {
             // 自身のオブジェクトの東方面に力を加える
             rb.AddForce(new Vector3(moveSpeed, 0f, 0f), ForceMode.Impulse);
+            //myCamera.transform.DOLocalRotate(new Vector3(33f, 15f, 0f), 0.2f).SetEase(Ease.Linear);
         }
 
         // LeftArrowキーまたはAキーを押した場合
@@ -286,6 +369,7 @@ public class GameDirector : MonoBehaviour
         {
             // 自身のオブジェクトの西方面に力を加える
             rb.AddForce(new Vector3(-moveSpeed, 0f, 0f), ForceMode.Impulse);
+            //myCamera.transform.DOLocalRotate(new Vector3(33f, -15f, 0f), 0.2f).SetEase(Ease.Linear);
         }
 
         // UpArrowキーまたはWキーを押した場合
@@ -300,6 +384,51 @@ public class GameDirector : MonoBehaviour
         {
             // 自身のオブジェクトの北方面に力を加える
             rb.AddForce(new Vector3(0f, 0f, -moveSpeed), ForceMode.Impulse);
+        }
+    }
+
+    /// <summary>
+    /// スキン(影)変更処理
+    /// </summary>
+    void ChangeSkin()
+    {
+        switch (skinNum)
+        {
+            case 0:
+                skinList[0].SetActive(false);
+                skinList[1].SetActive(true);
+                skinList[2].SetActive(false);
+                skinNum = 1;
+                break;
+            case 1:
+                skinList[0].SetActive(false);
+                skinList[1].SetActive(false);
+                skinList[2].SetActive(true);
+                skinNum = 2;
+                break;
+            case 2:
+                skinList[0].SetActive(true);
+                skinList[1].SetActive(false);
+                skinList[2].SetActive(false);
+                skinNum = 0;
+                break;
+        }
+    }
+
+    /// <summary>
+    /// 視点変更処理
+    /// </summary>
+    void LookUp()
+    {
+        if (Input.GetKeyDown(KeyCode.Tab))
+        {
+            myCamera.transform.DOLocalRotate(new Vector3(5f, 0f, 0f), 0.1f).SetEase(Ease.Linear);
+            moveSpeed = 0.2f;
+        }
+        if (Input.GetKeyUp(KeyCode.Tab))
+        {
+            myCamera.transform.DOLocalRotate(new Vector3(30f, 0f, 0f), 0.1f).SetEase(Ease.Linear);
+            moveSpeed = 1f;
         }
     }
 }
