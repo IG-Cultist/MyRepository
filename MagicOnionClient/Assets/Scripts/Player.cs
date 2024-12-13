@@ -12,6 +12,8 @@ public class Player : MonoBehaviour
     Guid otherConnectionID;
     bool isHit = false;
 
+    string nowItemName = "";
+
     /// <summary>
     /// çUåÇèàóù
     /// </summary>
@@ -41,6 +43,12 @@ public class Player : MonoBehaviour
         {
             GetID(other.gameObject);
             isHit = true;
+        }
+
+        if (other.gameObject.tag == "Item")
+        {
+            nowItemName = other.gameObject.name;
+            Destroy(other.gameObject);
         }
     }
 }

@@ -106,6 +106,12 @@ public class GameDirector : MonoBehaviour
             isStart = true;
         }
 
+        // ゲーム終了状態かつ画面タップをした場合
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            SpawnItem();
+        }
+
         if (Input.GetKeyDown(KeyCode.LeftAlt))
         {
             ChangeSkin();
@@ -361,7 +367,6 @@ public class GameDirector : MonoBehaviour
         {
             // 自身のオブジェクトの東方面に力を加える
             rb.AddForce(new Vector3(moveSpeed, 0f, 0f), ForceMode.Impulse);
-            //myCamera.transform.DOLocalRotate(new Vector3(33f, 15f, 0f), 0.2f).SetEase(Ease.Linear);
         }
 
         // LeftArrowキーまたはAキーを押した場合
@@ -369,7 +374,6 @@ public class GameDirector : MonoBehaviour
         {
             // 自身のオブジェクトの西方面に力を加える
             rb.AddForce(new Vector3(-moveSpeed, 0f, 0f), ForceMode.Impulse);
-            //myCamera.transform.DOLocalRotate(new Vector3(33f, -15f, 0f), 0.2f).SetEase(Ease.Linear);
         }
 
         // UpArrowキーまたはWキーを押した場合
@@ -430,5 +434,15 @@ public class GameDirector : MonoBehaviour
             myCamera.transform.DOLocalRotate(new Vector3(30f, 0f, 0f), 0.1f).SetEase(Ease.Linear);
             moveSpeed = 1f;
         }
+    }
+
+    /// <summary>
+    /// アイテム生成時の処理
+    /// </summary>
+    void SpawnItem()
+    {
+        LookAtCamera camScript = FindAnyObjectByType<LookAtCamera>();
+        Camera camera = myCamera.GetComponent<Camera>();
+        camScript.GetCamera(camera);
     }
 }
