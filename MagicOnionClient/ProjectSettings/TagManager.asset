@@ -8,6 +8,7 @@ TagManager:
   - Camera
   - Shadow
   - Item
+  - Health
   layers:
   - Default
   - TransparentFX

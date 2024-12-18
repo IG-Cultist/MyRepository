@@ -29,16 +29,21 @@ public class Lobby : MonoBehaviour
     [SerializeField] GameObject loadingPanel;
     // ロードアイコン
     [SerializeField] GameObject loadingIcon;
+    // スキン変更パネル
+    [SerializeField] GameObject skinPanel;
     // ヘッダーテキスト
     [SerializeField] Text headerText;
     // 参加ユーザの接続ID保存リスト
     List<Guid> idList = new List<Guid>();
 
+    int count = 0;
+    
     // Start is called before the first frame update
     async void Start()
     {
         // 非表示にする
         loadingPanel.SetActive(false);
+        skinPanel.SetActive(false);
 
         // ユーザが入室したときにメソッドを実行するようモデルに登録
         roomModel.OnJoinedUser += this.OnJoinedUser;
@@ -109,6 +114,7 @@ public class Lobby : MonoBehaviour
         await roomModel.JoinLobbyAsync(id);
 
         exitButton.SetActive(true);
+        skinPanel.SetActive(true);
     }
 
     /// <summary>
@@ -129,6 +135,29 @@ public class Lobby : MonoBehaviour
         // 送るデータを代入
         SendData.roomName = roomName;
         SendData.idList = idList;
+
+        // 選択スキン判定
+        string sendStr;
+        switch (count)
+        {
+            case 0:
+                sendStr = "shadow_normal";
+                break;
+            case 1:
+                sendStr = "shadow_eye";
+                break;
+            case 2:
+                sendStr = "shadow_face";
+                break;
+            case 3:
+                sendStr = "shadow_mouth";
+                break;
+            default:
+                sendStr = "";
+                break;
+        }
+        SendData.skinName = sendStr;
+
         Loading();
         await Task.Delay(800);
 
@@ -142,7 +171,7 @@ public class Lobby : MonoBehaviour
     async void Loading()
     {
         loadingPanel.SetActive(true);
-        headerText.text = "しばらくお待ちください";
+        headerText.text = "まもなく開始...";
 
         float angle = 8;
         bool rot = true;
@@ -163,5 +192,33 @@ public class Lobby : MonoBehaviour
             }
         }
         loadingPanel.SetActive(false);
+    }
+
+    public void nextSkin()
+    {
+        count++;
+        if (count >= 4) count = 0;
+
+        // リソースから、アイコンを取得
+        Texture2D texture = Resources.Load("Shadows/shadow_" + count) as Texture2D;
+
+        Image skinPreview =  skinPanel.transform.GetChild(0).GetComponent<Image>();
+
+        skinPreview.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
+                                       Vector2.zero);
+    }
+
+    public void backSkin()
+    {
+        count--;
+        if (count < 0) count = 3;
+
+        // リソースから、アイコンを取得
+        Texture2D texture = Resources.Load("Shadows/shadow_" + count) as Texture2D;
+
+        Image skinPreview = skinPanel.transform.GetChild(0).GetComponent<Image>();
+
+        skinPreview.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
+                                       Vector2.zero);
     }
 }

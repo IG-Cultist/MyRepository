@@ -245,11 +245,11 @@ namespace Server.StreamingHubs
         };
             // セカンドネーム定義
             string[] secondtName = new string[]{
-            "Cake","Rock","Slime","Clover","Animal",
+            "Cake","Stone","Slime","Clover","Animal",
             "Fish","Earth","Throat","City","Chad",
             "Ghost","Hotel","Knight","Candy","Worm",
             "Tree","Dice","Baby","Machine","Dog",
-            "Room","Bird","Cat","Water","CowBoy",
+            "Room","Bird","Cat","Water","Pizza",
             "Skelton","Boots","Game","Gun","Data"
         };
             // 1～30までの乱数を代入

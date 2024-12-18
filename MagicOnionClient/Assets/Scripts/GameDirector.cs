@@ -1,6 +1,6 @@
 /// ==============================
 /// ゲームディレクタースクリプト
-/// Name:西浦晃太 Update:12/11
+/// Name:西浦晃太 Update:12/16
 /// ==============================
 using Cysharp.Threading.Tasks.Triggers;
 using DG.Tweening;
@@ -12,14 +12,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Unity.VisualScripting;
-using UnityEditor.MemoryProfiler;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using static UnityEditor.PlayerSettings;
-using static UnityEngine.Rendering.DebugUI.Table;
 
 public class GameDirector : MonoBehaviour
 {
@@ -27,8 +23,7 @@ public class GameDirector : MonoBehaviour
     [SerializeField] GameObject characterPrefabs;
     // 退室ボタン
     [SerializeField] GameObject exitButton;
-    // 入力されたユーザID
-    [SerializeField] Text userID;
+
     // 部屋モデル
     [SerializeField] RoomHubModel roomModel;
     // 生成ユーザのディクショナリー
@@ -37,11 +32,15 @@ public class GameDirector : MonoBehaviour
     [SerializeField] GameObject countPanel;
     // カウントダウンテキスト
     [SerializeField] Text countText;
+    // 部屋名
+    [SerializeField] Text roomName;
 
     List<GameObject> skinList = new List<GameObject>();
     int skinNum = 0;
 
     GameObject myCamera;
+
+    List<GameObject> heartList;
 
     Player playerScript;
     // ゲーム開始判定変数
@@ -49,14 +48,16 @@ public class GameDirector : MonoBehaviour
 
     bool isFinish = false;
 
-    float moveSpeed = 1f;
+    public float moveSpeed = 1f;
+
+    public int userID;
 
     // Start is called before the first frame update
     async void Start()
     {
 #if UNITY_EDITOR
         //エディター実行時
-        SendData.roomName = "RoomRoom";
+        if(SendData.roomName == null) SendData.roomName = "RoomRoom";
 #endif
 
         if (Input.GetKey(KeyCode.Escape))
@@ -87,6 +88,16 @@ public class GameDirector : MonoBehaviour
         await Task.Delay(600);
 
         JoinRoom();
+    
+        roomName.text = "RoomName:" +  SendData.roomName;
+
+        // ハートのゲームオブジェクトを取得
+        heartList = new List<GameObject>();
+        // 各ハートをリストに入れる
+        for (int i = 0; i < 3; i++)
+        {
+            heartList.Add(GameObject.Find("Heart_" + (i + 1)));
+        }
     }
 
     void Update()
@@ -176,7 +187,7 @@ public class GameDirector : MonoBehaviour
             GameObject obj;
             switch (ob.name)
             {
-                case "shadow":
+                case "shadow_normal":
                     obj = GameObject.Find (ob.name);
                     obj.SetActive(true);
                     skinList.Add(obj);
@@ -199,8 +210,30 @@ public class GameDirector : MonoBehaviour
         // 識別番号を各子オブジェクトの名前に付ける
         foreach (Transform obj in characterGameObject.transform)
         {
-            obj.name += "_" + user.UserData.Id;
+            if (obj.name == "shadow_normal")
+            {
+                obj.name += "_" + user.UserData.Id;
+            }
         }
+
+        //skinList[0].SetActive(false);
+        //skinList[1].SetActive(false);
+        //skinList[2].SetActive(false);
+
+        //if (SendData.skinName == null)
+        //{
+        //    skinList[0].SetActive(true);
+        //}
+        //else
+        //{
+        //    for (int i = 0; i < skinList.Count; i++)
+        //    {
+        //        if (skinList[i].name == SendData.skinName + "_" + user.UserData.Id)
+        //        {
+        //            skinList[i].SetActive(true);
+        //        }
+        //    }
+        //}
 
         characterGameObject.name = user.UserData.Id.ToString();
 
@@ -273,6 +306,7 @@ public class GameDirector : MonoBehaviour
 
             countText.text = limitTime.ToString("F0"); // 残り時間を整数で表示
         }
+
         countText.text = "Start";
         isStart = true;
     }
@@ -296,6 +330,7 @@ public class GameDirector : MonoBehaviour
         //int.TryParse(userID.text, out int id);
 
         await roomModel.JoinAsync(SendData.roomName, id);
+        userID = id;
         InvokeRepeating("Move", 0.1f, 0.1f);
         Ready();
     }
@@ -306,9 +341,8 @@ public class GameDirector : MonoBehaviour
     public async void LeaveRoom()
     {
         CancelInvoke("Move");
-        int.TryParse(userID.text, out int id);
         // 退室
-        await roomModel.LeaveAsync(SendData.roomName, id);
+        await roomModel.LeaveAsync(SendData.roomName, userID);
         SceneManager.LoadScene("Title");
     }
 
@@ -347,6 +381,14 @@ public class GameDirector : MonoBehaviour
     void OnAttackUser(Guid connectionID, int health)
     {
         Debug.Log(characterList[roomModel.ConnectionID] + "のHP：" + health);
+
+        // 受け取った接続IDと自身の接続IDが一致している場合
+        if (connectionID == roomModel.ConnectionID)
+        {
+            Destroy(heartList[health]);
+            heartList.Remove(heartList[health]);
+        }
+
         if (health <= 0)
         {
             Finish();

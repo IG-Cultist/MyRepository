@@ -25,5 +25,10 @@ namespace Shared.Interfaces.StreamingHubs
         /// </summary>
         [Key(2)]
         public int JoinOrder { get; set; }
+        /// <summary>
+        /// スキン名
+        /// </summary>
+        [Key(3)]
+        public string SkinStr { get; set; }
     }
 }

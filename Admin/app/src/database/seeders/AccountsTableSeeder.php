@@ -28,5 +28,20 @@ class AccountsTableSeeder extends Seeder
             'name' => 'tera',
             'password' => Hash::make('231076'),
         ]);
+
+        Account::create([
+            'name' => 'Toufu',
+            'password' => Hash::make('Goma'),
+        ]);
+
+        Account::create([
+            'name' => 'cancel',
+            'password' => Hash::make('01101001'),
+        ]);
+
+        Account::create([
+            'name' => 'meeper',
+            'password' => Hash::make('500error'),
+        ]);
     }
 }

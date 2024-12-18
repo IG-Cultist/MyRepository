@@ -13,5 +13,29 @@ class UsersTableSeeder extends Seeder
      */
     public function run(): void
     {
+        User::create([
+            'name' => 'jobi',
+            'token' => '',
+        ]);
+        
+        User::create([
+            'name' => 'igc',
+            'token' => '',
+        ]);
+
+        User::create([
+            'name' => 'tera',
+            'token' => '',
+        ]);
+
+        User::create([
+            'name' => 'meep',
+            'token' => '',
+        ]);
+
+        User::create([
+            'name' => 'morsh',
+            'token' => '',
+        ]);
     }
 }
