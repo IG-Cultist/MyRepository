@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -23,7 +24,6 @@ public class GameDirector : MonoBehaviour
     [SerializeField] GameObject characterPrefabs;
     // 退室ボタン
     [SerializeField] GameObject exitButton;
-
     // 部屋モデル
     [SerializeField] RoomHubModel roomModel;
     // 生成ユーザのディクショナリー
@@ -34,6 +34,8 @@ public class GameDirector : MonoBehaviour
     [SerializeField] Text countText;
     // 部屋名
     [SerializeField] Text roomName;
+    // 所有アイテムパネル
+    [SerializeField] Image itemPanel;
 
     List<GameObject> skinList = new List<GameObject>();
     int skinNum = 0;
@@ -51,6 +53,10 @@ public class GameDirector : MonoBehaviour
     public float moveSpeed = 1f;
 
     public int userID;
+
+    string nowItemName = "";
+
+    bool isBoost = false;
 
     // Start is called before the first frame update
     async void Start()
@@ -117,12 +123,6 @@ public class GameDirector : MonoBehaviour
             isStart = true;
         }
 
-        // ゲーム終了状態かつ画面タップをした場合
-        if (Input.GetKeyDown(KeyCode.C))
-        {
-            SpawnItem();
-        }
-
         if (Input.GetKeyDown(KeyCode.LeftAlt))
         {
             ChangeSkin();
@@ -156,12 +156,16 @@ public class GameDirector : MonoBehaviour
         // 生成位置を設定
         characterGameObject.transform.position = new Vector3(-7.5f + (2 * count), 2f, -10f);
 
-        // 自分以外のカメラを非アクティブにする
+        // 自分以外の各オブジェクトを非アクティブにする
         if(roomModel.ConnectionID != user.ConnectionID){
             // 対象ののカメラを取得
             GameObject obj = characterGameObject.transform.GetChild(0).gameObject;
             // カメラを非アクティブ化
             obj.SetActive(false);
+            // アタックゾーンを非アクティブ化
+            GameObject zone = characterGameObject.transform.GetChild(1).gameObject;
+            zone.SetActive(false);
+
         }
         else if (roomModel.ConnectionID == user.ConnectionID)
         {
@@ -202,6 +206,11 @@ public class GameDirector : MonoBehaviour
                     obj.SetActive(false);
                     skinList.Add (obj);
                     break;
+                case "shadow_mouth":
+                    obj = GameObject.Find(ob.name);
+                    obj.SetActive(false);
+                    skinList.Add(obj);
+                    break;
                 default:
                     break;
             }
@@ -210,7 +219,7 @@ public class GameDirector : MonoBehaviour
         // 識別番号を各子オブジェクトの名前に付ける
         foreach (Transform obj in characterGameObject.transform)
         {
-            if (obj.name == "shadow_normal")
+            if (obj.tag == "Shadow")
             {
                 obj.name += "_" + user.UserData.Id;
             }
@@ -444,18 +453,28 @@ public class GameDirector : MonoBehaviour
                 skinList[0].SetActive(false);
                 skinList[1].SetActive(true);
                 skinList[2].SetActive(false);
+                skinList[3].SetActive(false);
                 skinNum = 1;
                 break;
             case 1:
                 skinList[0].SetActive(false);
                 skinList[1].SetActive(false);
                 skinList[2].SetActive(true);
+                skinList[3].SetActive(false);
                 skinNum = 2;
                 break;
             case 2:
                 skinList[0].SetActive(true);
                 skinList[1].SetActive(false);
                 skinList[2].SetActive(false);
+                skinList[3].SetActive(false);
+                skinNum = 3;
+                break;
+            case 3:
+                skinList[0].SetActive(false);
+                skinList[1].SetActive(false);
+                skinList[2].SetActive(false);
+                skinList[3].SetActive(true);
                 skinNum = 0;
                 break;
         }
@@ -479,12 +498,61 @@ public class GameDirector : MonoBehaviour
     }
 
     /// <summary>
-    /// アイテム生成時の処理
+    /// アイテムを踏んだ際の処理
     /// </summary>
-    void SpawnItem()
+    public void StompItem(string name)
     {
-        LookAtCamera camScript = FindAnyObjectByType<LookAtCamera>();
-        Camera camera = myCamera.GetComponent<Camera>();
-        camScript.GetCamera(camera);
+        // リソースから、アイテムテクスチャを取得
+        Texture2D texture = Resources.Load("Items/" + name) as Texture2D;
+
+        itemPanel.sprite = 
+            Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero);
+
+        nowItemName = name;
+    }
+
+    /// <summary>
+    /// アイテム別効果処理
+    /// </summary>
+    public async void UseItem()
+    {
+        // アイテム別処理
+        switch (nowItemName)
+        { 
+            case "Compass": // コンパスの場合
+                // 相手の位置をマップに3秒間表示する
+                break;
+           
+            case "RollerBlade": // ローラーブレードの場合
+                // 移動速度を3秒間2倍にする
+                moveSpeed = 2.0f;
+                isBoost = true;
+                break;
+           
+            case "StopWatch": // ストップウォッチの場合
+                // ゲーム時間を3秒延長する
+                break;
+            default:
+                break;
+        }
+
+        // 現在所有しているアイテムの名前を初期化
+        nowItemName = "";
+
+        // リソースから、アイテムテクスチャを取得
+        Texture2D texture = Resources.Load("Items/None") as Texture2D;
+
+        // アイテムテクスチャを未所持のテクスチャに変更
+        itemPanel.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
+                               Vector2.zero);
+
+        // ローラーブレードを使用していた場合
+        if (isBoost == true)
+        {
+            //3 秒後に速度を戻す
+            await Task.Delay(1800);
+            moveSpeed = 1.0f;
+            isBoost = false;
+        }
     }
 }

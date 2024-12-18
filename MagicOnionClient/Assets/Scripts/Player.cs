@@ -16,8 +16,6 @@ public class Player : MonoBehaviour
     Guid otherConnectionID;
     public bool isHit = false;
 
-    string nowItemName = "";
-
     GameObject footPrintObj;
 
     GameDirector gameDirector;
@@ -27,7 +25,6 @@ public class Player : MonoBehaviour
     }
     void Update()
     {
-
         if (Input.GetMouseButtonDown(0)) Stomp();
     }
 
@@ -41,13 +38,13 @@ public class Player : MonoBehaviour
         otherConnectionID = obj.transform.parent.GetComponent<Player>().connectionID;
 
         // 踏んだ相手の影のレンダラーを取得
-        Material material = obj.GetComponent<Renderer>().material;
+        Renderer renderer = obj.GetComponent<Renderer>();
 
         gameDirector.Attack(otherConnectionID);
         // 色を赤くし、少ししたら戻す
-        material.color = new Color(127, 0, 0);
+        renderer.material.color = new Color(127, 0, 0);
         await Task.Delay(1200);
-        material.color = Color.black;
+        renderer.material.color = Color.black;
         isHit = false;
     }
 
