@@ -6,7 +6,7 @@ namespace TedLab
     {
         private const float LogBase = 2;
 
-        [SerializeField] private Camera refCamera = null;
+        [SerializeField] public Camera refCamera = null;
         [SerializeField] private RectTransform refRect = null;
         [SerializeField] private Vector2 referenceResolution = new Vector2(1920, 1080);
         [Range(0, 1)][SerializeField] private float matchWidthOrHeight = 0;

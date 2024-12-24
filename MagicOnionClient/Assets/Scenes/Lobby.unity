@@ -1665,7 +1665,7 @@ GameObject:
   - component: {fileID: 1826791458}
   - component: {fileID: 1826791457}
   m_Layer: 5
-  m_Name: Panel
+  m_Name: RectScalerPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1703,7 +1703,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e73a107c8f269cf4780f40fe368c548c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  refCamera: {fileID: 2111429000}
+  refCamera: {fileID: 0}
   refRect: {fileID: 1826791456}
   referenceResolution: {x: 1920, y: 1080}
   matchWidthOrHeight: 0

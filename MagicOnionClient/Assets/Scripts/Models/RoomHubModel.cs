@@ -39,6 +39,9 @@ public class RoomHubModel : BaseModel, IRoomHubReceiver
     //マッチング通知
     public Action<string> OnMatchingUser { get; set; }
 
+    // カウントダウン通知
+    public Action<int> OnCountUser {  get; set; }
+
     /// <summary>
     /// MagicOnion接続処理
     /// </summary>
@@ -216,5 +219,24 @@ public class RoomHubModel : BaseModel, IRoomHubReceiver
     public void OnMatching(string roomName)
     {
         OnMatchingUser(roomName);
+    }
+
+    /// <summary>
+    /// カウントダウン処理
+    /// </summary>
+    /// <param name="userID">ユーザID</param>
+    /// <returns></returns>
+    public async UniTask CountTimer(int time)
+    {
+        await roomHub.CountTimer(time);
+    }
+
+    /// <summary>
+    /// カウントダウン通知
+    /// </summary>
+    /// <param name="roomName"></param>
+    public void OnCount(int time)
+    {
+        OnCountUser(time);
     }
 }

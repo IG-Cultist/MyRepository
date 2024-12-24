@@ -1,6 +1,6 @@
 /// ==============================
 /// ゲームディレクタースクリプト
-/// Name:西浦晃太 Update:12/11
+/// Name:西浦晃太 Update:12/24
 /// ==============================
 using Cysharp.Threading.Tasks.Triggers;
 using DG.Tweening;

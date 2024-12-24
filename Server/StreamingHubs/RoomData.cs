@@ -14,6 +14,11 @@ namespace Server.StreamingHubs
         public JoinedUser JoinedUser { get; set; }
 
         /// <summary>
+        /// マスターユーザの接続ID
+        /// </summary>
+        public Guid MasterUserConID { get; set; }
+
+        /// <summary>
         /// ユーザの位置
         /// </summary>
         public Vector3 Position { get; set; }

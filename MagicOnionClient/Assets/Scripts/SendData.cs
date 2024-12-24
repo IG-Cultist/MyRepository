@@ -10,4 +10,6 @@ public class SendData
     public static List<Guid> idList { get; set; }
 
     public static string skinName { get; set; }
+
+    public static int userID { get; set; }
 }

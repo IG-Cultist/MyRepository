@@ -1,6 +1,6 @@
 /// ==============================
 /// ゲームディレクタースクリプト
-/// Name:西浦晃太 Update:12/16
+/// Name:西浦晃太 Update:12/24
 /// ==============================
 using Cysharp.Threading.Tasks.Triggers;
 using DG.Tweening;
@@ -12,6 +12,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using TedLab;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
@@ -58,6 +59,10 @@ public class GameDirector : MonoBehaviour
 
     bool isBoost = false;
 
+    bool isMaster;
+
+    int time = 20;
+
     // Start is called before the first frame update
     async void Start()
     {
@@ -65,7 +70,6 @@ public class GameDirector : MonoBehaviour
         //エディター実行時
         if(SendData.roomName == null) SendData.roomName = "RoomRoom";
 #endif
-
         if (Input.GetKey(KeyCode.Escape))
         {//ESC押した際の処理
 #if UNITY_EDITOR
@@ -79,7 +83,6 @@ public class GameDirector : MonoBehaviour
 
         // 非表示にする
         exitButton.SetActive(false);
-        countPanel.SetActive(false);
 
         // ユーザが入室したときにメソッドを実行するようモデルに登録
         roomModel.OnJoinedUser += this.OnJoinedUser;
@@ -88,6 +91,7 @@ public class GameDirector : MonoBehaviour
         roomModel.OnReadyUser += this.OnReadyUser;
         roomModel.OnFinishUser += this.OnFinishUser;
         roomModel.OnAttackUser += this.OnAttackUser;
+        roomModel.OnCountUser += this.OnCountUser;
         // 接続
         await roomModel.ConnectAsync();
 
@@ -169,6 +173,11 @@ public class GameDirector : MonoBehaviour
         }
         else if (roomModel.ConnectionID == user.ConnectionID)
         {
+            if (user.JoinOrder == 1)
+            {
+                isMaster = true;
+            }
+
             // 自身のカメラを取得
             GameObject obj = characterGameObject.transform.GetChild(0).gameObject;
             myCamera = obj;
@@ -182,6 +191,9 @@ public class GameDirector : MonoBehaviour
             Camera stackCamera = stackObj.GetComponent<Camera>();
             // 自身のカメラにハートカメラをスタックさせる
             cameraData.cameraStack.Add(stackCamera);
+
+            RectScalerWithViewport rectScalerWithViewport = GameObject.Find("RectScalerPanel").GetComponent<RectScalerWithViewport>();
+            rectScalerWithViewport.refCamera = camera;
         }
 
         Transform children = characterGameObject.GetComponentInChildren<Transform>();
@@ -221,11 +233,7 @@ public class GameDirector : MonoBehaviour
         {
             if (obj.tag == "Shadow")
             {
-                obj.name += "_" + user.UserData.Id;
-            }
-        }
-
-        //skinList[0].SetActive(false);
+                obj.name += "_" + user.UserData.Id;        //skinList[0].SetActive(false);
         //skinList[1].SetActive(false);
         //skinList[2].SetActive(false);
 
@@ -243,8 +251,10 @@ public class GameDirector : MonoBehaviour
         //        }
         //    }
         //}
+            }
+        }
 
-        characterGameObject.name = user.UserData.Id.ToString();
+        characterGameObject.name = SendData.userID.ToString();
 
         characterList[user.ConnectionID] = characterGameObject; // フィールドで保持
         playerScript.connectionID = user.ConnectionID;
@@ -275,6 +285,7 @@ public class GameDirector : MonoBehaviour
     /// <param name="pos">位置</param>
     void OnMovedUser(Guid connectionID, Vector3 pos, Vector3 rot, IRoomHubReceiver.PlayerState state)
     {
+        if(characterList.Count == 0) return;
         // 各トランスフォームをアニメーション
         characterList[connectionID].transform.DOLocalMove(pos,0.1f).SetEase(Ease.Linear);
         characterList[connectionID].transform.DOLocalRotate(rot,0.1f).SetEase(Ease.Linear);
@@ -285,7 +296,8 @@ public class GameDirector : MonoBehaviour
     /// </summary>
     void OnReadyUser()
     {
-        StartGame();
+        isStart = true;
+        if (isMaster ==true) StartGame();
     }
 
     /// <summary>
@@ -302,21 +314,7 @@ public class GameDirector : MonoBehaviour
     void StartGame()
     {
         countPanel.SetActive(true);
-        float limitTime = 4;
-
-        while (limitTime > 0)
-        {
-            limitTime -= Time.deltaTime;
-
-            if (limitTime < 0)
-            {
-                limitTime = 0;
-            }
-
-            countText.text = limitTime.ToString("F0"); // 残り時間を整数で表示
-        }
-
-        countText.text = "Start";
+        InvokeRepeating("CountDown", 0.1f, 1f);
         isStart = true;
     }
 
@@ -327,19 +325,21 @@ public class GameDirector : MonoBehaviour
     {
         exitButton.SetActive(false);
         countText.text = "クリックで退室";
+        CancelInvoke("CountDown");
         isFinish = true;
     }
 
     public async void JoinRoom()
     {
-        System.Random rand = new System.Random();
-        int id = rand.Next(1, 4);
-
+        //System.Random rand = new System.Random();
+        //int id = rand.Next(1, 4);
+  
         //ConnectPanel.SetActive(false);
         //int.TryParse(userID.text, out int id);
+        //userID = id;
 
-        await roomModel.JoinAsync(SendData.roomName, id);
-        userID = id;
+        await roomModel.JoinAsync(SendData.roomName, SendData.userID);
+
         InvokeRepeating("Move", 0.1f, 0.1f);
         Ready();
     }
@@ -351,7 +351,7 @@ public class GameDirector : MonoBehaviour
     {
         CancelInvoke("Move");
         // 退室
-        await roomModel.LeaveAsync(SendData.roomName, userID);
+        await roomModel.LeaveAsync(SendData.roomName, SendData.userID);
         SceneManager.LoadScene("Title");
     }
 
@@ -403,6 +403,7 @@ public class GameDirector : MonoBehaviour
             Finish();
         }
     }
+
 
     /// <summary>
     /// キー入力移動処理
@@ -531,6 +532,8 @@ public class GameDirector : MonoBehaviour
            
             case "StopWatch": // ストップウォッチの場合
                 // ゲーム時間を3秒延長する
+                time += 3;
+                await roomModel.CountTimer(time);
                 break;
             default:
                 break;
@@ -553,6 +556,46 @@ public class GameDirector : MonoBehaviour
             await Task.Delay(1800);
             moveSpeed = 1.0f;
             isBoost = false;
+        }
+    }
+
+    /// <summary>
+    /// カウントダウン処理
+    /// </summary>
+    async void CountDown()
+    {
+        // 制限時間を-1
+        time -= 1;
+        // 残り時間を全ユーザに通知
+        await roomModel.CountTimer(time);
+        // 減算結果をUIに適応
+        countText.text = time.ToString();
+        // タイムアップ時
+        if (time <= 0)
+        {
+            // UIにタイムアップと表記する
+            countText.text = "Time UP";
+            // カウントダウン処理を停止
+            CancelInvoke("CountDown");
+            // ゲームエンド処理を呼ぶ
+            Finish();
+        }
+    }
+    void OnCountUser(int time)
+    {
+        this.time = time;
+
+        // 減算結果をUIに適応
+        countText.text = this.time.ToString();
+        // タイムアップ時
+        if (this.time <= 0)
+        {
+            // UIにタイムアップと表記する
+            countText.text = "Time UP";
+            // カウントダウン処理を停止
+            CancelInvoke("CountDown");
+            // ゲームエンド処理を呼ぶ
+            Finish();
         }
     }
 }

@@ -68,5 +68,10 @@ namespace Shared.Interfaces.StreamingHubs
         /// </summary>
         /// <param name="roomName"></param>
         void OnMatching(string roomName);
+
+        /// <summary>
+        /// カウントダウン通知
+        /// </summary>
+        void OnCount(int time);
     }
 }

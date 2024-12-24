@@ -18,7 +18,7 @@ public class Health : MonoBehaviour
         {
             GameObject itemObj = Instantiate(heartPrefabs);
             itemObj.name = "Heart_" + (i +1);
-            itemObj.transform.position = new Vector3(5f + (1.5f * i), -15f, 10f);
+            itemObj.transform.position = new Vector3(5f + (1.5f * i), -15.8f, 10f);
         }
     }
 }

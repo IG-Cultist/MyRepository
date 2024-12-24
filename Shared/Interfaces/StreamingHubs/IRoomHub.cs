@@ -61,5 +61,11 @@ namespace Shared.Interfaces.StreamingHubs
         /// <param name="userID">ユーザID</param>
         /// <returns></returns>
         Task<JoinedUser[]> JoinLobbyAsync(int userID);
+
+        /// <summary>
+        /// カウントダウン
+        /// </summary>
+        /// <returns></returns>
+        Task CountTimer(int time);
     }
 }

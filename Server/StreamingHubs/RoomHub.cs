@@ -47,6 +47,8 @@ namespace Server.StreamingHubs
             var roomData = new RoomData() { JoinedUser = joinedUser };
             roomStrage.Set(this.ConnectionId, roomData);
             roomData.Health = 3;
+            // 参加順を設定
+            joinedUser.JoinOrder = roomStrage.AllValues.Count;
 
             // ルーム参加者全員に、ユーザの通知を送信 (Broadcast(room)で自身も含む)
             this.BroadcastExceptSelf(room).OnJoin(joinedUser);
@@ -225,6 +227,16 @@ namespace Server.StreamingHubs
                 this.Broadcast(room).OnMatching(roomName);
             }
             return joinedUserList;
+        }
+
+        /// <summary>
+        /// カウントダウン処理
+        /// </summary>
+        /// <returns></returns>
+        public async Task CountTimer(int time)
+        {
+            // ルーム参加者全員に、残り時間を送信
+            this.Broadcast(room).OnCount(time);
         }
 
         /// <summary>

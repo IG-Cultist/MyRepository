@@ -8,7 +8,7 @@ public class Attack : MonoBehaviour
     void Start()
     {
         gameDirector = GameObject.Find("GameDirector").GetComponent<GameDirector>();
-        player = GameObject.Find(gameDirector.userID.ToString()).GetComponent<Player>();
+        player = GameObject.Find(SendData.userID.ToString()).GetComponent<Player>();
     }
 
     private void OnTriggerEnter(Collider other)
@@ -22,7 +22,7 @@ public class Attack : MonoBehaviour
         
         if (other.gameObject.tag == "Shadow" && player.isHit == false)
         {
-            if (other.gameObject.name != "shadow_normal_" + gameDirector.userID)
+            if (other.gameObject.name != "shadow_normal_" + SendData.userID)
             {
                 player.GetID(other.gameObject);
                 player.isHit = true;

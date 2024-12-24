@@ -246,10 +246,11 @@ namespace MessagePack.Formatters.Shared.Interfaces.StreamingHubs
             }
 
             global::MessagePack.IFormatterResolver formatterResolver = options.Resolver;
-            writer.WriteArrayHeader(3);
+            writer.WriteArrayHeader(4);
             global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<global::System.Guid>(formatterResolver).Serialize(ref writer, value.ConnectionID, options);
             global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<global::Shared.Model.Entity.User>(formatterResolver).Serialize(ref writer, value.UserData, options);
             writer.Write(value.JoinOrder);
+            global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<string>(formatterResolver).Serialize(ref writer, value.SkinStr, options);
         }
 
         public global::Shared.Interfaces.StreamingHubs.JoinedUser Deserialize(ref global::MessagePack.MessagePackReader reader, global::MessagePack.MessagePackSerializerOptions options)
@@ -276,6 +277,9 @@ namespace MessagePack.Formatters.Shared.Interfaces.StreamingHubs
                         break;
                     case 2:
                         ____result.JoinOrder = reader.ReadInt32();
+                        break;
+                    case 3:
+                        ____result.SkinStr = global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<string>(formatterResolver).Deserialize(ref reader, options);
                         break;
                     default:
                         reader.Skip();
