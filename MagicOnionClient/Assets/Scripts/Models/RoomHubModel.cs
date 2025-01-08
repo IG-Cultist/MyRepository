@@ -42,6 +42,8 @@ public class RoomHubModel : BaseModel, IRoomHubReceiver
     // カウントダウン通知
     public Action<int> OnCountUser {  get; set; }
 
+    // スキン変更通知
+    public Action<int, string> OnChangeSkinUser { get; set; }
     /// <summary>
     /// MagicOnion接続処理
     /// </summary>
@@ -82,7 +84,7 @@ public class RoomHubModel : BaseModel, IRoomHubReceiver
     /// <returns></returns>
     public async UniTask JoinAsync(string roomName, int userID)
     {
-        JoinedUser[] users = await roomHub.JoinAsync(roomName, userID);
+         JoinedUser[] users = await roomHub.JoinAsync(roomName, userID);
         foreach (var user in users)
         {
             if (user.UserData.Id == userID)
@@ -238,5 +240,24 @@ public class RoomHubModel : BaseModel, IRoomHubReceiver
     public void OnCount(int time)
     {
         OnCountUser(time);
+    }
+
+    /// <summary>
+    /// スキン変更処理
+    /// </summary>
+    /// <param name="userID"></param>
+    /// <param name="skinName"></param>
+    /// <returns></returns>
+    public async UniTask ChangeSkinAsync(int userID, string skinName)
+    {
+        await roomHub.ChangeSkinAsync(userID, skinName);
+    }
+
+    /// <summary>
+    /// スキン適用通知
+    /// </summary>
+    public void OnChangeSkin(int userID, string skinName)
+    {
+        OnChangeSkinUser(userID, skinName);
     }
 }

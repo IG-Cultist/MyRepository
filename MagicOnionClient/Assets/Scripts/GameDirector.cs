@@ -2,15 +2,12 @@
 /// ゲームディレクタースクリプト
 /// Name:西浦晃太 Update:12/24
 /// ==============================
-using Cysharp.Threading.Tasks.Triggers;
 using DG.Tweening;
 using Shared.Interfaces.Services;
 using Shared.Interfaces.StreamingHubs;
 using Shared.Model.Entity;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using TedLab;
 using UnityEngine;
@@ -22,7 +19,9 @@ using UnityEngine.UI;
 public class GameDirector : MonoBehaviour
 {
     // 生成するユーザプレハブ
-    [SerializeField] GameObject characterPrefabs;
+    [SerializeField] GameObject characterPrefabs; 
+    // 生成するトラッププレハブ
+    [SerializeField] GameObject trapPrefabs;
     // 退室ボタン
     [SerializeField] GameObject exitButton;
     // 部屋モデル
@@ -37,9 +36,6 @@ public class GameDirector : MonoBehaviour
     [SerializeField] Text roomName;
     // 所有アイテムパネル
     [SerializeField] Image itemPanel;
-
-    List<GameObject> skinList = new List<GameObject>();
-    int skinNum = 0;
 
     GameObject myCamera;
 
@@ -61,7 +57,7 @@ public class GameDirector : MonoBehaviour
 
     bool isMaster;
 
-    int time = 20;
+    int time = 30;
 
     // Start is called before the first frame update
     async void Start()
@@ -69,6 +65,7 @@ public class GameDirector : MonoBehaviour
 #if UNITY_EDITOR
         //エディター実行時
         if(SendData.roomName == null) SendData.roomName = "RoomRoom";
+        SendData.userID = 1;
 #endif
         if (Input.GetKey(KeyCode.Escape))
         {//ESC押した際の処理
@@ -88,10 +85,11 @@ public class GameDirector : MonoBehaviour
         roomModel.OnJoinedUser += this.OnJoinedUser;
         roomModel.OnLeavedUser += this.OnLeavedUser;
         roomModel.OnMovedUser += this.OnMovedUser;
-        roomModel.OnReadyUser += this.OnReadyUser;
+        //roomModel.OnReadyUser += this.OnReadyUser;
         roomModel.OnFinishUser += this.OnFinishUser;
         roomModel.OnAttackUser += this.OnAttackUser;
         roomModel.OnCountUser += this.OnCountUser;
+        roomModel.OnChangeSkinUser += this.OnChangeSkinUser;
         // 接続
         await roomModel.ConnectAsync();
 
@@ -127,11 +125,6 @@ public class GameDirector : MonoBehaviour
             isStart = true;
         }
 
-        if (Input.GetKeyDown(KeyCode.LeftAlt))
-        {
-            ChangeSkin();
-        }
-
         if (myCamera != null)
         {
             LookUp();
@@ -161,7 +154,8 @@ public class GameDirector : MonoBehaviour
         characterGameObject.transform.position = new Vector3(-7.5f + (2 * count), 2f, -10f);
 
         // 自分以外の各オブジェクトを非アクティブにする
-        if(roomModel.ConnectionID != user.ConnectionID){
+        if (roomModel.ConnectionID != user.ConnectionID)
+        {
             // 対象ののカメラを取得
             GameObject obj = characterGameObject.transform.GetChild(0).gameObject;
             // カメラを非アクティブ化
@@ -170,6 +164,7 @@ public class GameDirector : MonoBehaviour
             GameObject zone = characterGameObject.transform.GetChild(1).gameObject;
             zone.SetActive(false);
 
+            //Change(user.UserData.Id);
         }
         else if (roomModel.ConnectionID == user.ConnectionID)
         {
@@ -192,69 +187,24 @@ public class GameDirector : MonoBehaviour
             // 自身のカメラにハートカメラをスタックさせる
             cameraData.cameraStack.Add(stackCamera);
 
+            // 解像度設定を生成したカメラに設定
             RectScalerWithViewport rectScalerWithViewport = GameObject.Find("RectScalerPanel").GetComponent<RectScalerWithViewport>();
             rectScalerWithViewport.refCamera = camera;
-        }
 
-        Transform children = characterGameObject.GetComponentInChildren<Transform>();
-
-        foreach (Transform ob in children)
-        {
-            GameObject obj;
-            switch (ob.name)
-            {
-                case "shadow_normal":
-                    obj = GameObject.Find (ob.name);
-                    obj.SetActive(true);
-                    skinList.Add(obj);
-                    break;
-                case "shadow_face":
-                    obj = GameObject.Find(ob.name);
-                    obj.SetActive(false);
-                    skinList.Add(obj);
-                    break;
-                case "shadow_eye":
-                    obj = GameObject.Find(ob.name);
-                    obj.SetActive(false);
-                    skinList.Add (obj);
-                    break;
-                case "shadow_mouth":
-                    obj = GameObject.Find(ob.name);
-                    obj.SetActive(false);
-                    skinList.Add(obj);
-                    break;
-                default:
-                    break;
-            }
+            // スキン変更判定
+            ChangeSkin(characterGameObject.transform.GetChild(2));
         }
 
         // 識別番号を各子オブジェクトの名前に付ける
-        foreach (Transform obj in characterGameObject.transform)
+        foreach (Transform obj in characterGameObject.transform.GetChild(2))
         {
             if (obj.tag == "Shadow")
             {
-                obj.name += "_" + user.UserData.Id;        //skinList[0].SetActive(false);
-        //skinList[1].SetActive(false);
-        //skinList[2].SetActive(false);
-
-        //if (SendData.skinName == null)
-        //{
-        //    skinList[0].SetActive(true);
-        //}
-        //else
-        //{
-        //    for (int i = 0; i < skinList.Count; i++)
-        //    {
-        //        if (skinList[i].name == SendData.skinName + "_" + user.UserData.Id)
-        //        {
-        //            skinList[i].SetActive(true);
-        //        }
-        //    }
-        //}
+                obj.name += "_" + user.UserData.Id;
             }
         }
 
-        characterGameObject.name = SendData.userID.ToString();
+        characterGameObject.name = user.UserData.Id.ToString();
 
         characterList[user.ConnectionID] = characterGameObject; // フィールドで保持
         playerScript.connectionID = user.ConnectionID;
@@ -296,8 +246,8 @@ public class GameDirector : MonoBehaviour
     /// </summary>
     void OnReadyUser()
     {
-        isStart = true;
-        if (isMaster ==true) StartGame();
+        //isStart = true;
+        //if (isMaster ==true) StartGame();
     }
 
     /// <summary>
@@ -341,7 +291,9 @@ public class GameDirector : MonoBehaviour
         await roomModel.JoinAsync(SendData.roomName, SendData.userID);
 
         InvokeRepeating("Move", 0.1f, 0.1f);
-        Ready();
+
+        isStart = true;
+        if (isMaster == true) StartGame();
     }
 
     /// <summary>
@@ -360,18 +312,11 @@ public class GameDirector : MonoBehaviour
     /// </summary>
     public async void Move()
     {
+        if (characterList[roomModel.ConnectionID] == null) return;
         // 移動
         await roomModel.MoveAsync(characterList[roomModel.ConnectionID].transform.position,
             characterList[roomModel.ConnectionID].transform.eulerAngles,
             IRoomHubReceiver.PlayerState.Move);
-    }
-
-    /// <summary>
-    /// 準備完了ボタン処理
-    /// </summary>
-    public async void Ready()
-    {
-        await roomModel.ReadyAsync();
     }
 
     public async void Finish()
@@ -394,6 +339,9 @@ public class GameDirector : MonoBehaviour
         // 受け取った接続IDと自身の接続IDが一致している場合
         if (connectionID == roomModel.ConnectionID)
         {
+            // カメラを揺らす
+            characterList[roomModel.ConnectionID].transform.GetChild(0).DOShakePosition(0.6f, 1.5f, 45, 15, false, true);
+
             Destroy(heartList[health]);
             heartList.Remove(heartList[health]);
         }
@@ -446,38 +394,29 @@ public class GameDirector : MonoBehaviour
     /// <summary>
     /// スキン(影)変更処理
     /// </summary>
-    void ChangeSkin()
+    void ChangeSkin(Transform transform)
     {
-        switch (skinNum)
+        // 取得したこの数分ループ
+        foreach (Transform ob in transform)
         {
-            case 0:
-                skinList[0].SetActive(false);
-                skinList[1].SetActive(true);
-                skinList[2].SetActive(false);
-                skinList[3].SetActive(false);
-                skinNum = 1;
-                break;
-            case 1:
-                skinList[0].SetActive(false);
-                skinList[1].SetActive(false);
-                skinList[2].SetActive(true);
-                skinList[3].SetActive(false);
-                skinNum = 2;
-                break;
-            case 2:
-                skinList[0].SetActive(true);
-                skinList[1].SetActive(false);
-                skinList[2].SetActive(false);
-                skinList[3].SetActive(false);
-                skinNum = 3;
-                break;
-            case 3:
-                skinList[0].SetActive(false);
-                skinList[1].SetActive(false);
-                skinList[2].SetActive(false);
-                skinList[3].SetActive(true);
-                skinNum = 0;
-                break;
+            // ロビーで設定したスキン名と一致していた場合
+            //if (SendData.skinName == ob.name)
+            //{ //スキンを表示
+            //    GameObject.Find(ob.name).SetActive(true);
+            //}
+            //else
+            //{ //スキンを非表示に
+            //    GameObject.Find(ob.name).SetActive(false);
+            //}
+
+            // ロビーで設定したスキン名と一致しない場合
+            if (SendData.skinName != ob.name)
+            {
+                // コライダーを消す
+                ob.GetComponent<BoxCollider>().enabled = false;
+                // 透明度を0にする
+                ob.GetComponent<Renderer>().material.color = new Color(255, 255, 255, 0);
+            }
         }
     }
 
@@ -519,22 +458,37 @@ public class GameDirector : MonoBehaviour
     {
         // アイテム別処理
         switch (nowItemName)
-        { 
+        {
             case "Compass": // コンパスの場合
                 // 相手の位置をマップに3秒間表示する
                 break;
-           
+
             case "RollerBlade": // ローラーブレードの場合
                 // 移動速度を3秒間2倍にする
                 moveSpeed = 2.0f;
                 isBoost = true;
                 break;
-           
+
             case "StopWatch": // ストップウォッチの場合
                 // ゲーム時間を3秒延長する
                 time += 3;
                 await roomModel.CountTimer(time);
                 break;
+
+            case "Trap": // トラップの場合
+                // フィールドにトラップを設置
+                Vector3 playerPos = characterList[roomModel.ConnectionID].transform.position;
+                // インスタンス生成
+                GameObject trapObj = Instantiate(trapPrefabs);
+                trapObj.name = "Trap(active)";
+                // 生成位置を設定
+                trapObj.transform.position = new Vector3(playerPos.x, playerPos.y + 0.3f, playerPos.x);
+                break;
+
+            case "Projector": // 投影機の場合
+                // 5秒間自由に動く偽の影を召喚する
+                break;
+
             default:
                 break;
         }
@@ -597,5 +551,36 @@ public class GameDirector : MonoBehaviour
             // ゲームエンド処理を呼ぶ
             Finish();
         }
+    }
+
+    void OnChangeSkinUser(int userID, string skinName)
+    {
+        // 取得したこの数分ループ
+        foreach (Transform ob in GameObject.Find(userID.ToString()).transform.GetChild(2))
+        {
+            //// ロビーで設定したスキン名と一致していた場合
+            //if (skinName == ob.name)
+            //{ //スキンを表示
+            //    GameObject.Find(ob.name).SetActive(true);
+            //}
+            //else
+            //{ //スキンを非表示に
+            //    GameObject.Find(ob.name).SetActive(false);
+            //}
+
+            // ロビーで設定したスキン名と一致しない場合
+            if (skinName != ob.name)
+            {
+                // コライダーを消す
+                ob.GetComponent<BoxCollider>().enabled = false;
+                // 透明度を0にする
+                ob.GetComponent<Renderer>().material.color = new Color(255, 255, 255, 0);
+            }
+        }
+    }
+
+    async void Change(int id)
+    {
+        await roomModel.ChangeSkinAsync(id, SendData.skinName);
     }
 }

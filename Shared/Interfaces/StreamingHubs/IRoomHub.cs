@@ -67,5 +67,13 @@ namespace Shared.Interfaces.StreamingHubs
         /// </summary>
         /// <returns></returns>
         Task CountTimer(int time);
+
+        /// <summary>
+        /// スキン変更
+        /// </summary>
+        /// <param name="userID">ユーザID</param>
+        /// <param name="skinName">スキン名</param>
+        /// <returns></returns>
+        Task ChangeSkinAsync(int userID, string skinName);
     }
 }

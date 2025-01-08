@@ -136,8 +136,8 @@ namespace Server.StreamingHubs
 
                 if (isReady == true)
                 {
-                    // ルーム参加者全員に、ゲーム開始を送信
-                    this.Broadcast(room).OnReady();
+                    // ルーム参加者全員に、マッチング通知を送信
+                    this.Broadcast(room).OnMatching(randomName());
                 }
             }
         }
@@ -215,17 +215,17 @@ namespace Server.StreamingHubs
         /// <returns></returns>
         public async Task<JoinedUser[]> JoinLobbyAsync(int userID)
         {
-            string roomName = randomName();
+            //string roomName = randomName();
 
             // 参加中のユーザ情報を返す
             JoinedUser[] joinedUserList = await JoinAsync("Lobby",userID);
 
             // 参加人数が2人になったらマッチング
-            if(joinedUserList.Length == 2)
-            {
-                // ルーム参加者全員に、マッチング通知を送信
-                this.Broadcast(room).OnMatching(roomName);
-            }
+            //if(joinedUserList.Length == 2)
+            //{
+            //    // ルーム参加者全員に、マッチング通知を送信
+            //    this.Broadcast(room).OnMatching(roomName);
+            //}
             return joinedUserList;
         }
 
@@ -237,6 +237,12 @@ namespace Server.StreamingHubs
         {
             // ルーム参加者全員に、残り時間を送信
             this.Broadcast(room).OnCount(time);
+        }
+
+        public async Task ChangeSkinAsync(int userID, string skinName)
+        {
+            // ルーム参加者全員に、ユーザのスキンを送信
+            this.Broadcast(room).OnChangeSkin(userID, skinName);
         }
 
         /// <summary>

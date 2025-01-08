@@ -73,5 +73,11 @@ namespace Shared.Interfaces.StreamingHubs
         /// カウントダウン通知
         /// </summary>
         void OnCount(int time);
+        /// <summary>
+        /// スキン変更通知
+        /// </summary>
+        /// <param name="userID">ユーザID</param>
+        /// <param name="skinName">スキン名</param>
+        void OnChangeSkin(int userID, string skinName);
     }
 }

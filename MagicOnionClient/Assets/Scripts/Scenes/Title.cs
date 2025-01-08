@@ -10,6 +10,7 @@ public class Title : MonoBehaviour
 
     void Start()
     {
+        SendData.roomName = "";
         ChangeShadow();
     }
     void Update()

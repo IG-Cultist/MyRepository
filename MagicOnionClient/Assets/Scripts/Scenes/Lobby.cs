@@ -23,6 +23,8 @@ public class Lobby : MonoBehaviour
     [SerializeField] Text[] joinedUserName;
     // 退室ボタン
     [SerializeField] GameObject exitButton;
+    // 準備ボタン
+    [SerializeField] GameObject readyButton;
     // 部屋モデル
     [SerializeField] RoomHubModel roomModel;
     // ロードパネル
@@ -44,7 +46,7 @@ public class Lobby : MonoBehaviour
         // 非表示にする
         loadingPanel.SetActive(false);
         skinPanel.SetActive(false);
-
+        readyButton.SetActive(false);
         // ユーザが入室したときにメソッドを実行するようモデルに登録
         roomModel.OnJoinedUser += this.OnJoinedUser;
         roomModel.OnLeavedUser += this.OnLeavedUser;
@@ -64,6 +66,7 @@ public class Lobby : MonoBehaviour
     /// <param name="user"></param>
     void OnJoinedUser(JoinedUser user)
     {
+        if (idList.Count >= 2) return;
         idList.Add(user.ConnectionID);
 
         int cnt = 0;
@@ -115,6 +118,7 @@ public class Lobby : MonoBehaviour
 
         exitButton.SetActive(true);
         skinPanel.SetActive(true);
+        readyButton.SetActive(true);
     }
 
     /// <summary>
@@ -128,6 +132,15 @@ public class Lobby : MonoBehaviour
 
         Initiate.DoneFading();
         Initiate.Fade("Title", Color.black, 0.7f);
+    }
+
+    /// <summary>
+    /// 準備完了ボタン処理
+    /// </summary>
+    public async void Ready()
+    {
+        await roomModel.ReadyAsync();
+        readyButton.SetActive(false);
     }
 
     async void OnMatchingUser(string roomName)
