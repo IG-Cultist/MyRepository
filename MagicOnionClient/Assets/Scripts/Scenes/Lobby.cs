@@ -39,10 +39,16 @@ public class Lobby : MonoBehaviour
     List<Guid> idList = new List<Guid>();
 
     int count = 0;
-    
+
+    // クリックorタップSE
+    [SerializeField] AudioClip clickSE;
+
+    AudioSource audioSource;
+
     // Start is called before the first frame update
     async void Start()
     {
+        audioSource = GetComponent<AudioSource>();
         // 非表示にする
         loadingPanel.SetActive(false);
         skinPanel.SetActive(false);
@@ -58,6 +64,11 @@ public class Lobby : MonoBehaviour
         await Task.Delay(300);
 
         JoinRoom();
+    }
+
+    void Update()
+    {
+        if (Input.GetMouseButtonUp(0)) audioSource.PlayOneShot(clickSE);
     }
 
     /// <summary>
@@ -105,16 +116,16 @@ public class Lobby : MonoBehaviour
     }
 
     /// <summary>
-    /// 入室ボタン処理
+    /// 入室処理
     /// </summary>
     public async void JoinRoom()
     {
-        System.Random rand = new System.Random();
+        //System.Random rand = new System.Random();
         // 1～10までの乱数を代入
-        int id = rand.Next(1, 4);
+        //int id = rand.Next(1, 4);
 
         // 入室
-        await roomModel.JoinLobbyAsync(id);
+        await roomModel.JoinLobbyAsync(SendData.userID);
 
         exitButton.SetActive(true);
         skinPanel.SetActive(true);

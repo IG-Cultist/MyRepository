@@ -59,13 +59,34 @@ public class GameDirector : MonoBehaviour
 
     int time = 30;
 
+    // ストップウォッチ使用SE
+    [SerializeField] AudioClip stopWatchSE;
+
+    // 踏みつけ時SE
+    [SerializeField] AudioClip stompSE;
+
+    // プロジェクター使用SE
+    [SerializeField] AudioClip projectorSE;
+
+    // トラップ使用SE
+    [SerializeField] AudioClip trapSE;
+
+    // クリックorタップSE
+    //AudioClip clickSE;
+
+    AudioSource audioSource;
+
     // Start is called before the first frame update
     async void Start()
     {
 #if UNITY_EDITOR
         //エディター実行時
-        if(SendData.roomName == null) SendData.roomName = "RoomRoom";
-        SendData.userID = 1;
+        if (SendData.roomName == null) 
+        {
+            SendData.roomName = "RoomRoom"; 
+            SendData.userID = 1; 
+        }
+
 #endif
         if (Input.GetKey(KeyCode.Escape))
         {//ESC押した際の処理
@@ -77,7 +98,7 @@ public class GameDirector : MonoBehaviour
             Application.Quit();
 #endif
         }
-
+        audioSource = GetComponent<AudioSource>();
         // 非表示にする
         exitButton.SetActive(false);
 
@@ -164,7 +185,7 @@ public class GameDirector : MonoBehaviour
             GameObject zone = characterGameObject.transform.GetChild(1).gameObject;
             zone.SetActive(false);
 
-            //Change(user.UserData.Id);
+            Change(user.UserData.Id);
         }
         else if (roomModel.ConnectionID == user.ConnectionID)
         {
@@ -399,16 +420,6 @@ public class GameDirector : MonoBehaviour
         // 取得したこの数分ループ
         foreach (Transform ob in transform)
         {
-            // ロビーで設定したスキン名と一致していた場合
-            //if (SendData.skinName == ob.name)
-            //{ //スキンを表示
-            //    GameObject.Find(ob.name).SetActive(true);
-            //}
-            //else
-            //{ //スキンを非表示に
-            //    GameObject.Find(ob.name).SetActive(false);
-            //}
-
             // ロビーで設定したスキン名と一致しない場合
             if (SendData.skinName != ob.name)
             {
@@ -471,11 +482,13 @@ public class GameDirector : MonoBehaviour
 
             case "StopWatch": // ストップウォッチの場合
                 // ゲーム時間を3秒延長する
+                audioSource.PlayOneShot(stopWatchSE);
                 time += 3;
                 await roomModel.CountTimer(time);
                 break;
 
             case "Trap": // トラップの場合
+                audioSource.PlayOneShot(trapSE);
                 // フィールドにトラップを設置
                 Vector3 playerPos = characterList[roomModel.ConnectionID].transform.position;
                 // インスタンス生成
@@ -487,6 +500,7 @@ public class GameDirector : MonoBehaviour
 
             case "Projector": // 投影機の場合
                 // 5秒間自由に動く偽の影を召喚する
+                audioSource.PlayOneShot(projectorSE);
                 break;
 
             default:
@@ -569,7 +583,7 @@ public class GameDirector : MonoBehaviour
             //}
 
             // ロビーで設定したスキン名と一致しない場合
-            if (skinName != ob.name)
+            if (skinName + "_" + userID != ob.name)
             {
                 // コライダーを消す
                 ob.GetComponent<BoxCollider>().enabled = false;

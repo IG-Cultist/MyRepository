@@ -8,18 +8,20 @@ public class Title : MonoBehaviour
 
     [SerializeField] Text userID;
 
+    // クリックorタップSE
+    [SerializeField] AudioClip clickSE;
+
+    AudioSource audioSource;
+
     void Start()
     {
+        audioSource = GetComponent<AudioSource>();
         SendData.roomName = "";
         ChangeShadow();
     }
     void Update()
     {
-        //if (Input.GetMouseButtonUp(0))
-        //{
-        //    Initiate.DoneFading();
-        //    Initiate.Fade("Lobby", Color.black, 0.7f);
-        //}
+        if (Input.GetMouseButtonUp(0)) audioSource.PlayOneShot(clickSE);
 
         if (Input.GetKeyDown(KeyCode.Space))
         {

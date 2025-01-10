@@ -25,6 +25,11 @@ public class Player : MonoBehaviour
     // ゲームディレクタースクリプト
     GameDirector gameDirector;
 
+    // 踏みつけ時SE
+    [SerializeField] AudioClip stompSE;
+
+    AudioSource audioSource;
+
     void Start()
     {
         gameDirector = GameObject.Find("GameDirector").GetComponent<GameDirector>();
@@ -69,6 +74,7 @@ public class Player : MonoBehaviour
             GameObject hitObject = hitted.collider.gameObject;
             if (hitObject.name == "StompZone")
             {
+                audioSource.PlayOneShot(stompSE);
                 // カメラを揺らす
                 this.transform.GetChild(0).DOShakePosition(0.2f, 0.1f, 20, 15, false, true);
 
