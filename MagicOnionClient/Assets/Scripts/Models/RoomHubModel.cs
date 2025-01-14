@@ -82,9 +82,9 @@ public class RoomHubModel : BaseModel, IRoomHubReceiver
     /// <param name="roomName">部屋名</param>
     /// <param name="userID">ユーザID</param>
     /// <returns></returns>
-    public async UniTask JoinAsync(string roomName, int userID)
+    public async UniTask JoinAsync(string roomName, int userID, string skinName)
     {
-         JoinedUser[] users = await roomHub.JoinAsync(roomName, userID);
+         JoinedUser[] users = await roomHub.JoinAsync(roomName, userID, skinName);
         foreach (var user in users)
         {
             if (user.UserData.Id == userID)
@@ -211,7 +211,7 @@ public class RoomHubModel : BaseModel, IRoomHubReceiver
     public async UniTask JoinLobbyAsync(int userID)
     {
         await roomHub.JoinLobbyAsync(userID);
-        await JoinAsync("Lobby", userID);
+        await JoinAsync("Lobby", userID, "shadow_noraml");
     }
 
     /// <summary>
@@ -245,7 +245,6 @@ public class RoomHubModel : BaseModel, IRoomHubReceiver
     /// <summary>
     /// スキン変更処理
     /// </summary>
-    /// <param name="userID"></param>
     /// <param name="skinName"></param>
     /// <returns></returns>
     public async UniTask ChangeSkinAsync(int userID, string skinName)
@@ -256,6 +255,8 @@ public class RoomHubModel : BaseModel, IRoomHubReceiver
     /// <summary>
     /// スキン適用通知
     /// </summary>
+    /// <param name="skinName"></param>
+    /// <returns></returns>
     public void OnChangeSkin(int userID, string skinName)
     {
         OnChangeSkinUser(userID, skinName);

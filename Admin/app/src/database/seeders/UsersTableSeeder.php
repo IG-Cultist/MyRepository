@@ -16,26 +16,31 @@ class UsersTableSeeder extends Seeder
         User::create([
             'name' => 'jobi',
             'token' => '',
+            'skin_name' => 'shadow_normal',
         ]);
-        
+
         User::create([
             'name' => 'igc',
             'token' => '',
+            'skin_name' => 'shadow_normal',
         ]);
 
         User::create([
             'name' => 'tera',
             'token' => '',
+            'skin_name' => 'shadow_normal',
         ]);
 
         User::create([
             'name' => 'meep',
             'token' => '',
+            'skin_name' => 'shadow_normal',
         ]);
 
         User::create([
             'name' => 'morsh',
             'token' => '',
+            'skin_name' => 'shadow_normal',
         ]);
     }
 }

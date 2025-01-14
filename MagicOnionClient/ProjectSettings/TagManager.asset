@@ -9,6 +9,7 @@ TagManager:
   - Shadow
   - Item
   - Health
+  - Shadow_Rival
   layers:
   - Default
   - TransparentFX

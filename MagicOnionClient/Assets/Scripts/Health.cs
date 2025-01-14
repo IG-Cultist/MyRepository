@@ -18,7 +18,14 @@ public class Health : MonoBehaviour
         {
             GameObject itemObj = Instantiate(heartPrefabs);
             itemObj.name = "Heart_" + (i +1);
-            itemObj.transform.position = new Vector3(5f + (1.5f * i), -15.8f, 10f);
+            itemObj.transform.position = new Vector3(5f + (1.5f * i), -16.5f, 10f);
+        }
+
+        for (int i = 0; i < 3; i++)
+        {
+            GameObject itemObj = Instantiate(heartPrefabs);
+            itemObj.name = "Rival_Heart_" + (i + 1);
+            itemObj.transform.position = new Vector3(-8f + (1.5f * i), -16.5f, 10f);
         }
     }
 }

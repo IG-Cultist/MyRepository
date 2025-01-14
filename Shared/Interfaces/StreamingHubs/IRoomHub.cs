@@ -16,8 +16,9 @@ namespace Shared.Interfaces.StreamingHubs
         /// </summary>
         /// <param name="roomHub">入室する部屋名</param>
         /// <param name="userID">ユーザID</param>
+        /// <param name="skinName">スキン名</param>
         /// <returns></returns>
-        Task<JoinedUser[]> JoinAsync(string roomHub,int userID);
+        Task<JoinedUser[]> JoinAsync(string roomHub,int userID, string skinName);
 
         /// <summary>
         /// ユーザ退室
@@ -70,7 +71,7 @@ namespace Shared.Interfaces.StreamingHubs
 
         /// <summary>
         /// スキン変更
-        /// </summary>
+        /// </summary> 
         /// <param name="userID">ユーザID</param>
         /// <param name="skinName">スキン名</param>
         /// <returns></returns>

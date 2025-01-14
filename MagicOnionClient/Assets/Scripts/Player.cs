@@ -32,6 +32,7 @@ public class Player : MonoBehaviour
 
     void Start()
     {
+        audioSource = GetComponent<AudioSource>();
         gameDirector = GameObject.Find("GameDirector").GetComponent<GameDirector>();
     }
     void Update()
@@ -93,7 +94,7 @@ public class Player : MonoBehaviour
                 if (Physics.Raycast(ray, out hit))
                 {
                     // 生成位置を設定
-                    footPrintObj.transform.position = new Vector3(hit.point.x, 0.54f, hit.point.z);
+                    footPrintObj.transform.position = new Vector3(hit.point.x, 0.64f, hit.point.z);
                 }
 
                 await Task.Delay(300);
@@ -125,7 +126,7 @@ public class Player : MonoBehaviour
     async void DamageEffect(Transform transform)
     {
         // カメラを揺らす
-        transform.GetChild(0).DOShakePosition(0.6f, 1.5f, 45, 15, false, true);
+        transform.GetChild(0).DOShakePosition(0.9f, 1.5f, 45, 15, false, true);
      
         //// 対象のレンダラーを取得
         //Renderer renderer = transform.GetChild(2).GetComponent<Renderer>();

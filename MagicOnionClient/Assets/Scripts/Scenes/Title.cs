@@ -23,19 +23,9 @@ public class Title : MonoBehaviour
     {
         if (Input.GetMouseButtonUp(0)) audioSource.PlayOneShot(clickSE);
 
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            Initiate.DoneFading();
-            Initiate.Fade("Lobby", Color.black, 0.7f);
+        if (Input.GetKeyDown(KeyCode.Space)) StartGame();
 
-            int.TryParse(userID.text, out int id);
-            SendData.userID = id;
-        }
-
-        if (Input.GetKeyDown(KeyCode.Tab))
-        {
-            ChangeShadow();
-        }
+        if (Input.GetKeyDown(KeyCode.Tab)) ChangeShadow();
     }
 
     void ChangeShadow()
@@ -49,5 +39,14 @@ public class Title : MonoBehaviour
         int rndNum = rand.Next(0, shadows.Length);
 
         shadows[rndNum].SetActive(true);
+    }
+
+    public void StartGame()
+    {
+        Initiate.DoneFading();
+        Initiate.Fade("Lobby", Color.black, 0.7f);
+
+        int.TryParse(userID.text, out int id);
+        SendData.userID = id;
     }
 }

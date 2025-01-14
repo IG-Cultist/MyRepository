@@ -31,8 +31,9 @@ namespace Server.StreamingHubs
         /// </summary>
         /// <param name="roomHub">部屋名</param>
         /// <param name="userID">ユーザID</param>
+        /// <param name="skinName">スキン名</param> 
         /// <returns></returns>
-        public async Task<JoinedUser[]> JoinAsync(string roomHub, int userID)
+        public async Task<JoinedUser[]> JoinAsync(string roomHub, int userID, string skinName)
         {
             // ルームに参加＆ルームを保持
             this.room = await this.Group.AddAsync(roomHub);
@@ -49,6 +50,8 @@ namespace Server.StreamingHubs
             roomData.Health = 3;
             // 参加順を設定
             joinedUser.JoinOrder = roomStrage.AllValues.Count;
+            // 参加者のスキン名を設定
+            joinedUser.SkinName = skinName;
 
             // ルーム参加者全員に、ユーザの通知を送信 (Broadcast(room)で自身も含む)
             this.BroadcastExceptSelf(room).OnJoin(joinedUser);
@@ -104,6 +107,7 @@ namespace Server.StreamingHubs
         /// <summary>
         /// ゲーム開始処理
         /// </summary>
+        /// <param name="skinName">スキン名</param> 
         /// <returns></returns>
         public async Task ReadyAsync()
         {
@@ -218,7 +222,7 @@ namespace Server.StreamingHubs
             //string roomName = randomName();
 
             // 参加中のユーザ情報を返す
-            JoinedUser[] joinedUserList = await JoinAsync("Lobby",userID);
+            JoinedUser[] joinedUserList = await JoinAsync("Lobby",userID, "shadow_noraml");
 
             // 参加人数が2人になったらマッチング
             //if(joinedUserList.Length == 2)

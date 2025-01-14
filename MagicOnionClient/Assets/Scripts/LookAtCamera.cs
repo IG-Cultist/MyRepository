@@ -13,6 +13,7 @@ public class LookAtCamera : MonoBehaviour
 
     public void GetCamera(Camera playerCam)
     {
-        camera = playerCam;
+        if (camera != null) return;
+            camera = playerCam;
     }
 }

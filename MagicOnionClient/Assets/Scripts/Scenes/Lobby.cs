@@ -1,6 +1,6 @@
 /// ==============================
 /// ゲームディレクタースクリプト
-/// Name:西浦晃太 Update:12/24
+/// Name:西浦晃太 Update:01/14
 /// ==============================
 using Cysharp.Threading.Tasks.Triggers;
 using DG.Tweening;
@@ -33,6 +33,8 @@ public class Lobby : MonoBehaviour
     [SerializeField] GameObject loadingIcon;
     // スキン変更パネル
     [SerializeField] GameObject skinPanel;
+    // スキン変更ボタン
+    [SerializeField] GameObject[] changeButton;
     // ヘッダーテキスト
     [SerializeField] Text headerText;
     // 参加ユーザの接続ID保存リスト
@@ -150,16 +152,6 @@ public class Lobby : MonoBehaviour
     /// </summary>
     public async void Ready()
     {
-        await roomModel.ReadyAsync();
-        readyButton.SetActive(false);
-    }
-
-    async void OnMatchingUser(string roomName)
-    {
-        // 送るデータを代入
-        SendData.roomName = roomName;
-        SendData.idList = idList;
-
         // 選択スキン判定
         string sendStr;
         switch (count)
@@ -181,6 +173,19 @@ public class Lobby : MonoBehaviour
                 break;
         }
         SendData.skinName = sendStr;
+
+        await roomModel.ReadyAsync();
+        readyButton.SetActive(false);
+
+        changeButton[0].SetActive(false);
+        changeButton[1].SetActive(false);
+    }
+
+    async void OnMatchingUser(string roomName)
+    {
+        // 送るデータを代入
+        SendData.roomName = roomName;
+        SendData.idList = idList;
 
         Loading();
         await Task.Delay(800);

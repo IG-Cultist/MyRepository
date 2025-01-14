@@ -29,6 +29,6 @@ namespace Shared.Interfaces.StreamingHubs
         /// スキン名
         /// </summary>
         [Key(3)]
-        public string SkinStr { get; set; }
+        public string SkinName { get; set; }
     }
 }

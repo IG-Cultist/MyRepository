@@ -24,57 +24,69 @@ public class GameDirector : MonoBehaviour
     [SerializeField] GameObject trapPrefabs;
     // 退室ボタン
     [SerializeField] GameObject exitButton;
-    // 部屋モデル
-    [SerializeField] RoomHubModel roomModel;
-    // 生成ユーザのディクショナリー
-    Dictionary<Guid, GameObject> characterList = new Dictionary<Guid, GameObject>();
     // カウントダウン表示パネル
     [SerializeField] GameObject countPanel;
+
     // カウントダウンテキスト
     [SerializeField] Text countText;
-    // 部屋名
-    [SerializeField] Text roomName;
     // 所有アイテムパネル
     [SerializeField] Image itemPanel;
 
+    // 生成ユーザのディクショナリー
+    Dictionary<Guid, GameObject> characterList = new Dictionary<Guid, GameObject>();
+    // 部屋モデル
+    [SerializeField] RoomHubModel roomModel;
+
+    // ストップウォッチ使用SE
+    [SerializeField] AudioClip stopWatchSE;
+    // 踏みつけ時SE
+    [SerializeField] AudioClip stompSE;
+    // プロジェクター使用SE
+    [SerializeField] AudioClip projectorSE;
+    // トラップ使用SE
+    [SerializeField] AudioClip trapSE;
+    // タイムアップSE
+    [SerializeField] AudioClip timeUpSE;
+    // 時計の針SE
+    [SerializeField] AudioClip clockSE;
+
+    // オーディオソース
+    AudioSource audioSource;
+    // 自分のカメラ
     GameObject myCamera;
 
+    // プレイヤーのHPリスト
     List<GameObject> heartList;
+    List<GameObject> rivalHeartList;
 
+    // プレイヤースクリプト
     Player playerScript;
+    // アイテムスクリプト
+    Item itemScript;
+
     // ゲーム開始判定変数
     bool isStart = false;
-
+    // ゲーム終了判定変数
     bool isFinish = false;
 
+    // 移動速度
     public float moveSpeed = 1f;
 
     public int userID;
 
+    // 現在所有しているアイテム名
     string nowItemName = "";
 
+    // 移動速度ブースト判定
     bool isBoost = false;
 
+    // マスタークライアント判定
     bool isMaster;
 
+    // 制限時間
     int time = 30;
-
-    // ストップウォッチ使用SE
-    [SerializeField] AudioClip stopWatchSE;
-
-    // 踏みつけ時SE
-    [SerializeField] AudioClip stompSE;
-
-    // プロジェクター使用SE
-    [SerializeField] AudioClip projectorSE;
-
-    // トラップ使用SE
-    [SerializeField] AudioClip trapSE;
-
-    // クリックorタップSE
-    //AudioClip clickSE;
-
-    AudioSource audioSource;
+    // タイムアップ時SE再生回数用変数
+    int timeUpCnt = 0;
 
     // Start is called before the first frame update
     async void Start()
@@ -98,35 +110,41 @@ public class GameDirector : MonoBehaviour
             Application.Quit();
 #endif
         }
-        audioSource = GetComponent<AudioSource>();
-        // 非表示にする
-        exitButton.SetActive(false);
 
         // ユーザが入室したときにメソッドを実行するようモデルに登録
         roomModel.OnJoinedUser += this.OnJoinedUser;
         roomModel.OnLeavedUser += this.OnLeavedUser;
         roomModel.OnMovedUser += this.OnMovedUser;
-        //roomModel.OnReadyUser += this.OnReadyUser;
         roomModel.OnFinishUser += this.OnFinishUser;
         roomModel.OnAttackUser += this.OnAttackUser;
         roomModel.OnCountUser += this.OnCountUser;
         roomModel.OnChangeSkinUser += this.OnChangeSkinUser;
+
+        // オーディオソースのコンポネント取得
+        audioSource = GetComponent<AudioSource>();
+
+        itemScript = GameObject.Find("ItemManager").GetComponent<Item>();
+
+        // 非表示にする
+        exitButton.SetActive(false);
+
+        // ハートのゲームオブジェクトを取得
+        heartList = new List<GameObject>();
+        rivalHeartList = new List<GameObject>();
+        // 各ハートをリストに入れる
+        for (int i = 0; i < 3; i++)
+        {
+            rivalHeartList.Add(GameObject.Find("Rival_Heart_" + (i + 1)));
+            heartList.Add(GameObject.Find("Heart_" + (i + 1)));
+        }
+
         // 接続
         await roomModel.ConnectAsync();
 
         await Task.Delay(600);
 
         JoinRoom();
-    
-        roomName.text = "RoomName:" +  SendData.roomName;
 
-        // ハートのゲームオブジェクトを取得
-        heartList = new List<GameObject>();
-        // 各ハートをリストに入れる
-        for (int i = 0; i < 3; i++)
-        {
-            heartList.Add(GameObject.Find("Heart_" + (i + 1)));
-        }
     }
 
     void Update()
@@ -150,6 +168,8 @@ public class GameDirector : MonoBehaviour
         {
             LookUp();
         }
+
+        if (timeUpCnt >= 3) CancelInvoke("TimeUp");
     }
 
     /// <summary>
@@ -174,6 +194,8 @@ public class GameDirector : MonoBehaviour
         // 生成位置を設定
         characterGameObject.transform.position = new Vector3(-7.5f + (2 * count), 2f, -10f);
 
+        characterGameObject.name = user.UserData.Id.ToString();
+
         // 自分以外の各オブジェクトを非アクティブにする
         if (roomModel.ConnectionID != user.ConnectionID)
         {
@@ -185,7 +207,11 @@ public class GameDirector : MonoBehaviour
             GameObject zone = characterGameObject.transform.GetChild(1).gameObject;
             zone.SetActive(false);
 
-            Change(user.UserData.Id);
+            // 自身の影と区別するためタグを変更
+            foreach (Transform item in characterGameObject.transform.GetChild(2))
+            {
+                item.tag = "Shadow_Rival";
+            }
         }
         else if (roomModel.ConnectionID == user.ConnectionID)
         {
@@ -208,24 +234,15 @@ public class GameDirector : MonoBehaviour
             // 自身のカメラにハートカメラをスタックさせる
             cameraData.cameraStack.Add(stackCamera);
 
+            // アイテムスクリプトへ自身のカメラを渡す
+            itemScript.playerCam = camera;
+
             // 解像度設定を生成したカメラに設定
             RectScalerWithViewport rectScalerWithViewport = GameObject.Find("RectScalerPanel").GetComponent<RectScalerWithViewport>();
             rectScalerWithViewport.refCamera = camera;
-
-            // スキン変更判定
-            ChangeSkin(characterGameObject.transform.GetChild(2));
         }
 
-        // 識別番号を各子オブジェクトの名前に付ける
-        foreach (Transform obj in characterGameObject.transform.GetChild(2))
-        {
-            if (obj.tag == "Shadow")
-            {
-                obj.name += "_" + user.UserData.Id;
-            }
-        }
-
-        characterGameObject.name = user.UserData.Id.ToString();
+        ChangeSkin(user.UserData.Id, user.SkinName);
 
         characterList[user.ConnectionID] = characterGameObject; // フィールドで保持
         playerScript.connectionID = user.ConnectionID;
@@ -263,15 +280,6 @@ public class GameDirector : MonoBehaviour
     }
 
     /// <summary>
-    /// ユーザ準備処理
-    /// </summary>
-    void OnReadyUser()
-    {
-        //isStart = true;
-        //if (isMaster ==true) StartGame();
-    }
-
-    /// <summary>
     /// ユーザゲーム終了処理
     /// </summary>
     void OnFinishUser()
@@ -298,18 +306,12 @@ public class GameDirector : MonoBehaviour
         countText.text = "クリックで退室";
         CancelInvoke("CountDown");
         isFinish = true;
+        InvokeRepeating("TimeUp", 0.1f, 2f);   
     }
 
     public async void JoinRoom()
     {
-        //System.Random rand = new System.Random();
-        //int id = rand.Next(1, 4);
-  
-        //ConnectPanel.SetActive(false);
-        //int.TryParse(userID.text, out int id);
-        //userID = id;
-
-        await roomModel.JoinAsync(SendData.roomName, SendData.userID);
+        await roomModel.JoinAsync(SendData.roomName, SendData.userID, SendData.skinName);
 
         InvokeRepeating("Move", 0.1f, 0.1f);
 
@@ -363,8 +365,13 @@ public class GameDirector : MonoBehaviour
             // カメラを揺らす
             characterList[roomModel.ConnectionID].transform.GetChild(0).DOShakePosition(0.6f, 1.5f, 45, 15, false, true);
 
-            Destroy(heartList[health]);
-            heartList.Remove(heartList[health]);
+            Destroy(heartList[health]); 
+            //heartList.Remove(heartList[health]);
+        }
+        else
+        {
+            Destroy(rivalHeartList[health]);
+            //rivalHeartList.Remove(heartList[health]);
         }
 
         if (health <= 0)
@@ -372,7 +379,6 @@ public class GameDirector : MonoBehaviour
             Finish();
         }
     }
-
 
     /// <summary>
     /// キー入力移動処理
@@ -409,25 +415,6 @@ public class GameDirector : MonoBehaviour
         {
             // 自身のオブジェクトの北方面に力を加える
             rb.AddForce(new Vector3(0f, 0f, -moveSpeed), ForceMode.Impulse);
-        }
-    }
-
-    /// <summary>
-    /// スキン(影)変更処理
-    /// </summary>
-    void ChangeSkin(Transform transform)
-    {
-        // 取得したこの数分ループ
-        foreach (Transform ob in transform)
-        {
-            // ロビーで設定したスキン名と一致しない場合
-            if (SendData.skinName != ob.name)
-            {
-                // コライダーを消す
-                ob.GetComponent<BoxCollider>().enabled = false;
-                // 透明度を0にする
-                ob.GetComponent<Renderer>().material.color = new Color(255, 255, 255, 0);
-            }
         }
     }
 
@@ -495,7 +482,7 @@ public class GameDirector : MonoBehaviour
                 GameObject trapObj = Instantiate(trapPrefabs);
                 trapObj.name = "Trap(active)";
                 // 生成位置を設定
-                trapObj.transform.position = new Vector3(playerPos.x, playerPos.y + 0.3f, playerPos.x);
+                trapObj.transform.position = new Vector3(playerPos.x, playerPos.y + 1.0f, playerPos.x);
                 break;
 
             case "Projector": // 投影機の場合
@@ -572,6 +559,14 @@ public class GameDirector : MonoBehaviour
         // 取得したこの数分ループ
         foreach (Transform ob in GameObject.Find(userID.ToString()).transform.GetChild(2))
         {
+            // ロビーで設定したスキン名と一致しない場合
+            if (skinName != ob.name)
+            {
+                // コライダーを消す
+                ob.GetComponent<BoxCollider>().enabled = false;
+                // 透明度を0にする
+                ob.GetComponent<Renderer>().material.color = new Color(255, 255, 255, 0);
+            }
             //// ロビーで設定したスキン名と一致していた場合
             //if (skinName == ob.name)
             //{ //スキンを表示
@@ -581,20 +576,17 @@ public class GameDirector : MonoBehaviour
             //{ //スキンを非表示に
             //    GameObject.Find(ob.name).SetActive(false);
             //}
-
-            // ロビーで設定したスキン名と一致しない場合
-            if (skinName + "_" + userID != ob.name)
-            {
-                // コライダーを消す
-                ob.GetComponent<BoxCollider>().enabled = false;
-                // 透明度を0にする
-                ob.GetComponent<Renderer>().material.color = new Color(255, 255, 255, 0);
-            }
         }
     }
 
-    async void Change(int id)
+    async void ChangeSkin(int userID, string skinName)
     {
-        await roomModel.ChangeSkinAsync(id, SendData.skinName);
+        await roomModel.ChangeSkinAsync(userID, skinName);
+    }
+
+    void TimeUp()
+    {
+        audioSource.PlayOneShot(timeUpSE);
+        timeUpCnt++;
     }
 }

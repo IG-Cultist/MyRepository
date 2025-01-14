@@ -27,29 +27,10 @@ public class Attack : MonoBehaviour
         }
 
         // 踏んだのが影の場合 かつクールダウン中でない場合
-        if (other.gameObject.tag == "Shadow" && player.isHit == false)
+        if (other.gameObject.tag == "Shadow_Rival" && player.isHit == false)
         {
-            // 自身の影でない場合はダメージ処理をし、クールダウンに入る
-            if (other.gameObject.name != "shadow_normal_" + SendData.userID)
-            {
-                player.Damage(other.gameObject);
-                player.isHit = true;
-            }
-            else if (other.gameObject.name != "shadow_face_" + SendData.userID)
-            {
-                player.Damage(other.gameObject);
-                player.isHit = true;
-            }
-            else if (other.gameObject.name != "shadow_mouth_" + SendData.userID)
-            {
-                player.Damage(other.gameObject);
-                player.isHit = true;
-            }
-            else if (other.gameObject.name != "shadow_eye_" + SendData.userID)
-            {
-                player.Damage(other.gameObject);
-                player.isHit = true;
-            }
+            player.Damage(other.gameObject);
+            player.isHit = true;
         }
     }
 }

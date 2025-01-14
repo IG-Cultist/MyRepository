@@ -25,14 +25,19 @@ namespace Shared.Model.Entity
         [Key(2)] 
         public string Token { get; set; }
         /// <summary>
+        /// 認証トークン
+        /// </summary>
+        [Key(3)]
+        public string Skin_Name { get; set; }
+        /// <summary>
         /// 生成日時
         /// </summary>
-        [Key(3)] 
+        [Key(4)] 
         public DateTime Created_at { get; set; }
         /// <summary>
         /// 更新日時
         /// </summary>
-        [Key(4)] 
+        [Key(5)] 
         public DateTime Updated_at { get; set; }
     }
 }

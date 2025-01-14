@@ -76,7 +76,7 @@ namespace Shared.Interfaces.StreamingHubs
         /// <summary>
         /// スキン変更通知
         /// </summary>
-        /// <param name="userID">ユーザID</param>
+        /// <param name="useID">ユーザID</param>
         /// <param name="skinName">スキン名</param>
         void OnChangeSkin(int userID, string skinName);
     }

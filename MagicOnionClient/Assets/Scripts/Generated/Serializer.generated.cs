@@ -250,7 +250,7 @@ namespace MessagePack.Formatters.Shared.Interfaces.StreamingHubs
             global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<global::System.Guid>(formatterResolver).Serialize(ref writer, value.ConnectionID, options);
             global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<global::Shared.Model.Entity.User>(formatterResolver).Serialize(ref writer, value.UserData, options);
             writer.Write(value.JoinOrder);
-            global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<string>(formatterResolver).Serialize(ref writer, value.SkinStr, options);
+            global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<string>(formatterResolver).Serialize(ref writer, value.SkinName, options);
         }
 
         public global::Shared.Interfaces.StreamingHubs.JoinedUser Deserialize(ref global::MessagePack.MessagePackReader reader, global::MessagePack.MessagePackSerializerOptions options)
@@ -279,7 +279,7 @@ namespace MessagePack.Formatters.Shared.Interfaces.StreamingHubs
                         ____result.JoinOrder = reader.ReadInt32();
                         break;
                     case 3:
-                        ____result.SkinStr = global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<string>(formatterResolver).Deserialize(ref reader, options);
+                        ____result.SkinName = global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<string>(formatterResolver).Deserialize(ref reader, options);
                         break;
                     default:
                         reader.Skip();
@@ -335,10 +335,11 @@ namespace MessagePack.Formatters.Shared.Model.Entity
             }
 
             global::MessagePack.IFormatterResolver formatterResolver = options.Resolver;
-            writer.WriteArrayHeader(5);
+            writer.WriteArrayHeader(6);
             writer.Write(value.Id);
             global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<string>(formatterResolver).Serialize(ref writer, value.Name, options);
             global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<string>(formatterResolver).Serialize(ref writer, value.Token, options);
+            global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<string>(formatterResolver).Serialize(ref writer, value.Skin_Name, options);
             global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<global::System.DateTime>(formatterResolver).Serialize(ref writer, value.Created_at, options);
             global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<global::System.DateTime>(formatterResolver).Serialize(ref writer, value.Updated_at, options);
         }
@@ -369,9 +370,12 @@ namespace MessagePack.Formatters.Shared.Model.Entity
                         ____result.Token = global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<string>(formatterResolver).Deserialize(ref reader, options);
                         break;
                     case 3:
-                        ____result.Created_at = global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<global::System.DateTime>(formatterResolver).Deserialize(ref reader, options);
+                        ____result.Skin_Name = global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<string>(formatterResolver).Deserialize(ref reader, options);
                         break;
                     case 4:
+                        ____result.Created_at = global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<global::System.DateTime>(formatterResolver).Deserialize(ref reader, options);
+                        break;
+                    case 5:
                         ____result.Updated_at = global::MessagePack.FormatterResolverExtensions.GetFormatterWithVerify<global::System.DateTime>(formatterResolver).Deserialize(ref reader, options);
                         break;
                     default:

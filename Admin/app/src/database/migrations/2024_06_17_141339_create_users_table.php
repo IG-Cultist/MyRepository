@@ -14,6 +14,7 @@ return new class extends Migration {
             $table->id();
             $table->string('name', 255);  //ユーザ名
             $table->string('token', 255); //認証トークン
+            $table->string('skin_name', 255);  //スキン名
             $table->timestamps();
 
             $table->unique('name');
