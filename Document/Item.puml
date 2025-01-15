@@ -1,0 +1,42 @@
+@startuml
+'アイテムシーケンス図(マスタークライアント方式を採用)
+
+participant ClientA
+participant ClientB
+participant ClientC
+
+participant Server
+autonumber
+ClientA -> Server : アイテム生成
+
+ClientA <- Server : アイテム生成
+ClientB <- Server : アイテム生成
+ClientC <- Server : アイテム生成
+
+note over Server
+Aのアイテム生成を
+全ユーザに適応
+end note
+
+autonumber
+ClientB -> Server : アイテムAを踏む
+ClientB <- Server : アイテムAを破壊
+note over Server
+アイテムAが踏まれたことを
+全員に通知
+end note
+
+ClientA <- Server : アイテムAを破壊
+ClientC <- Server : アイテムAを破壊
+
+autonumber
+ClientB -> Server : アイテムAを使用
+ClientB <- Server : アイテムAの効果を適用
+note over Server
+アイテムAが使用されたことを
+全員に通知
+end note
+
+ClientA <- Server : ClientBにアイテムAの効果を適用
+ClientC <- Server : ClientBにアイテムAの効果を適用
+@enduml

@@ -76,8 +76,28 @@ namespace Shared.Interfaces.StreamingHubs
         /// <summary>
         /// スキン変更通知
         /// </summary>
-        /// <param name="useID">ユーザID</param>
+        /// <param name="userID">ユーザID</param>
         /// <param name="skinName">スキン名</param>
         void OnChangeSkin(int userID, string skinName);
+
+        /// <summary>
+        /// アイテム踏みつけ通知
+        /// </summary>
+        /// <param name="pos">生成位置</param>
+        /// <param name="itemName">アイテム名</param>
+        void OnSpawnItem(Vector3 pos, string itemName);
+
+        /// <summary>
+        /// アイテム踏みつけ通知
+        /// </summary>
+        /// <param name="itemName">アイテム名</param>
+        void OnStompItem(string itemName);
+
+        /// <summary>
+        /// アイテム使用通知
+        /// </summary>
+        /// <param name="connectionID">ユーザID</param>
+        /// <param name="itemName">アイテム名</param>
+        void OnUseItem(Guid connectionID, string itemName);
     }
 }

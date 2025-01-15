@@ -243,10 +243,53 @@ namespace Server.StreamingHubs
             this.Broadcast(room).OnCount(time);
         }
 
+        /// <summary>
+        /// スキン変更処理
+        /// </summary>
+        /// <param name="userID"></param>
+        /// <param name="skinName"></param>
+        /// <returns></returns>
         public async Task ChangeSkinAsync(int userID, string skinName)
         {
             // ルーム参加者全員に、ユーザのスキンを送信
             this.Broadcast(room).OnChangeSkin(userID, skinName);
+        }
+
+
+        /// <summary>
+        /// アイテム生成処理
+        /// </summary>
+        /// <param name="pos">生成位置</param>
+        /// <param name="itemName">アイテム名</param>
+        /// <returns></returns>
+        public async Task SpawnItemAsync(Vector3 pos, string itemName)
+        {
+            // ルーム参加者全員に、アイテムが生成されたことを通知
+            this.Broadcast(room).OnSpawnItem(pos, itemName);
+        }
+
+        /// <summary>
+        /// アイテム踏みつけ処理
+        /// </summary>
+        /// <param name="itemName">アイテム名</param>
+        /// <returns></returns>
+        public async Task StompItemAsync(string itemName)
+        {
+            // ルーム参加者全員に、対象アイテムが踏まれたことを通知
+            this.Broadcast(room).OnStompItem(itemName);
+        }
+
+
+        /// <summary>
+        /// アイテム使用処理
+        /// </summary>
+        /// <param name="connectionID">ユーザID</param>
+        /// <param name="itemName">アイテム名</param>
+        /// <returns></returns>
+        public async Task UseItemAsync(Guid connectionID, string itemName)
+        {
+            // ルーム参加者全員に、対象がアイテムを使用したことを通知
+            this.BroadcastExceptSelf(room).OnUseItem(connectionID, itemName);
         }
 
         /// <summary>

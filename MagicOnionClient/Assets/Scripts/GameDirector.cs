@@ -27,6 +27,8 @@ public class GameDirector : MonoBehaviour
     // カウントダウン表示パネル
     [SerializeField] GameObject countPanel;
 
+    // 視点変更ボタン
+    [SerializeField] GameObject viewButton;
     // カウントダウンテキスト
     [SerializeField] Text countText;
     // 所有アイテムパネル
@@ -87,6 +89,13 @@ public class GameDirector : MonoBehaviour
     int time = 30;
     // タイムアップ時SE再生回数用変数
     int timeUpCnt = 0;
+
+    // 視点変更用変数
+    int viewCount = 2;
+    bool isCooldown = false;
+
+    // ボタンを押したときtrue、離したときfalseになるフラグ
+    bool buttonDownFlag = false;
 
     // Start is called before the first frame update
     async void Start()
@@ -151,10 +160,16 @@ public class GameDirector : MonoBehaviour
     {
         MovePlayer();
 
+        if (buttonDownFlag)
+        {
+            if (viewCount <= 0) OnButtonUp();
+        }
+
         // ゲーム終了状態かつ画面タップをした場合
         if (isFinish == true && Input.GetMouseButtonDown(0))
         {
             LeaveRoom();
+            CancelInvoke();
             SceneManager.LoadScene("Result");
         }
 
@@ -169,7 +184,7 @@ public class GameDirector : MonoBehaviour
             LookUp();
         }
 
-        if (timeUpCnt >= 3) CancelInvoke("TimeUp");
+        if (timeUpCnt >= 4) CancelInvoke("TimeUp");
     }
 
     /// <summary>
@@ -567,15 +582,6 @@ public class GameDirector : MonoBehaviour
                 // 透明度を0にする
                 ob.GetComponent<Renderer>().material.color = new Color(255, 255, 255, 0);
             }
-            //// ロビーで設定したスキン名と一致していた場合
-            //if (skinName == ob.name)
-            //{ //スキンを表示
-            //    GameObject.Find(ob.name).SetActive(true);
-            //}
-            //else
-            //{ //スキンを非表示に
-            //    GameObject.Find(ob.name).SetActive(false);
-            //}
         }
     }
 
@@ -588,5 +594,74 @@ public class GameDirector : MonoBehaviour
     {
         audioSource.PlayOneShot(timeUpSE);
         timeUpCnt++;
+    }
+
+    /// <summary>
+    /// 視点変更ボタン押下時処理
+    /// </summary>
+    public void OnButtonDown()
+    {
+        if (isCooldown) return; // クールダウン中の場合、処理しない
+
+        // 視点変更時間を初期化
+        viewCount = 3;
+        // 押下フラグをtrueに
+        buttonDownFlag = true;
+
+        // カメラを見上げる視点に回転
+        myCamera.transform.DOLocalRotate(new Vector3(5f, 0f, 0f), 0.1f).SetEase(Ease.Linear);
+        // 移動速度を少し下げる
+        moveSpeed = 0.2f;
+        // 視点変更時間をカウントダウン
+        InvokeRepeating("ViewTime", 0.1f, 1f);
+    }
+    /// <summary>
+    /// 視点変更解除処理
+    /// </summary>
+    public void OnButtonUp()
+    {
+        if (isCooldown) return; // クールダウン中の場合、処理しない
+
+        // クールダウン中にする
+        isCooldown = true;
+        // カウントダウンを停止
+        CancelInvoke("ViewTime");
+        // 押下フラグをfalseに
+        buttonDownFlag = false;
+
+        // カメラの回転を元に戻す
+        myCamera.transform.DOLocalRotate(new Vector3(30f, 0f, 0f), 0.1f).SetEase(Ease.Linear);
+        //移動速度を元に戻す
+        moveSpeed = 1f;
+
+        // リソースから、アイコンを取得
+        Texture2D texture = Resources.Load("UI/eye_close") as Texture2D;
+        
+        Image buttonTexture = viewButton.GetComponent<Image>();
+
+        buttonTexture.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
+                                       Vector2.zero);
+
+        InvokeRepeating("ViewCooldown", 3f, 1f);
+
+    }
+
+    void ViewTime()
+    {
+        viewCount--;
+    }
+
+    void ViewCooldown()
+    {
+        CancelInvoke("ViewCooldown");
+
+        // リソースから、アイコンを取得
+        Texture2D texture = Resources.Load("UI/eye_open") as Texture2D;
+
+        Image buttonTexture = viewButton.GetComponent<Image>();
+
+        buttonTexture.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
+                                       Vector2.zero);
+        isCooldown = false;
     }
 }

@@ -76,5 +76,29 @@ namespace Shared.Interfaces.StreamingHubs
         /// <param name="skinName">スキン名</param>
         /// <returns></returns>
         Task ChangeSkinAsync(int userID, string skinName);
+
+        /// <summary>
+        /// アイテム生成
+        /// </summary>
+        /// <param name="pos">生成位置</param>
+        /// <param name="itemName">アイテム名</param>
+        /// <returns></returns>
+        Task SpawnItemAsync(Vector3 pos, string itemName);
+
+        /// <summary>
+        /// アイテム踏みつけ
+        /// </summary>
+        /// <param name="itemName">アイテム名</param>
+        /// <returns></returns>
+        Task StompItemAsync(string itemName);
+
+
+        /// <summary>
+        /// アイテム使用
+        /// </summary>
+        /// <param name="connectionID">ユーザID</param>
+        /// <param name="itemName">アイテム名</param>
+        /// <returns></returns>
+        Task UseItemAsync(Guid connectionID, string itemName);
     }
 }
