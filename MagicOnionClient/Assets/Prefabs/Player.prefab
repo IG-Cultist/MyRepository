@@ -86,7 +86,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 112
+  m_Constraints: 116
   m_CollisionDetection: 1
 --- !u!114 &1364491393255686509
 MonoBehaviour:
@@ -541,6 +541,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: shadow_face
       objectReference: {fileID: 0}
+    - target: {fileID: 4997071540045176862, guid: 151596d5f45d8b641ae730f9b7b4d6c1,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6379420609836383282, guid: 151596d5f45d8b641ae730f9b7b4d6c1,
         type: 3}
       propertyPath: m_LocalScale.x
@@ -731,6 +736,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: shadow_eye
       objectReference: {fileID: 0}
+    - target: {fileID: 9024180603544301986, guid: 0dbc21b47ffa74049b486b3a48da1dff,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -856,6 +866,26 @@ PrefabInstance:
       propertyPath: m_ConstrainProportionsScale
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 6164488179044915213, guid: f338e5532f7efd84ba38f9749d54594f,
+        type: 3}
+      propertyPath: m_Color.a
+      value: 0.9137255
+      objectReference: {fileID: 0}
+    - target: {fileID: 6164488179044915213, guid: f338e5532f7efd84ba38f9749d54594f,
+        type: 3}
+      propertyPath: m_Color.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6164488179044915213, guid: f338e5532f7efd84ba38f9749d54594f,
+        type: 3}
+      propertyPath: m_Color.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6164488179044915213, guid: f338e5532f7efd84ba38f9749d54594f,
+        type: 3}
+      propertyPath: m_Color.r
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -910,6 +940,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: shadow_mouth
+      objectReference: {fileID: 0}
+    - target: {fileID: 1352840158239992246, guid: 769750bace727f3499c81e7c18e93def,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1352840158239992246, guid: 769750bace727f3499c81e7c18e93def,
         type: 3}

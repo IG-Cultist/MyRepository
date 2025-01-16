@@ -7,6 +7,7 @@ using Cysharp.Threading.Tasks;
 using Grpc.Net.Client;
 using MagicOnion.Client;
 using Shared.Interfaces.StreamingHubs;
+using Shared.Model.Entity;
 using System;
 using UnityEngine;
 
@@ -44,6 +45,15 @@ public class RoomHubModel : BaseModel, IRoomHubReceiver
 
     // スキン変更通知
     public Action<int, string> OnChangeSkinUser { get; set; }
+
+    // アイテム生成通知
+    public Action<int,int> OnSpawnItemUser { get; set; }
+
+    // アイテム踏みつけ通知
+    public Action<string> OnStompItemUser { get; set; }
+
+    // アイテム使用通知
+    public Action<Guid, string> OnUseItemUser { get; set; }
     /// <summary>
     /// MagicOnion接続処理
     /// </summary>
@@ -260,5 +270,67 @@ public class RoomHubModel : BaseModel, IRoomHubReceiver
     public void OnChangeSkin(int userID, string skinName)
     {
         OnChangeSkinUser(userID, skinName);
+    }
+
+    /// <summary>
+    /// アイテム生成処理
+    /// </summary>
+    /// <param name="spawnPoint">生成位置</param>
+    /// <param name="itemNumber">アイテム値</param>
+    /// <returns></returns>
+    public async UniTask SpawnItemAsync(int spawnPoint, int itemNumber)
+    {
+        await roomHub.SpawnItemAsync(spawnPoint, itemNumber);
+    }
+
+    /// <summary>
+    /// アイテム生成通知
+    /// </summary>
+    /// <param name="spawnPoint">生成位置</param>
+    /// <param name="itemNumber">アイテム値</param>
+    public void OnSpawnItem(int spawnPoint, int itemNumber)
+    {
+        OnSpawnItemUser(spawnPoint, itemNumber);
+    }
+
+    /// <summary>
+    /// アイテム踏みつけ処理
+    /// </summary>
+    /// <param name="itemName">アイテム名</param>
+    /// <returns></returns>
+    public async UniTask StompItemAsync(string itemName)
+    {
+        await roomHub.StompItemAsync(itemName);
+    }
+
+    /// <summary>
+    /// アイテム踏みつけ通知
+    /// </summary>
+    /// <param name="itemName">アイテム名</param>
+    /// <returns></returns>
+    public void OnStompItem(string itemName)
+    {
+        OnStompItemUser(itemName);
+    }
+
+    /// <summary>
+    /// アイテム使用処理
+    /// </summary>
+    /// <param name="connectionID">接続ID</param>
+    /// <param name="itemName">アイテム名</param>
+    /// <returns></returns>
+    public async UniTask UseItemAsync(Guid connectionID, string itemName)
+    {
+        await roomHub.UseItemAsync(connectionID, itemName);
+    }
+
+    /// <summary>
+    /// アイテム使用通知
+    /// </summary>
+    /// <param name="connectionID"></param>
+    /// <param name="itemName"></param>
+    public void OnUseItem(Guid connectionID, string itemName)
+    {
+        OnUseItemUser(connectionID, itemName);
     }
 }

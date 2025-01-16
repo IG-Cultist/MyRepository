@@ -10,6 +10,8 @@ TagManager:
   - Item
   - Health
   - Shadow_Rival
+  - Camera_Rival
+  - Rival
   layers:
   - Default
   - TransparentFX

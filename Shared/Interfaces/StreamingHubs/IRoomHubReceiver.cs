@@ -81,11 +81,11 @@ namespace Shared.Interfaces.StreamingHubs
         void OnChangeSkin(int userID, string skinName);
 
         /// <summary>
-        /// アイテム踏みつけ通知
+        /// アイテム生成通知
         /// </summary>
-        /// <param name="pos">生成位置</param>
-        /// <param name="itemName">アイテム名</param>
-        void OnSpawnItem(Vector3 pos, string itemName);
+        /// <param name="spawnPoint">生成位置番号</param>
+        /// <param name="itemNumber">アイテム値</param>
+        void OnSpawnItem(int spawnPoint, int itemNumber);
 
         /// <summary>
         /// アイテム踏みつけ通知

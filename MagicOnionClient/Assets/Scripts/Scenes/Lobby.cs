@@ -29,6 +29,8 @@ public class Lobby : MonoBehaviour
     [SerializeField] RoomHubModel roomModel;
     // ロードパネル
     [SerializeField] GameObject loadingPanel;
+    // 説明パネル
+    [SerializeField] GameObject explainPanel;
     // ロードアイコン
     [SerializeField] GameObject loadingIcon;
     // スキン変更パネル
@@ -55,6 +57,7 @@ public class Lobby : MonoBehaviour
         loadingPanel.SetActive(false);
         skinPanel.SetActive(false);
         readyButton.SetActive(false);
+        explainPanel.SetActive(false);
         // ユーザが入室したときにメソッドを実行するようモデルに登録
         roomModel.OnJoinedUser += this.OnJoinedUser;
         roomModel.OnLeavedUser += this.OnLeavedUser;
@@ -249,5 +252,15 @@ public class Lobby : MonoBehaviour
 
         skinPreview.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
                                        Vector2.zero);
+    }
+
+    public void openExplain()
+    {
+        explainPanel.SetActive(true);
+    }
+
+    public void closeExplain()
+    {
+        explainPanel.SetActive(false);
     }
 }

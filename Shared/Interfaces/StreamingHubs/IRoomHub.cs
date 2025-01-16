@@ -80,10 +80,10 @@ namespace Shared.Interfaces.StreamingHubs
         /// <summary>
         /// アイテム生成
         /// </summary>
-        /// <param name="pos">生成位置</param>
-        /// <param name="itemName">アイテム名</param>
+        /// <param name="spawnPoint">生成位置番号</param>
+        /// <param name="itemNumber">アイテム値</param>
         /// <returns></returns>
-        Task SpawnItemAsync(Vector3 pos, string itemName);
+        Task SpawnItemAsync(int spawnPoint, int itemNumber);
 
         /// <summary>
         /// アイテム踏みつけ

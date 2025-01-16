@@ -108,14 +108,16 @@ public class Player : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        // トラップを踏んだ際
-        if (collision.gameObject.name == "Trap(active)")
+        // トラップを踏んだ際かつ直近でダメージを受けていない場合
+        if (collision.gameObject.name == "Trap(active)" && isHit == false)
         { 
             // ダメージ処理をする
             DamageEffect(this.transform);
             gameDirector.Attack(this.GetComponent<Player>().connectionID);
             // トラップを破壊
             Destroy(collision.gameObject);
+
+            gameDirector.OnUseItemUser(this.GetComponent<Player>().connectionID, collision.gameObject.name);
         }
     }
 
@@ -125,16 +127,24 @@ public class Player : MonoBehaviour
     /// <param name="renderer"></param>
     async void DamageEffect(Transform transform)
     {
-        // カメラを揺らす
-        transform.GetChild(0).DOShakePosition(0.9f, 1.5f, 45, 15, false, true);
-     
-        //// 対象のレンダラーを取得
-        //Renderer renderer = transform.GetChild(2).GetComponent<Renderer>();
+        // 被弾したのが自分である場合
+        if (transform.tag != "Shadow_Rival")
+        {
+            // カメラを揺らす
+            transform.GetChild(0).DOShakePosition(0.9f, 1.5f, 45, 15, false, true);
 
-        //// 色を赤くし、少ししたら戻す
-        //renderer.material.color = new Color(127, 0, 0);
-        //await Task.Delay(1200);
-        //renderer.material.color = Color.black;
-        //isHit = false;
+            await Task.Delay(1200);
+            isHit = false;
+        }
+        else
+        {
+            // 被弾をわかりやすくするよう透明度をあげる
+            transform.GetComponent<SpriteRenderer>().color = new Color32(255, 255, 255, 100);
+
+            await Task.Delay(1200);
+            isHit = false;
+            // 透明度を元に戻す
+            transform.GetComponent<SpriteRenderer>().color = new Color32(255, 255, 255, 220);
+        }
     }
 }

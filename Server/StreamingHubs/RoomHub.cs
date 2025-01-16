@@ -259,13 +259,13 @@ namespace Server.StreamingHubs
         /// <summary>
         /// アイテム生成処理
         /// </summary>
-        /// <param name="pos">生成位置</param>
-        /// <param name="itemName">アイテム名</param>
+        /// <param name="spawnPoint">生成位置番号</param>
+        /// <param name="itemNumber">アイテム値</param>
         /// <returns></returns>
-        public async Task SpawnItemAsync(Vector3 pos, string itemName)
+        public async Task SpawnItemAsync(int spawnPoint, int itemNumber)
         {
             // ルーム参加者全員に、アイテムが生成されたことを通知
-            this.Broadcast(room).OnSpawnItem(pos, itemName);
+            this.BroadcastExceptSelf(room).OnSpawnItem(spawnPoint, itemNumber);
         }
 
         /// <summary>
