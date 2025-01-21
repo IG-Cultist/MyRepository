@@ -243,8 +243,9 @@ public class GameDirector : MonoBehaviour
             foreach (Transform item in characterGameObject.transform.GetChild(2))
             {
                 item.tag = "Shadow_Rival";
-            }   
-            
+            }
+            // マップから非表示に
+            characterGameObject.transform.GetChild(3).GetComponent<MeshRenderer>().enabled = false;
             obj.tag = "Camera_Rival";
             characterGameObject.tag = "Rival";
         }
@@ -490,14 +491,29 @@ public class GameDirector : MonoBehaviour
     /// アイテム別効果処理
     /// </summary>
     public async void UseItem()
-    {  
+    {
+        GameObject rivalObj = new GameObject();
+        Destroy(rivalObj);
+
+        // 自分でないプレイヤーのゲームオブジェクトを取得
+        foreach (var id in characterList.Keys)
+        {
+            if (id != roomModel.ConnectionID)
+            {
+                rivalObj = characterList[id];
+                break;
+            }
+        }
+
         // アイテム別処理
         switch (nowItemName)
         {
             case "Compass": // コンパスの場合
                 // 相手の位置をマップに3秒間表示する
                 audioSource.PlayOneShot(compassSE);
-                
+
+                //ライバルの位置を表示
+                rivalObj.transform.GetChild(3).GetComponent<MeshRenderer>().enabled = true;
                 localizationEffect.SetActive(true);
                 isLocate = true;
                 break;
@@ -568,6 +584,7 @@ public class GameDirector : MonoBehaviour
         {
             // 3秒後に位置特定を解除
             await Task.Delay(1800);
+            rivalObj.transform.GetChild(3).GetComponent<MeshRenderer>().enabled = false;
             localizationEffect.SetActive(false);
             isLocate = false;
         }
