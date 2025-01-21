@@ -7,6 +7,9 @@ public class Item : MonoBehaviour
     // 生成するアイテムのプレハブリスト
     [SerializeField] List<GameObject> itemPrefabs;
 
+    // 生成ポイントオブジェクトの配列
+    [SerializeField] GameObject[] spawnPointObject;
+
     // 現在存在しているアイテム配列
     GameObject[] nowItems = new GameObject[3];
 
@@ -59,21 +62,10 @@ public class Item : MonoBehaviour
         // 名前を訂正
         itemObj.name = itemPrefabs[itemNum].name;
 
-        // 生成位置設定
-        switch (num)
-        {
-            case 0:
-                itemObj.transform.position = new Vector3(1f, 1.5f, 9f);
-                break;
-            case 1:
-                itemObj.transform.position = new Vector3(8f, 1.5f, -2f);
-                break;
-            case 2:
-                itemObj.transform.position = new Vector3(-7f, 1.5f, -5f);
-                break;
-            default:
-                break;
-        }
+        // 生成位置のポジションを代入
+        Vector3 pos = spawnPointObject[num].transform.position;
+        // 生成位置より少し上にアイテムを生成
+        itemObj.transform.position = new Vector3(pos.x, pos.y +1.0f, pos.z);
 
         // 各アイテムにプレイヤーのカメラを渡す
         itemObj.GetComponent<LookAtCamera>().GetCamera(playerCam);
@@ -120,21 +112,10 @@ public class Item : MonoBehaviour
         // 名前を訂正
         itemObj.name = itemPrefabs[itemNumber].name;
 
-        // 生成位置設定
-        switch (spawnPoint)
-        {
-            case 0:
-                itemObj.transform.position = new Vector3(1f, 1.5f, 9f);
-                break;
-            case 1:
-                itemObj.transform.position = new Vector3(8f, 1.5f, -2f);
-                break;
-            case 2:
-                itemObj.transform.position = new Vector3(-7f, 1.5f, -5f);
-                break;
-            default:
-                break;
-        }
+        // 生成位置のポジションを代入
+        Vector3 pos = spawnPointObject[spawnPoint].transform.position;
+        // 生成位置より少し上にアイテムを生成
+        itemObj.transform.position = new Vector3(pos.x, pos.y + 1.0f, pos.z);
 
         // 各アイテムにプレイヤーのカメラを渡す
         itemObj.GetComponent<LookAtCamera>().GetCamera(playerCam);

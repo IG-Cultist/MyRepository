@@ -29,6 +29,13 @@ public class GameDirector : MonoBehaviour
     // カウントダウン表示パネル
     [SerializeField] GameObject countPanel;
 
+    // 移動速度上昇アイコン
+    [SerializeField] GameObject speedUpEffect;
+    // 位置表示アイコン
+    [SerializeField] GameObject localizationEffect;
+    // 影生成アイコン
+    [SerializeField] GameObject spawnShadowEffect;
+
     // 視点変更ボタン
     [SerializeField] GameObject viewButton;
     // カウントダウンテキスト
@@ -92,6 +99,12 @@ public class GameDirector : MonoBehaviour
     // 移動速度ブースト判定
     bool isBoost = false;
 
+    // 影生成判定
+    bool isShadowSpawn = false;
+
+    // 位置特定判定
+    bool isLocate = false;
+
     // マスタークライアント判定
     bool isMaster;
 
@@ -147,6 +160,9 @@ public class GameDirector : MonoBehaviour
 
         // 非表示にする
         exitButton.SetActive(false);
+        spawnShadowEffect.SetActive(false);
+        localizationEffect.SetActive(false);
+        speedUpEffect.SetActive(false);
 
         // ハートのゲームオブジェクトを取得
         heartList = new List<GameObject>();
@@ -481,10 +497,14 @@ public class GameDirector : MonoBehaviour
             case "Compass": // コンパスの場合
                 // 相手の位置をマップに3秒間表示する
                 audioSource.PlayOneShot(compassSE);
+                
+                localizationEffect.SetActive(true);
+                isLocate = true;
                 break;
 
             case "RollerBlade": // ローラーブレードの場合
                 audioSource.PlayOneShot(rollerBladeSE);
+                speedUpEffect.SetActive(true);
                 // 移動速度を3秒間2倍にする
                 moveSpeed = 2.0f;
                 isBoost = true;
@@ -505,7 +525,7 @@ public class GameDirector : MonoBehaviour
                 GameObject trapObj = Instantiate(trapPrefabs);
                 trapObj.name = "Trap(active)";
                 // 生成位置を設定
-                trapObj.transform.position = new Vector3(playerPos.x+0.5f, playerPos.y + 1.0f, playerPos.x); 
+                trapObj.transform.position = new Vector3(playerPos.x, playerPos.y + 1.0f, playerPos.z + 3.0f); 
 
                 await roomModel.UseItemAsync(roomModel.ConnectionID, nowItemName);
                 break;
@@ -514,6 +534,8 @@ public class GameDirector : MonoBehaviour
                 // 5秒間自由に動く偽の影を召喚する
                 audioSource.PlayOneShot(projectorSE);
 
+                spawnShadowEffect.SetActive(true);
+                isShadowSpawn = true;
                 await roomModel.UseItemAsync(roomModel.ConnectionID, nowItemName);
                 break;
 
@@ -534,12 +556,30 @@ public class GameDirector : MonoBehaviour
         // ローラーブレードを使用していた場合
         if (isBoost == true)
         {
-            //3 秒後に速度を戻す
+            // 3秒後に速度を戻す
             await Task.Delay(1800);
+            speedUpEffect.SetActive(false);
             moveSpeed = 1.0f;
             isBoost = false;
         }
 
+        // コンパスを使用していた場合
+        if (isLocate == true)
+        {
+            // 3秒後に位置特定を解除
+            await Task.Delay(1800);
+            localizationEffect.SetActive(false);
+            isLocate = false;
+        }
+
+        // 投影機を使用していた場合
+        if (isShadowSpawn == true)
+        {       
+            // 5秒後に影を削除
+            await Task.Delay(3000);
+            spawnShadowEffect.SetActive(false);
+            isShadowSpawn = false;
+        }
     }
 
     public async void OnUseItemUser(Guid connectionID, string itemName)
@@ -554,7 +594,7 @@ public class GameDirector : MonoBehaviour
                 GameObject trapObj = Instantiate(trapPrefabs);
                 trapObj.name = "Trap(active)";
                 // 生成位置を設定
-                trapObj.transform.position = new Vector3(playerPos.x, playerPos.y + 1.0f, playerPos.x);
+                trapObj.transform.position = new Vector3(playerPos.x, playerPos.y + 1.0f, playerPos.z + 3.0f);
 
                 break;
 

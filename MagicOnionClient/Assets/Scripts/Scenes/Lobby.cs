@@ -1,6 +1,6 @@
 /// ==============================
-/// ゲームディレクタースクリプト
-/// Name:西浦晃太 Update:01/14
+/// ロビースクリプト
+/// Name:西浦晃太 Update:01/20
 /// ==============================
 using Cysharp.Threading.Tasks.Triggers;
 using DG.Tweening;
@@ -31,6 +31,10 @@ public class Lobby : MonoBehaviour
     [SerializeField] GameObject loadingPanel;
     // 説明パネル
     [SerializeField] GameObject explainPanel;
+    // 説明画像
+    [SerializeField] GameObject[] explainImages;
+    // 説明画像
+    [SerializeField] GameObject[] explainTitles;
     // ロードアイコン
     [SerializeField] GameObject loadingIcon;
     // スキン変更パネル
@@ -43,6 +47,9 @@ public class Lobby : MonoBehaviour
     List<Guid> idList = new List<Guid>();
 
     int count = 0;
+
+    // 説明画像用変数
+    int imageCnt = 0;
 
     // クリックorタップSE
     [SerializeField] AudioClip clickSE;
@@ -66,13 +73,16 @@ public class Lobby : MonoBehaviour
         // 接続
         await roomModel.ConnectAsync();
 
+        // 少し待つ
         await Task.Delay(300);
 
+        // ロビー入室
         JoinRoom();
     }
 
     void Update()
     {
+        // 左クリックもしくは画面タップ時クリックSEを出す
         if (Input.GetMouseButtonUp(0)) audioSource.PlayOneShot(clickSE);
     }
 
@@ -82,10 +92,13 @@ public class Lobby : MonoBehaviour
     /// <param name="user"></param>
     void OnJoinedUser(JoinedUser user)
     {
+        // 入室者が2名以上の場合処理しない
         if (idList.Count >= 2) return;
+        // 参加者IDリストに入れる
         idList.Add(user.ConnectionID);
 
         int cnt = 0;
+        // 表示用参加者名をIDにする
         foreach (var id in idList)
         {
             joinedUserName[cnt].text = id.ToString();
@@ -132,6 +145,7 @@ public class Lobby : MonoBehaviour
         // 入室
         await roomModel.JoinLobbyAsync(SendData.userID);
 
+        // 各ボタンを表示
         exitButton.SetActive(true);
         skinPanel.SetActive(true);
         readyButton.SetActive(true);
@@ -175,11 +189,15 @@ public class Lobby : MonoBehaviour
                 sendStr = "";
                 break;
         }
+        // 送信用スキン名に代入
         SendData.skinName = sendStr;
 
+        // 準備完了処理
         await roomModel.ReadyAsync();
+        // 準備完了ボタンを非表示に
         readyButton.SetActive(false);
 
+        // スキン変更ボタンを非表示に
         changeButton[0].SetActive(false);
         changeButton[1].SetActive(false);
     }
@@ -226,6 +244,9 @@ public class Lobby : MonoBehaviour
         loadingPanel.SetActive(false);
     }
 
+    /// <summary>
+    /// 次のスキン表示処理
+    /// </summary>
     public void nextSkin()
     {
         count++;
@@ -240,6 +261,9 @@ public class Lobby : MonoBehaviour
                                        Vector2.zero);
     }
 
+    /// <summary>
+    /// 1つ前のスキン表示処理
+    /// </summary>
     public void backSkin()
     {
         count--;
@@ -254,13 +278,69 @@ public class Lobby : MonoBehaviour
                                        Vector2.zero);
     }
 
+    /// <summary>
+    /// 説明パネル表示処理
+    /// </summary>
     public void openExplain()
     {
         explainPanel.SetActive(true);
+        explainImages[0].SetActive(true);
+        explainImages[1].SetActive(false);
+        explainTitles[0].SetActive(true);
+        explainTitles[1].SetActive(false);
     }
 
+    /// <summary>
+    /// 説明パネル非表示処理
+    /// </summary>
     public void closeExplain()
     {
         explainPanel.SetActive(false);
+    }
+
+    /// <summary>
+    /// 次の説明画像表示処理
+    /// </summary>
+    public void nextImage()
+    {
+        if (imageCnt >= 1)
+        {
+            imageCnt = 0;
+            explainImages[0].SetActive(true);
+            explainImages[1].SetActive(false);
+            explainTitles[0].SetActive(true);
+            explainTitles[1].SetActive(false);
+        }
+        else
+        {
+            imageCnt++;
+            explainImages[0].SetActive(false);
+            explainImages[1].SetActive(true);
+            explainTitles[0].SetActive(false);
+            explainTitles[1].SetActive(true);
+        }
+    }
+  
+    /// <summary>
+    /// 一つ前の説明画像表示処理
+    /// </summary>
+    public void backImage()
+    {
+        if (imageCnt <= 0)
+        {
+            imageCnt = 1;
+            explainImages[0].SetActive(false);
+            explainImages[1].SetActive(true);
+            explainTitles[0].SetActive(false);
+            explainTitles[1].SetActive(true);
+        }
+        else
+        {
+            imageCnt--;
+            explainImages[0].SetActive(true);
+            explainImages[1].SetActive(false);
+            explainTitles[0].SetActive(true);
+            explainTitles[1].SetActive(false);
+        }
     }
 }
