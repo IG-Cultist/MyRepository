@@ -28,6 +28,10 @@ public class GameDirector : MonoBehaviour
     [SerializeField] GameObject exitButton;
     // カウントダウン表示パネル
     [SerializeField] GameObject countPanel;
+    // カウントダウンゲームオブジェクト
+    [SerializeField] GameObject[] coundDownObjects;
+    // 開始合図ゲームオブジェクト
+    [SerializeField] GameObject[] readyTextObjects;
 
     // 移動速度上昇アイコン
     [SerializeField] GameObject speedUpEffect;
@@ -109,7 +113,7 @@ public class GameDirector : MonoBehaviour
     bool isMaster;
 
     // 制限時間
-    int time = 30;
+    int time = 31;
     // タイムアップ時SE再生回数用変数
     int timeUpCnt = 0;
 
@@ -163,6 +167,14 @@ public class GameDirector : MonoBehaviour
         spawnShadowEffect.SetActive(false);
         localizationEffect.SetActive(false);
         speedUpEffect.SetActive(false);
+        for (int i = 0; i < coundDownObjects.Length; i++)
+        {
+            coundDownObjects[i].SetActive(false);
+        }
+        for (int i = 0; i < readyTextObjects.Length; i++)
+        {
+            readyTextObjects[i].SetActive(false);
+        }
 
         // ハートのゲームオブジェクトを取得
         heartList = new List<GameObject>();
@@ -180,7 +192,6 @@ public class GameDirector : MonoBehaviour
         await Task.Delay(600);
 
         JoinRoom();
-
     }
 
     void Update()
@@ -215,15 +226,8 @@ public class GameDirector : MonoBehaviour
         // プレイヤースクリプト取得
         playerScript =  characterGameObject.GetComponent<Player>();
 
-        int count;
-        if (characterList.Count <= 0)
-        {
-            count =1;
-        }
-        else count = 3;
-
         // 生成位置を設定
-        characterGameObject.transform.position = new Vector3(-7.5f + (2 * count), 2f, -10f);
+        characterGameObject.transform.position = new Vector3(-7.5f + (2 * user.UserData.Id), 2f, -10f);
 
         characterGameObject.name = user.UserData.Id.ToString();
 
@@ -326,12 +330,20 @@ public class GameDirector : MonoBehaviour
     /// <summary>
     /// ゲーム開始処理
     /// </summary>
-    void StartGame()
+    async void StartGame()
     {
+        readyTextObjects[0].SetActive(true);
+        await Task.Delay(1200);
+
+        readyTextObjects[0].SetActive(false);
+        readyTextObjects[1].SetActive(true);
+
         itemScript.StartSpawn();
         countPanel.SetActive(true);
         InvokeRepeating("CountDown", 0.1f, 1f);
-        isStart = true;
+        
+        await Task.Delay(800);
+        readyTextObjects[1].SetActive(false);
     }
 
     /// <summary>
@@ -351,7 +363,7 @@ public class GameDirector : MonoBehaviour
 
         InvokeRepeating("Move", 0.1f, 0.1f);
 
-        isStart = true;
+        //isStart = true;
         if (isMaster == true) StartGame();
     }
 
@@ -424,7 +436,8 @@ public class GameDirector : MonoBehaviour
     void MovePlayer()
     {
         // 開始前とゲーム終了後は移動させない
-        if (isStart != true || isFinish == true) return;
+        if (isStart != true) return;
+        if (isFinish == true) return;
         Rigidbody rb = characterList[roomModel.ConnectionID].GetComponent<Rigidbody>();  // rigidbodyを取得
 
         float axisZ = joystick.Vertical;
@@ -641,34 +654,51 @@ public class GameDirector : MonoBehaviour
         time -= 1;
         // 残り時間を全ユーザに通知
         await roomModel.CountTimer(time);
-        // 減算結果をUIに適応
-        countText.text = time.ToString();
-        // タイムアップ時
-        if (time <= 0)
-        {
-            // UIにタイムアップと表記する
-            countText.text = "Time UP";
-            // カウントダウン処理を停止
-            CancelInvoke("CountDown");
-            // ゲームエンド処理を呼ぶ
-            Finish();
-        }
     }
+
+    /// <summary>
+    /// カウントダウン通知
+    /// </summary>
+    /// <param name="time"></param>
     void OnCountUser(int time)
     {
+
+        isStart = true;
+
+        // 制限時間を送られてきた時間と同期する
         this.time = time;
 
-        // 減算結果をUIに適応
-        countText.text = this.time.ToString();
-        // タイムアップ時
-        if (this.time <= 0)
+        switch (this.time)
         {
-            // UIにタイムアップと表記する
-            countText.text = "Time UP";
-            // カウントダウン処理を停止
-            CancelInvoke("CountDown");
-            // ゲームエンド処理を呼ぶ
-            Finish();
+            case 3: // 3を強調 カウントダウン用オブジェクトを空にする
+                countText.text = "";
+                coundDownObjects[0].SetActive(true);
+                break;
+
+            case 2: // 2を強調
+                coundDownObjects[0].SetActive(false);
+                coundDownObjects[1].SetActive(true);
+                break;
+
+            case 1: // 1を強調
+                coundDownObjects[1].SetActive(false);
+                coundDownObjects[2].SetActive(true);
+                break;
+
+            case <= 0: // タイムアップ
+                coundDownObjects[2].SetActive(false);
+                // UIにタイムアップと表記する
+                countText.text = "Time UP";
+                // カウントダウン処理を停止
+                CancelInvoke("CountDown");
+                // ゲームエンド処理を呼ぶ
+                Finish();
+                break;
+
+            default: // それ以外はカウントを画面に反映
+                // 減算結果をUIに適応
+                countText.text = this.time.ToString();
+                break;
         }
     }
 
