@@ -4,8 +4,9 @@ using UnityEngine.SceneManagement;
 
 public class Title : MonoBehaviour
 {
+    // 影のプレハブ配列
     [SerializeField] GameObject[] shadows;
-
+    // ユーザID入力欄
     [SerializeField] Text userID;
 
     // クリックorタップSE
@@ -21,31 +22,40 @@ public class Title : MonoBehaviour
     }
     void Update()
     {
+        // クリック時にクリックSEを鳴らす
         if (Input.GetMouseButtonUp(0)) audioSource.PlayOneShot(clickSE);
-
+        // SPACEキー押下時、ロビーに遷移
         if (Input.GetKeyDown(KeyCode.Space)) StartGame();
-
+        //TABキーで影を変更(隠し機能)
         if (Input.GetKeyDown(KeyCode.Tab)) ChangeShadow();
     }
 
+    /// <summary>
+    /// 影変更処理
+    /// </summary>
     void ChangeShadow()
     {
+        // 全ての影を非表示に
         for (int i = 0; i < shadows.Length; i++)
         {
             shadows[i].SetActive(false);
         }
 
+        // 乱数設定
         System.Random rand = new System.Random();
         int rndNum = rand.Next(0, shadows.Length);
 
+        // 抽選された影を表示する
         shadows[rndNum].SetActive(true);
     }
 
     public void StartGame()
     {
+        // ロビー画面へ遷移
         Initiate.DoneFading();
         Initiate.Fade("Lobby", Color.black, 0.7f);
 
+        // 入力されたIDを送信
         int.TryParse(userID.text, out int id);
         SendData.userID = id;
     }

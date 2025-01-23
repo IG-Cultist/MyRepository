@@ -46,6 +46,7 @@ public class Item : MonoBehaviour
 
         // 生成するアイテムの番号のランダム設定
         int itemNum = rand.Next(0, itemPrefabs.Count);
+        itemNum = 1;
 
         // インスタンス生成
         GameObject itemObj = Instantiate(itemPrefabs[itemNum]);

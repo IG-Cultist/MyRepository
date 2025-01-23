@@ -32,6 +32,8 @@ public class GameDirector : MonoBehaviour
     [SerializeField] GameObject[] coundDownObjects;
     // 開始合図ゲームオブジェクト
     [SerializeField] GameObject[] readyTextObjects;
+    // ゲーム結果オブジェクト
+    [SerializeField] GameObject[] resultObjects;
 
     // 移動速度上昇アイコン
     [SerializeField] GameObject speedUpEffect;
@@ -82,6 +84,10 @@ public class GameDirector : MonoBehaviour
     List<GameObject> heartList;
     List<GameObject> rivalHeartList;
 
+    // プレイヤーのHP
+    int playerHP = 3;
+    int rivalHP = 3;
+    
     // プレイヤースクリプト
     Player playerScript;
     // アイテムスクリプト
@@ -113,7 +119,7 @@ public class GameDirector : MonoBehaviour
     bool isMaster;
 
     // 制限時間
-    int time = 31;
+    public int time = 31;
     // タイムアップ時SE再生回数用変数
     int timeUpCnt = 0;
 
@@ -167,15 +173,22 @@ public class GameDirector : MonoBehaviour
         spawnShadowEffect.SetActive(false);
         localizationEffect.SetActive(false);
         speedUpEffect.SetActive(false);
+
+        // カウントダウン用テキストを非表示
         for (int i = 0; i < coundDownObjects.Length; i++)
         {
             coundDownObjects[i].SetActive(false);
         }
+        // 開始通知用テキストを非表示
         for (int i = 0; i < readyTextObjects.Length; i++)
         {
             readyTextObjects[i].SetActive(false);
         }
-
+        // 勝敗判定用テキストを非表示
+        for (int i = 0; i < resultObjects.Length; i++)
+        {
+            resultObjects[i].SetActive(false);
+        }
         // ハートのゲームオブジェクトを取得
         heartList = new List<GameObject>();
         rivalHeartList = new List<GameObject>();
@@ -414,19 +427,27 @@ public class GameDirector : MonoBehaviour
             // カメラを揺らす
             characterList[roomModel.ConnectionID].transform.GetChild(0).DOShakePosition(0.6f, 1.5f, 45, 15, false, true);
 
-            Destroy(heartList[health]); 
-            //heartList.Remove(heartList[health]);
+            Destroy(heartList[health]);
+            playerHP = health;
+
+            if (health <= 0)
+            {
+                characterList[connectionID].SetActive(false);
+                resultObjects[1].SetActive(true);
+                Finish();
+            }
         }
         else
         {
             Destroy(rivalHeartList[health]);
-            //rivalHeartList.Remove(heartList[health]);
-        }
+            rivalHP = health;
 
-        if (health <= 0)
-        {
-            characterList[connectionID].SetActive(false);
-            Finish();
+            if (health <= 0)
+            {
+                characterList[connectionID].SetActive(false);
+                resultObjects[0].SetActive(true);
+                Finish();
+            }
         }
     }
 
@@ -505,6 +526,9 @@ public class GameDirector : MonoBehaviour
     /// </summary>
     public async void UseItem()
     {
+        if (isStart != true) return;
+        if (isFinish == true) return;
+
         GameObject rivalObj = new GameObject();
         Destroy(rivalObj);
 
@@ -662,7 +686,6 @@ public class GameDirector : MonoBehaviour
     /// <param name="time"></param>
     void OnCountUser(int time)
     {
-
         isStart = true;
 
         // 制限時間を送られてきた時間と同期する
@@ -691,6 +714,10 @@ public class GameDirector : MonoBehaviour
                 countText.text = "Time UP";
                 // カウントダウン処理を停止
                 CancelInvoke("CountDown");
+
+                if(playerHP < rivalHP) resultObjects[1].SetActive(true);
+                else if (playerHP > rivalHP) resultObjects[0].SetActive(true);
+                else resultObjects[2].SetActive(true);
                 // ゲームエンド処理を呼ぶ
                 Finish();
                 break;
@@ -734,6 +761,9 @@ public class GameDirector : MonoBehaviour
     /// </summary>
     public void OnButtonDown()
     {
+        if (isStart != true) return;
+        if (isFinish == true) return;
+
         if (isCooldown) return; // クールダウン中の場合、処理しない
 
         // 視点変更時間を初期化
@@ -753,6 +783,9 @@ public class GameDirector : MonoBehaviour
     /// </summary>
     public void OnButtonUp()
     {
+        if (isStart != true) return;
+        if (isFinish == true) return;
+
         if (isCooldown) return; // クールダウン中の場合、処理しない
 
         // クールダウン中にする
