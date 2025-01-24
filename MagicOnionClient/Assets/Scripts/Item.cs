@@ -39,15 +39,15 @@ public class Item : MonoBehaviour
 
     void SpawnItem()
     {
+        // 生成上限を加算
+        itemCount++; 
+
         System.Random rand = new System.Random();
 
         // 生成位置番号のランダム設定
         int num = rand.Next(0, 3);
-
         // 生成するアイテムの番号のランダム設定
         int itemNum = rand.Next(0, itemPrefabs.Count);
-        itemNum = 1;
-
         // インスタンス生成
         GameObject itemObj = Instantiate(itemPrefabs[itemNum]);
 
@@ -61,7 +61,7 @@ public class Item : MonoBehaviour
         nowItems[num] = itemObj;
 
         // 名前を訂正
-        itemObj.name = itemPrefabs[itemNum].name;
+        itemObj.name = itemPrefabs[itemNum].name + "_" + itemCount;
 
         // 生成位置のポジションを代入
         Vector3 pos = spawnPointObject[num].transform.position;
@@ -70,9 +70,6 @@ public class Item : MonoBehaviour
 
         // 各アイテムにプレイヤーのカメラを渡す
         itemObj.GetComponent<LookAtCamera>().GetCamera(playerCam);
-
-        // 生成上限を加算
-        itemCount++; 
 
         SpawnItem(num, itemNum);
     }

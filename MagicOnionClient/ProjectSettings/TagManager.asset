@@ -12,6 +12,7 @@ TagManager:
   - Shadow_Rival
   - Camera_Rival
   - Rival
+  - Fake
   layers:
   - Default
   - TransparentFX

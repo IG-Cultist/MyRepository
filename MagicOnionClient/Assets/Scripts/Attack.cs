@@ -32,5 +32,14 @@ public class Attack : MonoBehaviour
             player.Damage(other.gameObject);
             player.isHit = true;
         }
+
+        // ‹U‰e‚ğ“¥‚ñ‚¾ê‡
+        if(other.gameObject.tag == "Fake")
+        {
+            // ‚»‚ê‚ğ”j‰ó‚·‚é
+            Destroy(other.gameObject);
+            // “¥‚ñ‚¾‚±‚Æ‚ğ’Ê’m
+            gameDirector.StompItem(other.gameObject.name);
+        }
     }
 }

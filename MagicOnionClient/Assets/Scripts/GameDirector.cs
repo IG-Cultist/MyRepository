@@ -24,6 +24,8 @@ public class GameDirector : MonoBehaviour
     [SerializeField] GameObject characterPrefabs; 
     // 生成するトラッププレハブ
     [SerializeField] GameObject trapPrefabs;
+    // 生成する偽影プレハブ
+    [SerializeField] GameObject fakeShadowPrefabs;
     // 退室ボタン
     [SerializeField] GameObject exitButton;
     // カウントダウン表示パネル
@@ -103,14 +105,14 @@ public class GameDirector : MonoBehaviour
 
     public int userID;
 
+    // 投影機使用回数カウント
+    int useProjector = 0;
+
     // 現在所有しているアイテム名
     string nowItemName = "";
 
     // 移動速度ブースト判定
     bool isBoost = false;
-
-    // 影生成判定
-    bool isShadowSpawn = false;
 
     // 位置特定判定
     bool isLocate = false;
@@ -500,14 +502,19 @@ public class GameDirector : MonoBehaviour
     /// </summary>
     public async void StompItem(string name)
     {
-        // リソースから、アイテムテクスチャを取得
-        Texture2D texture = Resources.Load("Items/" + name) as Texture2D;
+        string[] words = name.Split("_");
 
-        itemPanel.sprite = 
-            Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero);
+        // 踏んだのが偽影でない場合
+        if (words[0] != "Fake")
+        {
+            // リソースから、アイテムテクスチャを取得
+            Texture2D texture = Resources.Load("Items/" + words[0]) as Texture2D;
 
-        nowItemName = name;
+            itemPanel.sprite =
+                Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero);
 
+            nowItemName = name;
+        }   
         await roomModel.StompItemAsync(name);
     }
 
@@ -529,6 +536,8 @@ public class GameDirector : MonoBehaviour
         if (isStart != true) return;
         if (isFinish == true) return;
 
+        string[] words = nowItemName.Split("_");
+
         GameObject rivalObj = new GameObject();
         Destroy(rivalObj);
 
@@ -541,14 +550,16 @@ public class GameDirector : MonoBehaviour
                 break;
             }
         }
+        // 自身の位置を取得
+        Vector3 playerPos = characterList[roomModel.ConnectionID].transform.position;
 
         // アイテム別処理
-        switch (nowItemName)
+        switch (words[0])
         {
             case "Compass": // コンパスの場合
                 // 相手の位置をマップに3秒間表示する
                 audioSource.PlayOneShot(compassSE);
-
+                
                 //ライバルの位置を表示
                 rivalObj.transform.GetChild(3).GetComponent<MeshRenderer>().enabled = true;
                 localizationEffect.SetActive(true);
@@ -572,8 +583,7 @@ public class GameDirector : MonoBehaviour
 
             case "Trap": // トラップの場合
                 audioSource.PlayOneShot(trapSE);
-                // フィールドにトラップを設置
-                Vector3 playerPos = characterList[roomModel.ConnectionID].transform.position;
+
                 // インスタンス生成
                 GameObject trapObj = Instantiate(trapPrefabs);
                 trapObj.name = "Trap(active)";
@@ -584,11 +594,21 @@ public class GameDirector : MonoBehaviour
                 break;
 
             case "Projector": // 投影機の場合
+
+                useProjector++;
                 // 5秒間自由に動く偽の影を召喚する
                 audioSource.PlayOneShot(projectorSE);
 
+                // インスタンス生成
+                GameObject fakeObj = Instantiate(fakeShadowPrefabs);
+
+                fakeObj.name = "Fake_Shadow" + "_" + useProjector;
+
+                // 生成位置を設定
+                fakeObj.transform.position = new Vector3(playerPos.x, 1.7f, playerPos.z + 3.0f);
+
                 spawnShadowEffect.SetActive(true);
-                isShadowSpawn = true;
+                KillFake(fakeObj);
                 await roomModel.UseItemAsync(roomModel.ConnectionID, nowItemName);
                 break;
 
@@ -625,25 +645,16 @@ public class GameDirector : MonoBehaviour
             localizationEffect.SetActive(false);
             isLocate = false;
         }
-
-        // 投影機を使用していた場合
-        if (isShadowSpawn == true)
-        {       
-            // 5秒後に影を削除
-            await Task.Delay(3000);
-            spawnShadowEffect.SetActive(false);
-            isShadowSpawn = false;
-        }
     }
 
     public async void OnUseItemUser(Guid connectionID, string itemName)
     {
+        Vector3 playerPos = characterList[connectionID].transform.position;
+        
         switch (itemName)
         {
             case "Trap": // トラップの場合
                 audioSource.PlayOneShot(trapSE);
-                // フィールドにトラップを設置
-                Vector3 playerPos = characterList[connectionID].transform.position;
                 // インスタンス生成
                 GameObject trapObj = Instantiate(trapPrefabs);
                 trapObj.name = "Trap(active)";
@@ -653,8 +664,17 @@ public class GameDirector : MonoBehaviour
                 break;
 
             case "Projector": // 投影機の場合
+                useProjector++;
                 // 5秒間自由に動く偽の影を召喚する
                 audioSource.PlayOneShot(projectorSE);
+
+                // インスタンス生成
+                GameObject fakeObj = Instantiate(fakeShadowPrefabs);
+
+                fakeObj.name = "Fake_Shadow" + "_" + useProjector;
+
+                // 生成位置を設定
+                fakeObj.transform.position = new Vector3(playerPos.x, 1.7f, playerPos.z + 3.0f);
                 break;
 
             case "Trap(active)": //トラップ(アクティブ)の場合
@@ -829,5 +849,21 @@ public class GameDirector : MonoBehaviour
         buttonTexture.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
                                        Vector2.zero);
         isCooldown = false;
+    }
+
+    /// <summary>
+    /// 偽影削除処理
+    /// </summary>
+    /// <param name="fakeObj"></param>
+    async void KillFake(GameObject fakeObj)
+    {
+        // 10秒後に影を削除
+        await Task.Delay(6000);
+
+        // 削除通知
+        Destroy(fakeObj);
+        StompItem(fakeObj.name);
+
+        spawnShadowEffect.SetActive(false);
     }
 }
