@@ -1,3 +1,7 @@
+/// ==============================
+/// アタックスクリプト
+/// Name:西浦晃太 Update:1/24
+/// ==============================
 using UnityEngine;
 
 public class Attack : MonoBehaviour

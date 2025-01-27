@@ -51,7 +51,8 @@ namespace Shared.Interfaces.StreamingHubs
         /// <summary>
         /// ゲーム開始処理
         /// </summary>
-        void OnReady();
+        /// <param name="connectionID">接続ID</param>
+        void OnReady(Guid connectionID);
 
         /// <summary>
         /// ゲーム終了通知

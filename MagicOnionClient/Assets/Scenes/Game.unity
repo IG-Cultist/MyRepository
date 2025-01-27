@@ -721,7 +721,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &66764554
 RectTransform:
   m_ObjectHideFlags: 0
@@ -16712,6 +16712,8 @@ MonoBehaviour:
   characterPrefabs: {fileID: 2054468427446035473, guid: 9704cc30155b76741bbf15f4d70b021d,
     type: 3}
   trapPrefabs: {fileID: 5075640481018493754, guid: 4cb26a73d7df90e4fb5272b043c83531,
+    type: 3}
+  fakeShadowPrefabs: {fileID: 1729963181322983565, guid: 618672225973ff3428fe76439ce16e53,
     type: 3}
   exitButton: {fileID: 1653393704}
   countPanel: {fileID: 35970935}

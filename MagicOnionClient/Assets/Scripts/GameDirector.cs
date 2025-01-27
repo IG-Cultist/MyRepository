@@ -1,6 +1,6 @@
 /// ==============================
 /// ゲームディレクタースクリプト
-/// Name:西浦晃太 Update:12/24
+/// Name:西浦晃太 Update:1/24
 /// ==============================
 using DG.Tweening;
 using Shared.Interfaces.Services;
@@ -345,7 +345,14 @@ public class GameDirector : MonoBehaviour
     /// <summary>
     /// ゲーム開始処理
     /// </summary>
-    async void StartGame()
+    void StartGame()
+    {
+        itemScript.StartSpawn();
+        countPanel.SetActive(true);
+        InvokeRepeating("CountDown", 0.1f, 1f);
+    }
+
+    async void ReadyGo()
     {
         readyTextObjects[0].SetActive(true);
         await Task.Delay(1200);
@@ -353,10 +360,6 @@ public class GameDirector : MonoBehaviour
         readyTextObjects[0].SetActive(false);
         readyTextObjects[1].SetActive(true);
 
-        itemScript.StartSpawn();
-        countPanel.SetActive(true);
-        InvokeRepeating("CountDown", 0.1f, 1f);
-        
         await Task.Delay(800);
         readyTextObjects[1].SetActive(false);
     }
@@ -378,8 +381,12 @@ public class GameDirector : MonoBehaviour
 
         InvokeRepeating("Move", 0.1f, 0.1f);
 
+        ReadyGo();
         //isStart = true;
-        if (isMaster == true) StartGame();
+        if (isMaster == true)
+        {
+            StartGame();
+        }
     }
 
     /// <summary>
@@ -391,7 +398,7 @@ public class GameDirector : MonoBehaviour
         // 退室
         await roomModel.LeaveAsync(SendData.roomName, SendData.userID);
         Initiate.DoneFading();
-        Initiate.Fade("Title", Color.black, 0.7f);
+        Initiate.Fade("Result", Color.black, 0.7f);
     }
 
     /// <summary>

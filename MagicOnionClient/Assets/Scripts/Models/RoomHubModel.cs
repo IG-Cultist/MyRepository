@@ -29,7 +29,7 @@ public class RoomHubModel : BaseModel, IRoomHubReceiver
     public Action<Guid, Vector3, Vector3, IRoomHubReceiver.PlayerState> OnMovedUser { get; set; }
 
     // ユーザ準備通知
-    public Action OnReadyUser {  get; set; }
+    public Action<Guid> OnReadyUser {  get; set; }
 
     //ユーザ終了通知
     public Action OnFinishUser { get; set; }
@@ -169,9 +169,9 @@ public class RoomHubModel : BaseModel, IRoomHubReceiver
     /// <summary>
     /// ゲーム開始
     /// </summary>
-    public void OnReady()
+    public void OnReady(Guid connectionID)
     {
-        OnReadyUser();
+        OnReadyUser(connectionID);
     }
 
     /// <summary>

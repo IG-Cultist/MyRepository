@@ -14,13 +14,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class Lobby : MonoBehaviour
 {
-    // 参加者表示テキスト
-    [SerializeField] Text[] joinedUserName;
     // 退室ボタン
     [SerializeField] GameObject exitButton;
     // 準備ボタン
@@ -42,11 +41,18 @@ public class Lobby : MonoBehaviour
     // スキン変更ボタン
     [SerializeField] GameObject[] changeButton;
     // ヘッダーテキスト
-    [SerializeField] Text headerText;
+    [SerializeField] GameObject[] headers;
+
+    [SerializeField] Text wait;
+
+    [SerializeField] Transform Rival;
+    [SerializeField] Transform You;
     // 参加ユーザの接続ID保存リスト
     List<Guid> idList = new List<Guid>();
 
     int count = 0;
+
+    int waitCount = 0;
 
     // 説明画像用変数
     int imageCnt = 0;
@@ -65,10 +71,17 @@ public class Lobby : MonoBehaviour
         skinPanel.SetActive(false);
         readyButton.SetActive(false);
         explainPanel.SetActive(false);
+
+        for(int i = 0; i < headers.Length; i++)
+        {
+            headers[i].SetActive(false);
+        }
+
         // ユーザが入室したときにメソッドを実行するようモデルに登録
         roomModel.OnJoinedUser += this.OnJoinedUser;
         roomModel.OnLeavedUser += this.OnLeavedUser;
         roomModel.OnMatchingUser += this.OnMatchingUser;
+        roomModel.OnReadyUser += this.OnReadyUser;
 
         // 接続
         await roomModel.ConnectAsync();
@@ -97,12 +110,15 @@ public class Lobby : MonoBehaviour
         // 参加者IDリストに入れる
         idList.Add(user.ConnectionID);
 
-        int cnt = 0;
-        // 表示用参加者名をIDにする
-        foreach (var id in idList)
+        // 参加したのが自分でない場合
+        if (idList.Count == 2)
         {
-            joinedUserName[cnt].text = id.ToString();
-            cnt++;
+            // ライバルを表示
+            Texture2D texture = Resources.Load("UI/Rival") as Texture2D;
+
+            Image img = Rival.GetComponent<Image>();
+            img.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
+            Vector2.zero);
         }
     }
 
@@ -112,23 +128,17 @@ public class Lobby : MonoBehaviour
     /// <param name="connectionID"></param>
     void OnLeavedUser(Guid connectionID)
     {
-        for (int i = 0; i < joinedUserName.Length; i++)
+        foreach (Guid id in idList)
         {
-            if (joinedUserName[i].text == connectionID.ToString())
+            if (id == connectionID)
             {
-                // Player1が抜けた場合
-                if (i == 0)
-                {
-                    // Player2の名前をPlayer1の場所に移す
-                    joinedUserName[0].text = joinedUserName[1].text;
-                    joinedUserName[1].text = "";
-                }
-                else // 離脱者の名前を削除
-                {
-                    joinedUserName[i].text = "";
-                }
-                
+                Texture2D texture = Resources.Load("UI/Void") as Texture2D;
+
+                Image img = Rival.GetComponent<Image>();
+                img.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
+                Vector2.zero);
                 idList.Remove(connectionID);
+                break;
             }
         }
     }
@@ -138,17 +148,23 @@ public class Lobby : MonoBehaviour
     /// </summary>
     public async void JoinRoom()
     {
-        //System.Random rand = new System.Random();
-        // 1～10までの乱数を代入
-        //int id = rand.Next(1, 4);
-
         // 入室
-        await roomModel.JoinLobbyAsync(SendData.userID);
+        await roomModel.JoinLobbyAsync(idList.Count + 1);
+        SendData.userID = idList.Count + 1;
 
         // 各ボタンを表示
+        headers[0].SetActive(true);
         exitButton.SetActive(true);
         skinPanel.SetActive(true);
         readyButton.SetActive(true);
+
+        Texture2D texture = Resources.Load("UI/You") as Texture2D;
+
+        Image img = You.GetComponent<Image>();
+        img.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
+        Vector2.zero);
+
+        InvokeRepeating("Waiting", 0.1f, 0.3f);
     }
 
     /// <summary>
@@ -157,7 +173,7 @@ public class Lobby : MonoBehaviour
     public async void LeaveRoom()
     {
         // 退室
-        await roomModel.LeaveAsync("Lobby", 1);
+        await roomModel.LeaveAsync("Lobby", SendData.userID);
         //SceneManager.LoadScene("Title");
 
         Initiate.DoneFading();
@@ -202,6 +218,29 @@ public class Lobby : MonoBehaviour
         changeButton[1].SetActive(false);
     }
 
+    /// <summary>
+    /// ゲーム開始
+    /// </summary>
+    void OnReadyUser(Guid connectionID)
+    {
+        if (roomModel.ConnectionID == connectionID)
+        {
+            Texture2D texture = Resources.Load("UI/Prepared") as Texture2D;
+
+            Image img = You.GetChild(0).GetComponent<Image>();
+            img.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
+            Vector2.zero);
+        }
+        else
+        {
+            Texture2D texture = Resources.Load("UI/Prepared") as Texture2D;
+
+            Image img = Rival.GetChild(0).GetComponent<Image>();
+            img.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
+            Vector2.zero);
+        }
+    }
+
     async void OnMatchingUser(string roomName)
     {
         // 送るデータを代入
@@ -220,8 +259,11 @@ public class Lobby : MonoBehaviour
     /// </summary>
     async void Loading()
     {
+        CancelInvoke("Waiting");
+        wait.text = "";
         loadingPanel.SetActive(true);
-        headerText.text = "まもなく開始...";
+        headers[0].SetActive(false);
+        headers[1].SetActive(true);
 
         float angle = 8;
         bool rot = true;
@@ -341,6 +383,29 @@ public class Lobby : MonoBehaviour
             explainImages[1].SetActive(false);
             explainTitles[0].SetActive(true);
             explainTitles[1].SetActive(false);
+        }
+    }
+
+    void Waiting()
+    {
+        switch (waitCount)
+        {
+            case 0:
+                wait.text = ".";
+                waitCount++;
+                break;
+            case 1:
+                wait.text = "..";
+                waitCount++;
+                break;
+            case 2:
+                wait.text = "...";
+                waitCount++;
+                break;
+            case 3:
+                wait.text = ".";
+                waitCount = 1;
+                break;
         }
     }
 }

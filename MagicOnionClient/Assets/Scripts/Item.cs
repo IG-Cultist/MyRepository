@@ -1,3 +1,7 @@
+/// ==============================
+/// アイテムスクリプト
+/// Name:西浦晃太 Update:1/24
+/// ==============================
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;

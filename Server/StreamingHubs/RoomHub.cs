@@ -119,6 +119,8 @@ namespace Server.StreamingHubs
             {
                 var roomData = roomDataStorage.Get(this.ConnectionId);
                 roomData.Ready = true;
+                // ルーム参加者全員に、マッチング通知を送信
+                this.Broadcast(room).OnReady(this.ConnectionId);
 
                 // 全員準備できたか判定
                 bool isReady = true;

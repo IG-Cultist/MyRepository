@@ -1,9 +1,16 @@
+/// ==============================
+/// フェイクシャドウスクリプト
+/// Name:西浦晃太 Update:1/24
+/// ==============================
 using UnityEngine;
 
 public class FakeShadow : MonoBehaviour
 {
+    // このオブジェクトのリジットボディ
     Rigidbody rb;
+    // 乱数システム
     System.Random rand;
+    // 表示スキン
     [SerializeField] GameObject[] shadows;
 
     void Start()
@@ -18,10 +25,10 @@ public class FakeShadow : MonoBehaviour
         // 発射角度分岐
         switch (num)
         {
-            case 0:
+            case 0: // 右側へ発射
                 rb.AddForce(new Vector3(8f, 0f, 8f), ForceMode.Impulse);
                 break;
-            case 1:
+            case 1: // 左側へ発射
                 rb.AddForce(new Vector3(-8f, 0f, 8f), ForceMode.Impulse);
                 break;
         }
@@ -32,6 +39,7 @@ public class FakeShadow : MonoBehaviour
             obj.SetActive(false);
         }
 
+        // スキン設定
         SetSkin();
     }
 
