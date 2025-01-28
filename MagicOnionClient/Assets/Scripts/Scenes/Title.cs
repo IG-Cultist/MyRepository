@@ -13,6 +13,11 @@ public class Title : MonoBehaviour
 
     AudioSource audioSource;
 
+    void Awake()
+    {
+        Application.targetFrameRate = 60; // ‰Šúó‘Ô‚Í-1‚É‚È‚Á‚Ä‚¢‚é
+    }
+
     void Start()
     {
         audioSource = GetComponent<AudioSource>();

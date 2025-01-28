@@ -4,6 +4,7 @@
     "com.cysharp.yetanotherhttphandler": "https://github.com/Cysharp/YetAnotherHttpHandler.git?path=src/YetAnotherHttpHandler#1.6.0",
     "com.github-glitchenzo.nugetforunity": "https://github.com/GlitchEnzo/NuGetForUnity.git?path=/src/NuGetForUnity",
     "com.magiconion-server.shared": "file:../../shared",
+    "com.unity.2d.sprite": "1.0.0",
     "com.unity.burst": "1.8.16",
     "com.unity.cinemachine": "2.10.1",
     "com.unity.collab-proxy": "2.5.2",

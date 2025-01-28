@@ -100,8 +100,10 @@ public class GameDirector : MonoBehaviour
     // ゲーム終了判定変数
     bool isFinish = false;
 
+    float defaultSpeed = 1.5f;
+
     // 移動速度
-    public float moveSpeed = 1f;
+    public float moveSpeed;
 
     public int userID;
 
@@ -169,6 +171,8 @@ public class GameDirector : MonoBehaviour
         audioSource = GetComponent<AudioSource>();
 
         itemScript = GameObject.Find("ItemManager").GetComponent<Item>();
+
+        moveSpeed = defaultSpeed;
 
         // 非表示にする
         exitButton.SetActive(false);
@@ -639,7 +643,7 @@ public class GameDirector : MonoBehaviour
             // 3秒後に速度を戻す
             await Task.Delay(1800);
             speedUpEffect.SetActive(false);
-            moveSpeed = 1.0f;
+            moveSpeed = defaultSpeed;
             isBoost = false;
         }
 
@@ -825,7 +829,7 @@ public class GameDirector : MonoBehaviour
         // カメラの回転を元に戻す
         myCamera.transform.DOLocalRotate(new Vector3(30f, 0f, 0f), 0.1f).SetEase(Ease.Linear);
         //移動速度を元に戻す
-        moveSpeed = 1f;
+        moveSpeed = defaultSpeed;
 
         // リソースから、アイコンを取得
         Texture2D texture = Resources.Load("UI/eye_close") as Texture2D;

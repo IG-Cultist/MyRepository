@@ -119,6 +119,13 @@ public class Lobby : MonoBehaviour
             Image img = Rival.GetComponent<Image>();
             img.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
             Vector2.zero);
+
+
+            Texture2D tex = Resources.Load("UI/Preparing") as Texture2D;
+
+            Image imgPrepare = Rival.GetChild(0).GetComponent<Image>();
+            imgPrepare.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height),
+            Vector2.zero);
         }
     }
 
@@ -162,6 +169,12 @@ public class Lobby : MonoBehaviour
 
         Image img = You.GetComponent<Image>();
         img.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
+        Vector2.zero);
+
+        Texture2D tex = Resources.Load("UI/Preparing") as Texture2D;
+
+        Image imgPrepare = You.GetChild(0).GetComponent<Image>();
+        imgPrepare.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height),
         Vector2.zero);
 
         InvokeRepeating("Waiting", 0.1f, 0.3f);

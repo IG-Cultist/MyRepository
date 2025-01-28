@@ -12,6 +12,7 @@ using Shared.Model.Entity;
 using Unity.VisualScripting;
 using UnityEditor.Rendering;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class Player : MonoBehaviour
 {
@@ -39,16 +40,14 @@ public class Player : MonoBehaviour
         audioSource = GetComponent<AudioSource>();
         gameDirector = GameObject.Find("GameDirector").GetComponent<GameDirector>();
     }
-    void Update()
-    {
-        if (Input.GetMouseButtonDown(0)) Stomp();
-    }
 
-    /// <summary>
-    /// ”í’eˆ—
-    /// </summary>
-    /// <param name="obj"></param>
-    public void Damage(GameObject obj)
+
+
+        /// <summary>
+        /// ”í’eˆ—
+        /// </summary>
+        /// <param name="obj"></param>
+        public void Damage(GameObject obj)
     {
         // “¥‚ñ‚¾‘Šè‚ÌÚ‘±ID‚ğæ“¾
         otherConnectionID = obj.transform.parent.parent.GetComponent<Player>().connectionID;
@@ -61,7 +60,7 @@ public class Player : MonoBehaviour
     /// <summary>
     /// “¥‚İ‚Â‚¯ˆ—
     /// </summary>
-    async void Stomp()
+    public async void Stomp()
     {
         Camera camera = this.transform.GetChild(0).GetComponent<Camera>();
 
