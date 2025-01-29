@@ -67,8 +67,9 @@ namespace Shared.Interfaces.StreamingHubs
         /// <summary>
         /// マッチング通知
         /// </summary>
-        /// <param name="roomName"></param>
-        void OnMatching(string roomName);
+        /// <param name="roomName">部屋名</param>
+        /// <param name="userList">参加者</param>
+        void OnMatching(string roomName, String[] userList);
 
         /// <summary>
         /// カウントダウン通知

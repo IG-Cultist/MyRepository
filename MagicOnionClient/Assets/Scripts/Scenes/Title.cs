@@ -11,6 +11,7 @@ public class Title : MonoBehaviour
     // クリックorタップSE
     [SerializeField] AudioClip clickSE;
 
+    bool isClick = false;
     AudioSource audioSource;
 
     void Awake()
@@ -29,14 +30,15 @@ public class Title : MonoBehaviour
         img.color = Color.Lerp(new Color32(255,255,255,255), new Color32(255,255,255,0), Mathf.PingPong(Time.time / 1.0f, 1.0f));
 
         // クリック時にクリックSEを鳴らす
-        if (Input.GetMouseButtonUp(0))
+        if (Input.GetMouseButtonUp(0) && isClick ==false)
         {
+            isClick = true;
             audioSource.PlayOneShot(clickSE); 
             StartGame();
         }
 
         // SPACEキー押下時、ロビーに遷移
-        if (Input.GetKeyDown(KeyCode.Space)) StartGame();
+        //if (Input.GetKeyDown(KeyCode.Space)) StartGame();
 
         //TABキーで影を変更(隠し機能)
         if (Input.GetKeyDown(KeyCode.Tab)) ChangeShadow();

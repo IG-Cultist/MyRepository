@@ -33,21 +33,23 @@ namespace Server.StreamingHubs
         /// <param name="userID">ユーザID</param>
         /// <param name="skinName">スキン名</param> 
         /// <returns></returns>
-        public async Task<JoinedUser[]> JoinAsync(string roomHub, int userID, string skinName)
+        public async Task<JoinedUser[]> JoinAsync(string roomHub, string skinName)
         {
             // ルームに参加＆ルームを保持
             this.room = await this.Group.AddAsync(roomHub);
 
             // DBから指定ユーザ情報を取得
             GameDBContext context = new GameDBContext();
-            var user = context.Users.Where(user => user.Id == userID).First();
+            //var user = context.Users.Where(user => user.Id == userID).First();
 
             // グループストレージにユーザデータを格納
             var roomStrage = this.room.GetInMemoryStorage<RoomData>();
-            var joinedUser = new JoinedUser() { ConnectionID = this.ConnectionId, UserData = user };
+            var joinedUser = new JoinedUser() { ConnectionID = this.ConnectionId/*, UserData = user */};
+
             var roomData = new RoomData() { JoinedUser = joinedUser };
             roomStrage.Set(this.ConnectionId, roomData);
             roomData.Health = 3;
+            roomData.ConnectionID = this.ConnectionId;
             // 参加順を設定
             joinedUser.JoinOrder = roomStrage.AllValues.Count;
             // 参加者のスキン名を設定
@@ -55,7 +57,6 @@ namespace Server.StreamingHubs
 
             // ルーム参加者全員に、ユーザの通知を送信 (Broadcast(room)で自身も含む)
             this.BroadcastExceptSelf(room).OnJoin(joinedUser);
-
 
             RoomData[] roomDataList = roomStrage.AllValues.ToArray<RoomData>();
 
@@ -120,31 +121,27 @@ namespace Server.StreamingHubs
             {
                 var roomData = roomDataStorage.Get(this.ConnectionId);
                 roomData.Ready = true;
-                // ルーム参加者全員に、マッチング通知を送信
+                // ルーム参加者全員に、準備完了通知を送信
                 this.Broadcast(room).OnReady(this.ConnectionId);
 
+                string[] readyUser =  new string[2];
+
+                readyUser[0] = this.ConnectionId.ToString();
                 // 全員準備できたか判定
-                bool isReady = true;
                 var roomDataList = roomDataStorage.AllValues.ToArray<RoomData>();
 
-                // 参加人数が2人に満たない場合処理しない
-                if (roomDataList.Length >= 2)
-                {
-                    foreach (var data in roomDataList)
-                    {
-                        // 1人でも準備中の場合開始しない
-                        if (data.Ready == false)
-                        {
-                            isReady = false;
-                        }
-                    }
-                }
-                else isReady = false;
+                if(roomDataList.Length < 2 ) return;
 
-                if (isReady == true)
+                // 参加者から準備の出来ているユーザを取得
+                foreach (var data in roomDataList)
                 {
-                    // ルーム参加者全員に、マッチング通知を送信
-                    this.Broadcast(room).OnMatching(randomName());
+                    if (data.Ready == true && data.ConnectionID != this.ConnectionId)
+                    {
+                        // 該当ユーザと自身でマッチング
+                        readyUser[1] = data.ConnectionID.ToString();
+                        // ルーム参加者全員に、マッチング通知を送信
+                        this.Broadcast(room).OnMatching(randomName(), readyUser);
+                    }
                 }
             }
         }
@@ -220,12 +217,12 @@ namespace Server.StreamingHubs
         /// ロビー入室処理
         /// </summary>
         /// <returns></returns>
-        public async Task<JoinedUser[]> JoinLobbyAsync(int userID)
+        public async Task<JoinedUser[]> JoinLobbyAsync()
         {
             //string roomName = randomName();
 
             // 参加中のユーザ情報を返す
-            JoinedUser[] joinedUserList = await JoinAsync("Lobby",userID, "shadow_noraml");
+            JoinedUser[] joinedUserList = await JoinAsync("Lobby", "shadow_noraml");
 
             // 参加人数が2人になったらマッチング
             //if(joinedUserList.Length == 2)
@@ -293,6 +290,15 @@ namespace Server.StreamingHubs
         {
             // ルーム参加者全員に、対象がアイテムを使用したことを通知
             this.BroadcastExceptSelf(room).OnUseItem(connectionID, itemName);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public async Task<Guid> GetConID()
+        {
+            return this.ConnectionId;
         }
 
         /// <summary>

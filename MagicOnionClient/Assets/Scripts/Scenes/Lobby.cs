@@ -1,6 +1,6 @@
 /// ==============================
 /// ロビースクリプト
-/// Name:西浦晃太 Update:01/20
+/// Name:西浦晃太 Update:01/29
 /// ==============================
 using Cysharp.Threading.Tasks.Triggers;
 using DG.Tweening;
@@ -43,10 +43,10 @@ public class Lobby : MonoBehaviour
     // ヘッダーテキスト
     [SerializeField] GameObject[] headers;
 
+    [SerializeField] Text userCount;
+
     [SerializeField] Text wait;
 
-    [SerializeField] Transform Rival;
-    [SerializeField] Transform You;
     // 参加ユーザの接続ID保存リスト
     List<Guid> idList = new List<Guid>();
 
@@ -97,6 +97,9 @@ public class Lobby : MonoBehaviour
     {
         // 左クリックもしくは画面タップ時クリックSEを出す
         if (Input.GetMouseButtonUp(0)) audioSource.PlayOneShot(clickSE);
+
+        // 現在の参加人数の表示
+        userCount.text = "現在" + idList.Count.ToString() + "人が待機中";
     }
 
     /// <summary>
@@ -105,29 +108,11 @@ public class Lobby : MonoBehaviour
     /// <param name="user"></param>
     void OnJoinedUser(JoinedUser user)
     {
-        // 入室者が2名以上の場合処理しない
-        if (idList.Count >= 2) return;
         // 参加者IDリストに入れる
+        if (idList.Contains(user.ConnectionID)) return;
+
         idList.Add(user.ConnectionID);
-
-        // 参加したのが自分でない場合
-        if (idList.Count == 2)
-        {
-            // ライバルを表示
-            Texture2D texture = Resources.Load("UI/Rival") as Texture2D;
-
-            Image img = Rival.GetComponent<Image>();
-            img.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
-            Vector2.zero);
-
-            Texture2D tex = Resources.Load("UI/Preparing") as Texture2D;
-
-            Image imgPrepare = Rival.GetChild(0).GetComponent<Image>();
-            imgPrepare.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height),
-            Vector2.zero);
-
-            readyButton.SetActive(true);
-        }
+        SendData.userID = user.JoinOrder;
     }
 
     /// <summary>
@@ -136,20 +121,21 @@ public class Lobby : MonoBehaviour
     /// <param name="connectionID"></param>
     void OnLeavedUser(Guid connectionID)
     {
-        foreach (Guid id in idList)
-        {
-            if (id == connectionID)
-            {
-                Texture2D texture = Resources.Load("UI/Void") as Texture2D;
+        //foreach (Guid id in idList)
+        //{
+        //    if (id == connectionID)
+        //    {
+        //        Texture2D texture = Resources.Load("UI/Void") as Texture2D;
 
-                Image img = Rival.GetComponent<Image>();
-                img.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
-                Vector2.zero);
-                idList.Remove(connectionID);
-                break;
-            }
-        }
+        //        Image img = Rival.GetComponent<Image>();
+        //        img.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
+        //        Vector2.zero);
 
+        //        break;
+        //    }
+        //}
+
+        idList.Remove(connectionID);
         readyButton.SetActive(false);
     }
 
@@ -159,27 +145,27 @@ public class Lobby : MonoBehaviour
     public async void JoinRoom()
     {
         // 入室
-        await roomModel.JoinLobbyAsync(idList.Count + 1);
-        SendData.userID = idList.Count + 1;
+        await roomModel.JoinLobbyAsync();
 
         // 各ボタンを表示
         headers[0].SetActive(true);
         exitButton.SetActive(true);
         skinPanel.SetActive(true);
+        readyButton.SetActive(true);
 
-        Texture2D texture = Resources.Load("UI/You") as Texture2D;
+        //Texture2D texture = Resources.Load("UI/You") as Texture2D;
 
-        Image img = You.GetComponent<Image>();
-        img.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
-        Vector2.zero);
+        //Image img = You.GetComponent<Image>();
+        //img.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
+        //Vector2.zero);
 
-        Texture2D tex = Resources.Load("UI/Preparing") as Texture2D;
+        //Texture2D tex = Resources.Load("UI/Preparing") as Texture2D;
 
-        Image imgPrepare = You.GetChild(0).GetComponent<Image>();
-        imgPrepare.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height),
-        Vector2.zero);
+        //Image imgPrepare = You.GetChild(0).GetComponent<Image>();
+        //imgPrepare.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height),
+        //Vector2.zero);
 
-        InvokeRepeating("Waiting", 0.1f, 0.3f);
+        //InvokeRepeating("Waiting", 0.1f, 0.3f);
     }
 
     /// <summary>
@@ -220,6 +206,7 @@ public class Lobby : MonoBehaviour
                 sendStr = "";
                 break;
         }
+
         // 送信用スキン名に代入
         SendData.skinName = sendStr;
 
@@ -238,35 +225,25 @@ public class Lobby : MonoBehaviour
     /// </summary>
     void OnReadyUser(Guid connectionID)
     {
-        if (roomModel.ConnectionID == connectionID)
-        {
-            Texture2D texture = Resources.Load("UI/Prepared") as Texture2D;
 
-            Image img = You.GetChild(0).GetComponent<Image>();
-            img.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
-            Vector2.zero);
-        }
-        else
-        {
-            Texture2D texture = Resources.Load("UI/Prepared") as Texture2D;
-
-            Image img = Rival.GetChild(0).GetComponent<Image>();
-            img.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
-            Vector2.zero);
-        }
     }
 
-    async void OnMatchingUser(string roomName)
+    async void OnMatchingUser(string roomName, string[] userList)
     {
-        // 送るデータを代入
-        SendData.roomName = roomName;
-        SendData.idList = idList;
+        foreach (string conID in userList)
+        {
+            if (roomModel.ConnectionID.ToString() == conID)
+            {
+                // 送るデータを代入
+                SendData.roomName = roomName;
 
-        Loading();
-        await Task.Delay(800);
+                Loading();
+                await Task.Delay(800);
 
-        Initiate.DoneFading();
-        Initiate.Fade("Game", Color.black, 0.7f);
+                Initiate.DoneFading();
+                Initiate.Fade("Game", Color.black, 0.7f);
+            }
+        }
     }
 
     /// <summary>

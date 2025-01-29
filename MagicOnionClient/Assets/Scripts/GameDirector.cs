@@ -7,6 +7,7 @@ using Shared.Interfaces.Services;
 using Shared.Interfaces.StreamingHubs;
 using Shared.Model.Entity;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using TedLab;
@@ -255,9 +256,9 @@ public class GameDirector : MonoBehaviour
         playerScript =  characterGameObject.GetComponent<Player>();
 
         // 生成位置を設定
-        characterGameObject.transform.position = new Vector3(-7.5f + (2 * user.UserData.Id), 2f, -10f);
+        characterGameObject.transform.position = new Vector3(-7.5f + (2 * user.JoinOrder), 2f, -10f);
 
-        characterGameObject.name = user.UserData.Id.ToString();
+        characterGameObject.name = user.JoinOrder.ToString();
 
         // 自分以外の各オブジェクトを非アクティブにする
         if (roomModel.ConnectionID != user.ConnectionID)
@@ -310,7 +311,7 @@ public class GameDirector : MonoBehaviour
             rectScalerWithViewport.refCamera = camera;
         }
 
-        ChangeSkin(user.UserData.Id, user.SkinName);
+        ChangeSkin(user.JoinOrder, user.SkinName);
 
         characterList[user.ConnectionID] = characterGameObject; // フィールドで保持
         playerScript.connectionID = user.ConnectionID;
@@ -390,7 +391,7 @@ public class GameDirector : MonoBehaviour
 
     public async void JoinRoom()
     {
-        await roomModel.JoinAsync(SendData.roomName, SendData.userID, SendData.skinName);
+        await roomModel.JoinAsync(SendData.roomName, SendData.skinName);
 
         InvokeRepeating("Move", 0.1f, 0.1f);
 
@@ -469,7 +470,7 @@ public class GameDirector : MonoBehaviour
 
             if (health <= 0)
             {
-                characterList[connectionID].SetActive(false);
+                characterList[connectionID].transform.GetChild(2).gameObject.SetActive(false);
                 resultObjects[0].SetActive(true);
                 Finish();
             }
@@ -489,7 +490,7 @@ public class GameDirector : MonoBehaviour
         float axisZ = joystick.Vertical;
         float axisX = joystick.Horizontal;
 
-        rb.AddRelativeForce(new Vector3(90 * axisX, 0, 90 * axisZ));
+        rb.AddRelativeForce(new Vector3((90 * moveSpeed) * axisX, 0, (90 * moveSpeed)* axisZ));
 
         // RightArrowキーまたはDキーを押した場合
         if (Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.D))

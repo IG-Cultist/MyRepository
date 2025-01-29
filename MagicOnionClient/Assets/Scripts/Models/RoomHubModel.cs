@@ -9,6 +9,7 @@ using MagicOnion.Client;
 using Shared.Interfaces.StreamingHubs;
 using Shared.Model.Entity;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class RoomHubModel : BaseModel, IRoomHubReceiver
@@ -29,7 +30,7 @@ public class RoomHubModel : BaseModel, IRoomHubReceiver
     public Action<Guid, Vector3, Vector3, IRoomHubReceiver.PlayerState> OnMovedUser { get; set; }
 
     // ユーザ準備通知
-    public Action<Guid> OnReadyUser {  get; set; }
+    public Action<Guid> OnReadyUser { get; set; }
 
     //ユーザ終了通知
     public Action OnFinishUser { get; set; }
@@ -38,16 +39,16 @@ public class RoomHubModel : BaseModel, IRoomHubReceiver
     public Action<Guid, int> OnAttackUser { get; set; }
 
     //マッチング通知
-    public Action<string> OnMatchingUser { get; set; }
+    public Action<string, string[]> OnMatchingUser { get; set; }
 
     // カウントダウン通知
-    public Action<int> OnCountUser {  get; set; }
+    public Action<int> OnCountUser { get; set; }
 
     // スキン変更通知
     public Action<int, string> OnChangeSkinUser { get; set; }
 
     // アイテム生成通知
-    public Action<int,int> OnSpawnItemUser { get; set; }
+    public Action<int, int> OnSpawnItemUser { get; set; }
 
     // アイテム踏みつけ通知
     public Action<string> OnStompItemUser { get; set; }
@@ -90,18 +91,18 @@ public class RoomHubModel : BaseModel, IRoomHubReceiver
     /// 入室処理
     /// </summary>
     /// <param name="roomName">部屋名</param>
-    /// <param name="userID">ユーザID</param>
+    /// <param name="skinName">スキン名</param>
     /// <returns></returns>
-    public async UniTask JoinAsync(string roomName, int userID, string skinName)
+    public async UniTask JoinAsync(string roomName, string skinName)
     {
-         JoinedUser[] users = await roomHub.JoinAsync(roomName, userID, skinName);
+        JoinedUser[] users = await roomHub.JoinAsync(roomName, skinName);
+
+        // 自分の接続IDを保存
+        this.ConnectionID =  await roomHub.GetConID();
+        Debug.Log(this.ConnectionID);
+
         foreach (var user in users)
         {
-            if (user.UserData.Id == userID)
-            {
-                // 自分の接続IDを保存
-                this.ConnectionID = user.ConnectionID;
-            }
             // モデルを使うクラスに通知
             OnJoinedUser(user);
         }
@@ -218,19 +219,19 @@ public class RoomHubModel : BaseModel, IRoomHubReceiver
     /// </summary>
     /// <param name="userID">ユーザID</param>
     /// <returns></returns>
-    public async UniTask JoinLobbyAsync(int userID)
+    public async UniTask JoinLobbyAsync()
     {
-        await roomHub.JoinLobbyAsync(userID);
-        await JoinAsync("Lobby", userID, "shadow_noraml");
+        await roomHub.JoinLobbyAsync();
+        await JoinAsync("Lobby", "shadow_noraml");
     }
 
     /// <summary>
     /// マッチング通知
     /// </summary>
     /// <param name="roomName"></param>
-    public void OnMatching(string roomName)
+    public void OnMatching(string roomName, string[] userList)
     {
-        OnMatchingUser(roomName);
+        OnMatchingUser(roomName, userList);
     }
 
     /// <summary>

@@ -43,11 +43,11 @@ public class Player : MonoBehaviour
 
 
 
-        /// <summary>
-        /// ”í’eˆ—
-        /// </summary>
-        /// <param name="obj"></param>
-        public void Damage(GameObject obj)
+    /// <summary>
+    /// ”í’eˆ—
+    /// </summary>
+    /// <param name="obj"></param>
+    public void Damage(GameObject obj)
     {
         // “¥‚ñ‚¾‘Šè‚ÌÚ‘±ID‚ğæ“¾
         otherConnectionID = obj.transform.parent.parent.GetComponent<Player>().connectionID;

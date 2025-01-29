@@ -9,6 +9,9 @@ using System.Text;
 
 namespace Shared.Interfaces.Services
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public interface IMyFirstService : IService<IMyFirstService>
     {
         /// <summary>
@@ -56,8 +59,14 @@ namespace Shared.Interfaces.Services
     [MessagePackObject]
     public class Number
     {
+        /// <summary>
+        /// 
+        /// </summary>
         [Key(0)]
         public float x;
+        /// <summary>
+        /// 
+        /// </summary>
         [Key(1)]
         public float y;
     }

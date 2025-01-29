@@ -15,10 +15,9 @@ namespace Shared.Interfaces.StreamingHubs
         /// ユーザ入室
         /// </summary>
         /// <param name="roomHub">入室する部屋名</param>
-        /// <param name="userID">ユーザID</param>
         /// <param name="skinName">スキン名</param>
         /// <returns></returns>
-        Task<JoinedUser[]> JoinAsync(string roomHub,int userID, string skinName);
+        Task<JoinedUser[]> JoinAsync(string roomHub, string skinName);
 
         /// <summary>
         /// ユーザ退室
@@ -59,9 +58,8 @@ namespace Shared.Interfaces.StreamingHubs
         /// <summary>
         /// ロビー参加
         /// </summary>
-        /// <param name="userID">ユーザID</param>
         /// <returns></returns>
-        Task<JoinedUser[]> JoinLobbyAsync(int userID);
+        Task<JoinedUser[]> JoinLobbyAsync();
 
         /// <summary>
         /// カウントダウン
@@ -100,5 +98,11 @@ namespace Shared.Interfaces.StreamingHubs
         /// <param name="itemName">アイテム名</param>
         /// <returns></returns>
         Task UseItemAsync(Guid connectionID, string itemName);
+
+        /// <summary>
+        /// 接続ID取得
+        /// </summary>
+        /// <returns></returns>
+        Task<Guid> GetConID();
     }
 }

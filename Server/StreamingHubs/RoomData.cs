@@ -16,7 +16,7 @@ namespace Server.StreamingHubs
         /// <summary>
         /// マスターユーザの接続ID
         /// </summary>
-        public Guid MasterUserConID { get; set; }
+        public Guid ConnectionID { get; set; }
 
         /// <summary>
         /// ユーザの位置
