@@ -56,6 +56,7 @@ namespace Server.StreamingHubs
             // ルーム参加者全員に、ユーザの通知を送信 (Broadcast(room)で自身も含む)
             this.BroadcastExceptSelf(room).OnJoin(joinedUser);
 
+
             RoomData[] roomDataList = roomStrage.AllValues.ToArray<RoomData>();
 
             // 参加中のユーザ情報を返す
@@ -324,11 +325,10 @@ namespace Server.StreamingHubs
             int num2 = rand.Next(1, 30);
             Guid num3 = Guid.NewGuid();
 
-            string[] resultStr = {"",""};
-            resultStr[0] = firstName[num] + secondtName[num2];
-            resultStr[1] = firstName[num] + secondtName[num2];
+            string resultStr;
+            resultStr = firstName[num] + secondtName[num2] + "_" + num3;
 
-            return firstName[num] + secondtName[num2];
+            return resultStr;
         }
     }
 }

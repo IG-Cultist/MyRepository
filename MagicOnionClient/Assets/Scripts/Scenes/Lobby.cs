@@ -120,12 +120,13 @@ public class Lobby : MonoBehaviour
             img.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
             Vector2.zero);
 
-
             Texture2D tex = Resources.Load("UI/Preparing") as Texture2D;
 
             Image imgPrepare = Rival.GetChild(0).GetComponent<Image>();
             imgPrepare.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height),
             Vector2.zero);
+
+            readyButton.SetActive(true);
         }
     }
 
@@ -148,6 +149,8 @@ public class Lobby : MonoBehaviour
                 break;
             }
         }
+
+        readyButton.SetActive(false);
     }
 
     /// <summary>
@@ -163,7 +166,6 @@ public class Lobby : MonoBehaviour
         headers[0].SetActive(true);
         exitButton.SetActive(true);
         skinPanel.SetActive(true);
-        readyButton.SetActive(true);
 
         Texture2D texture = Resources.Load("UI/You") as Texture2D;
 

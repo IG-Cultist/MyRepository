@@ -231,6 +231,15 @@ public class GameDirector : MonoBehaviour
         }
 
         if (timeUpCnt >= 4) CancelInvoke("TimeUp");
+
+        if(this.time > 3)
+        {
+            // カウントダウン用テキストを非表示
+            for (int i = 0; i < coundDownObjects.Length; i++)
+            {
+                coundDownObjects[i].SetActive(false);
+            }
+        }
     }
 
     /// <summary>
@@ -399,6 +408,9 @@ public class GameDirector : MonoBehaviour
     public async void LeaveRoom()
     {
         CancelInvoke("Move");
+
+        countText.text = "";
+     
         // 退室
         await roomModel.LeaveAsync(SendData.roomName, SendData.userID);
         Initiate.DoneFading();
