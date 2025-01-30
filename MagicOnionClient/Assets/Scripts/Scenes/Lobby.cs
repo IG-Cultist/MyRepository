@@ -1,6 +1,6 @@
 /// ==============================
-/// ƒƒr[ƒXƒNƒŠƒvƒg
-/// Name:¼‰YW‘¾ Update:01/29
+/// ãƒ­ãƒ“ãƒ¼ã‚¹ã‚¯ãƒªãƒ—ãƒˆ
+/// Name:è¥¿æµ¦æ™ƒå¤ª Update:01/29
 /// ==============================
 using Cysharp.Threading.Tasks.Triggers;
 using DG.Tweening;
@@ -20,44 +20,44 @@ using UnityEngine.UI;
 
 public class Lobby : MonoBehaviour
 {
-    // ‘Şºƒ{ƒ^ƒ“
+    // é€€å®¤ãƒœã‚¿ãƒ³
     [SerializeField] GameObject exitButton;
-    // €”õƒ{ƒ^ƒ“
+    // æº–å‚™ãƒœã‚¿ãƒ³
     [SerializeField] GameObject readyButton;
-    // •”‰®ƒ‚ƒfƒ‹
+    // éƒ¨å±‹ãƒ¢ãƒ‡ãƒ«
     [SerializeField] RoomHubModel roomModel;
-    // ƒ[ƒhƒpƒlƒ‹
+    // ãƒ­ãƒ¼ãƒ‰ãƒ‘ãƒãƒ«
     [SerializeField] GameObject loadingPanel;
-    // à–¾ƒpƒlƒ‹
+    // èª¬æ˜ãƒ‘ãƒãƒ«
     [SerializeField] GameObject explainPanel;
-    // à–¾‰æ‘œ
+    // èª¬æ˜ç”»åƒ
     [SerializeField] GameObject[] explainImages;
-    // à–¾‰æ‘œ
+    // èª¬æ˜ç”»åƒ
     [SerializeField] GameObject[] explainTitles;
-    // ƒ[ƒhƒAƒCƒRƒ“
+    // ãƒ­ãƒ¼ãƒ‰ã‚¢ã‚¤ã‚³ãƒ³
     [SerializeField] GameObject loadingIcon;
-    // ƒXƒLƒ“•ÏXƒpƒlƒ‹
+    // ã‚¹ã‚­ãƒ³å¤‰æ›´ãƒ‘ãƒãƒ«
     [SerializeField] GameObject skinPanel;
-    // ƒXƒLƒ“•ÏXƒ{ƒ^ƒ“
+    // ã‚¹ã‚­ãƒ³å¤‰æ›´ãƒœã‚¿ãƒ³
     [SerializeField] GameObject[] changeButton;
-    // ƒwƒbƒ_[ƒeƒLƒXƒg
+    // ãƒ˜ãƒƒãƒ€ãƒ¼ãƒ†ã‚­ã‚¹ãƒˆ
     [SerializeField] GameObject[] headers;
 
     [SerializeField] Text userCount;
 
     [SerializeField] Text wait;
 
-    // Q‰Áƒ†[ƒU‚ÌÚ‘±ID•Û‘¶ƒŠƒXƒg
+    // å‚åŠ ãƒ¦ãƒ¼ã‚¶ã®æ¥ç¶šIDä¿å­˜ãƒªã‚¹ãƒˆ
     List<Guid> idList = new List<Guid>();
 
     int count = 0;
 
     int waitCount = 0;
 
-    // à–¾‰æ‘œ—p•Ï”
+    // èª¬æ˜ç”»åƒç”¨å¤‰æ•°
     int imageCnt = 0;
 
-    // ƒNƒŠƒbƒNorƒ^ƒbƒvSE
+    // ã‚¯ãƒªãƒƒã‚¯orã‚¿ãƒƒãƒ—SE
     [SerializeField] AudioClip clickSE;
 
     AudioSource audioSource;
@@ -66,7 +66,7 @@ public class Lobby : MonoBehaviour
     async void Start()
     {
         audioSource = GetComponent<AudioSource>();
-        // ”ñ•\¦‚É‚·‚é
+        // éè¡¨ç¤ºã«ã™ã‚‹
         loadingPanel.SetActive(false);
         skinPanel.SetActive(false);
         readyButton.SetActive(false);
@@ -77,38 +77,38 @@ public class Lobby : MonoBehaviour
             headers[i].SetActive(false);
         }
 
-        // ƒ†[ƒU‚ª“üº‚µ‚½‚Æ‚«‚Éƒƒ\ƒbƒh‚ğÀs‚·‚é‚æ‚¤ƒ‚ƒfƒ‹‚É“o˜^
+        // ãƒ¦ãƒ¼ã‚¶ãŒå…¥å®¤ã—ãŸã¨ãã«ãƒ¡ã‚½ãƒƒãƒ‰ã‚’å®Ÿè¡Œã™ã‚‹ã‚ˆã†ãƒ¢ãƒ‡ãƒ«ã«ç™»éŒ²
         roomModel.OnJoinedUser += this.OnJoinedUser;
         roomModel.OnLeavedUser += this.OnLeavedUser;
         roomModel.OnMatchingUser += this.OnMatchingUser;
         roomModel.OnReadyUser += this.OnReadyUser;
 
-        // Ú‘±
+        // æ¥ç¶š
         await roomModel.ConnectAsync();
 
-        // ­‚µ‘Ò‚Â
+        // å°‘ã—å¾…ã¤
         await Task.Delay(300);
 
-        // ƒƒr[“üº
+        // ãƒ­ãƒ“ãƒ¼å…¥å®¤
         JoinRoom();
     }
 
     void Update()
     {
-        // ¶ƒNƒŠƒbƒN‚à‚µ‚­‚Í‰æ–Êƒ^ƒbƒvƒNƒŠƒbƒNSE‚ğo‚·
+        // å·¦ã‚¯ãƒªãƒƒã‚¯ã‚‚ã—ãã¯ç”»é¢ã‚¿ãƒƒãƒ—æ™‚ã‚¯ãƒªãƒƒã‚¯SEã‚’å‡ºã™
         if (Input.GetMouseButtonUp(0)) audioSource.PlayOneShot(clickSE);
 
-        // Œ»İ‚ÌQ‰Ál”‚Ì•\¦
-        userCount.text = "Œ»İ" + idList.Count.ToString() + "l‚ª‘Ò‹@’†";
+        // ç¾åœ¨ã®å‚åŠ äººæ•°ã®è¡¨ç¤º
+        userCount.text = "ç¾åœ¨" + idList.Count.ToString() + "äººãŒå¾…æ©Ÿä¸­";
     }
 
     /// <summary>
-    /// ƒ†[ƒU“üºˆ—
+    /// ãƒ¦ãƒ¼ã‚¶å…¥å®¤å‡¦ç†
     /// </summary>
     /// <param name="user"></param>
     void OnJoinedUser(JoinedUser user)
     {
-        // Q‰ÁÒIDƒŠƒXƒg‚É“ü‚ê‚é
+        // å‚åŠ è€…IDãƒªã‚¹ãƒˆã«å…¥ã‚Œã‚‹
         if (idList.Contains(user.ConnectionID)) return;
 
         idList.Add(user.ConnectionID);
@@ -116,64 +116,36 @@ public class Lobby : MonoBehaviour
     }
 
     /// <summary>
-    /// ƒ†[ƒU‘Şºˆ—
+    /// ãƒ¦ãƒ¼ã‚¶é€€å®¤å‡¦ç†
     /// </summary>
     /// <param name="connectionID"></param>
     void OnLeavedUser(Guid connectionID)
     {
-        //foreach (Guid id in idList)
-        //{
-        //    if (id == connectionID)
-        //    {
-        //        Texture2D texture = Resources.Load("UI/Void") as Texture2D;
-
-        //        Image img = Rival.GetComponent<Image>();
-        //        img.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
-        //        Vector2.zero);
-
-        //        break;
-        //    }
-        //}
-
         idList.Remove(connectionID);
         readyButton.SetActive(false);
     }
 
     /// <summary>
-    /// “üºˆ—
+    /// å…¥å®¤å‡¦ç†
     /// </summary>
     public async void JoinRoom()
     {
-        // “üº
+        // å…¥å®¤
         await roomModel.JoinLobbyAsync();
 
-        // Šeƒ{ƒ^ƒ“‚ğ•\¦
+        // å„ãƒœã‚¿ãƒ³ã‚’è¡¨ç¤º
         headers[0].SetActive(true);
         exitButton.SetActive(true);
         skinPanel.SetActive(true);
         readyButton.SetActive(true);
-
-        //Texture2D texture = Resources.Load("UI/You") as Texture2D;
-
-        //Image img = You.GetComponent<Image>();
-        //img.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
-        //Vector2.zero);
-
-        //Texture2D tex = Resources.Load("UI/Preparing") as Texture2D;
-
-        //Image imgPrepare = You.GetChild(0).GetComponent<Image>();
-        //imgPrepare.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height),
-        //Vector2.zero);
-
-        //InvokeRepeating("Waiting", 0.1f, 0.3f);
     }
 
     /// <summary>
-    /// ‘Şºƒ{ƒ^ƒ“ˆ—
+    /// é€€å®¤ãƒœã‚¿ãƒ³å‡¦ç†
     /// </summary>
     public async void LeaveRoom()
     {
-        // ‘Şº
+        // é€€å®¤
         await roomModel.LeaveAsync("Lobby", SendData.userID);
         //SceneManager.LoadScene("Title");
 
@@ -182,11 +154,11 @@ public class Lobby : MonoBehaviour
     }
 
     /// <summary>
-    /// €”õŠ®—¹ƒ{ƒ^ƒ“ˆ—
+    /// æº–å‚™å®Œäº†ãƒœã‚¿ãƒ³å‡¦ç†
     /// </summary>
     public async void Ready()
     {
-        // ‘I‘ğƒXƒLƒ“”»’è
+        // é¸æŠã‚¹ã‚­ãƒ³åˆ¤å®š
         string sendStr;
         switch (count)
         {
@@ -207,21 +179,21 @@ public class Lobby : MonoBehaviour
                 break;
         }
 
-        // ‘—M—pƒXƒLƒ“–¼‚É‘ã“ü
+        // é€ä¿¡ç”¨ã‚¹ã‚­ãƒ³åã«ä»£å…¥
         SendData.skinName = sendStr;
 
-        // €”õŠ®—¹ˆ—
+        // æº–å‚™å®Œäº†å‡¦ç†
         await roomModel.ReadyAsync();
-        // €”õŠ®—¹ƒ{ƒ^ƒ“‚ğ”ñ•\¦‚É
+        // æº–å‚™å®Œäº†ãƒœã‚¿ãƒ³ã‚’éè¡¨ç¤ºã«
         readyButton.SetActive(false);
 
-        // ƒXƒLƒ“•ÏXƒ{ƒ^ƒ“‚ğ”ñ•\¦‚É
+        // ã‚¹ã‚­ãƒ³å¤‰æ›´ãƒœã‚¿ãƒ³ã‚’éè¡¨ç¤ºã«
         changeButton[0].SetActive(false);
         changeButton[1].SetActive(false);
     }
 
     /// <summary>
-    /// ƒQ[ƒ€ŠJn
+    /// ã‚²ãƒ¼ãƒ é–‹å§‹
     /// </summary>
     void OnReadyUser(Guid connectionID)
     {
@@ -234,7 +206,7 @@ public class Lobby : MonoBehaviour
         {
             if (roomModel.ConnectionID.ToString() == conID)
             {
-                // ‘—‚éƒf[ƒ^‚ğ‘ã“ü
+                // é€ã‚‹ãƒ‡ãƒ¼ã‚¿ã‚’ä»£å…¥
                 SendData.roomName = roomName;
 
                 Loading();
@@ -247,7 +219,7 @@ public class Lobby : MonoBehaviour
     }
 
     /// <summary>
-    /// ƒ[ƒfƒBƒ“ƒO
+    /// ãƒ­ãƒ¼ãƒ‡ã‚£ãƒ³ã‚°
     /// </summary>
     async void Loading()
     {
@@ -279,14 +251,14 @@ public class Lobby : MonoBehaviour
     }
 
     /// <summary>
-    /// Ÿ‚ÌƒXƒLƒ“•\¦ˆ—
+    /// æ¬¡ã®ã‚¹ã‚­ãƒ³è¡¨ç¤ºå‡¦ç†
     /// </summary>
     public void nextSkin()
     {
         count++;
         if (count >= 4) count = 0;
 
-        // ƒŠƒ\[ƒX‚©‚çAƒAƒCƒRƒ“‚ğæ“¾
+        // ãƒªã‚½ãƒ¼ã‚¹ã‹ã‚‰ã€ã‚¢ã‚¤ã‚³ãƒ³ã‚’å–å¾—
         Texture2D texture = Resources.Load("Shadows/shadow_" + count) as Texture2D;
 
         Image skinPreview =  skinPanel.transform.GetChild(0).GetComponent<Image>();
@@ -296,14 +268,14 @@ public class Lobby : MonoBehaviour
     }
 
     /// <summary>
-    /// 1‚Â‘O‚ÌƒXƒLƒ“•\¦ˆ—
+    /// 1ã¤å‰ã®ã‚¹ã‚­ãƒ³è¡¨ç¤ºå‡¦ç†
     /// </summary>
     public void backSkin()
     {
         count--;
         if (count < 0) count = 3;
 
-        // ƒŠƒ\[ƒX‚©‚çAƒAƒCƒRƒ“‚ğæ“¾
+        // ãƒªã‚½ãƒ¼ã‚¹ã‹ã‚‰ã€ã‚¢ã‚¤ã‚³ãƒ³ã‚’å–å¾—
         Texture2D texture = Resources.Load("Shadows/shadow_" + count) as Texture2D;
 
         Image skinPreview = skinPanel.transform.GetChild(0).GetComponent<Image>();
@@ -313,7 +285,7 @@ public class Lobby : MonoBehaviour
     }
 
     /// <summary>
-    /// à–¾ƒpƒlƒ‹•\¦ˆ—
+    /// èª¬æ˜ãƒ‘ãƒãƒ«è¡¨ç¤ºå‡¦ç†
     /// </summary>
     public void openExplain()
     {
@@ -325,7 +297,7 @@ public class Lobby : MonoBehaviour
     }
 
     /// <summary>
-    /// à–¾ƒpƒlƒ‹”ñ•\¦ˆ—
+    /// èª¬æ˜ãƒ‘ãƒãƒ«éè¡¨ç¤ºå‡¦ç†
     /// </summary>
     public void closeExplain()
     {
@@ -333,7 +305,7 @@ public class Lobby : MonoBehaviour
     }
 
     /// <summary>
-    /// Ÿ‚Ìà–¾‰æ‘œ•\¦ˆ—
+    /// æ¬¡ã®èª¬æ˜ç”»åƒè¡¨ç¤ºå‡¦ç†
     /// </summary>
     public void nextImage()
     {
@@ -356,7 +328,7 @@ public class Lobby : MonoBehaviour
     }
   
     /// <summary>
-    /// ˆê‚Â‘O‚Ìà–¾‰æ‘œ•\¦ˆ—
+    /// ä¸€ã¤å‰ã®èª¬æ˜ç”»åƒè¡¨ç¤ºå‡¦ç†
     /// </summary>
     public void backImage()
     {
