@@ -47,6 +47,8 @@ public class Lobby : MonoBehaviour
 
     [SerializeField] Text wait;
 
+    [SerializeField] GameObject ready;
+
     // 参加ユーザの接続ID保存リスト
     List<Guid> idList = new List<Guid>();
 
@@ -54,6 +56,9 @@ public class Lobby : MonoBehaviour
 
     int waitCount = 0;
 
+    bool isReady = false;
+
+    bool isExplain = false;
     // 説明画像用変数
     int imageCnt = 0;
 
@@ -71,6 +76,7 @@ public class Lobby : MonoBehaviour
         skinPanel.SetActive(false);
         readyButton.SetActive(false);
         explainPanel.SetActive(false);
+        ready.SetActive(false);
 
         for(int i = 0; i < headers.Length; i++)
         {
@@ -98,8 +104,18 @@ public class Lobby : MonoBehaviour
         // 左クリックもしくは画面タップ時クリックSEを出す
         if (Input.GetMouseButtonUp(0)) audioSource.PlayOneShot(clickSE);
 
-        // 現在の参加人数の表示
-        userCount.text = "現在" + idList.Count.ToString() + "人が待機中";
+        if (isExplain == true)
+        {
+            userCount.text = "";
+        }
+        else
+        {
+            // 現在の参加人数の表示
+            userCount.text = "現在" + idList.Count.ToString() + "人が待機中";
+        }
+
+        if (idList.Count < 2) readyButton.SetActive(false);
+        else if(isReady == false) readyButton.SetActive(true);
     }
 
     /// <summary>
@@ -133,11 +149,11 @@ public class Lobby : MonoBehaviour
         // 入室
         await roomModel.JoinLobbyAsync();
 
+        InvokeRepeating("Waiting", 0.1f, 0.3f);
         // 各ボタンを表示
         headers[0].SetActive(true);
         exitButton.SetActive(true);
         skinPanel.SetActive(true);
-        readyButton.SetActive(true);
     }
 
     /// <summary>
@@ -147,7 +163,6 @@ public class Lobby : MonoBehaviour
     {
         // 退室
         await roomModel.LeaveAsync("Lobby", SendData.userID);
-        //SceneManager.LoadScene("Title");
 
         Initiate.DoneFading();
         Initiate.Fade("Title", Color.black, 0.7f);
@@ -181,7 +196,7 @@ public class Lobby : MonoBehaviour
 
         // 送信用スキン名に代入
         SendData.skinName = sendStr;
-
+        isReady = true;
         // 準備完了処理
         await roomModel.ReadyAsync();
         // 準備完了ボタンを非表示に
@@ -190,6 +205,7 @@ public class Lobby : MonoBehaviour
         // スキン変更ボタンを非表示に
         changeButton[0].SetActive(false);
         changeButton[1].SetActive(false);
+        ready.SetActive(true);
     }
 
     /// <summary>
@@ -289,6 +305,8 @@ public class Lobby : MonoBehaviour
     /// </summary>
     public void openExplain()
     {
+        ready.SetActive(false);
+        isExplain = true;
         explainPanel.SetActive(true);
         explainImages[0].SetActive(true);
         explainImages[1].SetActive(false);
@@ -301,6 +319,8 @@ public class Lobby : MonoBehaviour
     /// </summary>
     public void closeExplain()
     {
+        ready.SetActive(true);
+        isExplain = false;
         explainPanel.SetActive(false);
     }
 
