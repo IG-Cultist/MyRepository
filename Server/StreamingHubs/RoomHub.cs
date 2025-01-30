@@ -219,17 +219,9 @@ namespace Server.StreamingHubs
         /// <returns></returns>
         public async Task<JoinedUser[]> JoinLobbyAsync()
         {
-            //string roomName = randomName();
-
             // 参加中のユーザ情報を返す
             JoinedUser[] joinedUserList = await JoinAsync("Lobby", "shadow_noraml");
 
-            // 参加人数が2人になったらマッチング
-            //if(joinedUserList.Length == 2)
-            //{
-            //    // ルーム参加者全員に、マッチング通知を送信
-            //    this.Broadcast(room).OnMatching(roomName);
-            //}
             return joinedUserList;
         }
 
