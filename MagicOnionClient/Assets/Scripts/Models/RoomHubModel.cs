@@ -73,9 +73,10 @@ public class RoomHubModel : BaseModel, IRoomHubReceiver
     /// </summary>
     /// <returns></returns>
     public async UniTask DisconnectAsync()
-    {
+    {   
         if (roomHub != null) await roomHub.DisposeAsync();
         if (channel != null) await channel.ShutdownAsync();
+
         roomHub = null; channel = null;
     }
 

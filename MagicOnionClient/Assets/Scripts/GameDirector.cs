@@ -11,18 +11,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using TedLab;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using static UnityEngine.EventSystems.StandaloneInputModule;
 
 public class GameDirector : MonoBehaviour
 {
     // 生成するユーザプレハブ
-    [SerializeField] GameObject characterPrefabs; 
+    [SerializeField] GameObject characterPrefabs;
     // 生成するトラッププレハブ
     [SerializeField] GameObject trapPrefabs;
     // 生成する偽影プレハブ
@@ -53,6 +49,8 @@ public class GameDirector : MonoBehaviour
     [SerializeField] Image itemPanel;
     // 操作用ジョイスティック
     [SerializeField] FixedJoystick joystick;
+    // 警告パネル
+    [SerializeField] GameObject warningPanel;
 
     // 生成ユーザのディクショナリー
     Dictionary<Guid, GameObject> characterList = new Dictionary<Guid, GameObject>();
@@ -90,7 +88,7 @@ public class GameDirector : MonoBehaviour
     // プレイヤーのHP
     int playerHP = 3;
     int rivalHP = 3;
-    
+
     // プレイヤースクリプト
     Player playerScript;
     // アイテムスクリプト
@@ -101,7 +99,7 @@ public class GameDirector : MonoBehaviour
     // ゲーム終了判定変数
     bool isFinish = false;
 
-    float defaultSpeed = 1.5f;
+    float defaultSpeed = 1.2f;
 
     // 移動速度
     public float moveSpeed;
@@ -123,6 +121,8 @@ public class GameDirector : MonoBehaviour
     // マスタークライアント判定
     bool isMaster;
 
+    bool isStop = false;
+
     // 制限時間
     public int time = 31;
     // タイムアップ時SE再生回数用変数
@@ -140,10 +140,10 @@ public class GameDirector : MonoBehaviour
     {
 #if UNITY_EDITOR
         //エディター実行時
-        if (SendData.roomName == null) 
+        if (SendData.roomName == null)
         {
-            SendData.roomName = "RoomRoom"; 
-            SendData.userID = 1; 
+            SendData.roomName = "RoomRoom";
+            SendData.userID = 1;
         }
 
 #endif
@@ -180,6 +180,7 @@ public class GameDirector : MonoBehaviour
         spawnShadowEffect.SetActive(false);
         localizationEffect.SetActive(false);
         speedUpEffect.SetActive(false);
+        warningPanel.SetActive(false);
 
         // カウントダウン用テキストを非表示
         for (int i = 0; i < coundDownObjects.Length; i++)
@@ -233,7 +234,7 @@ public class GameDirector : MonoBehaviour
 
         if (timeUpCnt >= 4) CancelInvoke("TimeUp");
 
-        if(this.time > 3)
+        if (this.time > 3)
         {
             // カウントダウン用テキストを非表示
             for (int i = 0; i < coundDownObjects.Length; i++)
@@ -248,12 +249,12 @@ public class GameDirector : MonoBehaviour
     /// </summary>
     /// <param name="user"></param>
     void OnJoinedUser(JoinedUser user)
-    {  
+    {
         // インスタンス生成
-        GameObject characterGameObject = Instantiate(characterPrefabs); 
+        GameObject characterGameObject = Instantiate(characterPrefabs);
 
         // プレイヤースクリプト取得
-        playerScript =  characterGameObject.GetComponent<Player>();
+        playerScript = characterGameObject.GetComponent<Player>();
 
         // 生成位置を設定
         characterGameObject.transform.position = new Vector3(-7.5f + (2 * user.JoinOrder), 2f, -10f);
@@ -262,7 +263,7 @@ public class GameDirector : MonoBehaviour
 
         // 自分以外の各オブジェクトを非アクティブにする
         if (roomModel.ConnectionID != user.ConnectionID)
-        { 
+        {
             // 対象ののカメラを取得
             GameObject obj = characterGameObject.transform.GetChild(0).gameObject;
 
@@ -332,8 +333,14 @@ public class GameDirector : MonoBehaviour
                 Destroy(character);
             }
         }
-        // 退室ユーザのオブジェクトのみ破壊
-        else Destroy(characterList[connectionID]);
+        else // 退室ユーザのオブジェクトのみ破壊
+        {
+            Destroy(characterList[connectionID]);
+            if (isStart == true && isFinish == false)
+            {
+                CheckExit();
+            }
+        }
     }
 
     /// <summary>
@@ -342,10 +349,10 @@ public class GameDirector : MonoBehaviour
     /// <param name="pos">位置</param>
     void OnMovedUser(Guid connectionID, Vector3 pos, Vector3 rot, IRoomHubReceiver.PlayerState state)
     {
-        if(characterList.Count == 0) return;
+        if (characterList.Count == 0) return;
         // 各トランスフォームをアニメーション
-        characterList[connectionID].transform.DOLocalMove(pos,0.1f).SetEase(Ease.Linear);
-        characterList[connectionID].transform.DOLocalRotate(rot,0.1f).SetEase(Ease.Linear);
+        characterList[connectionID].transform.DOLocalMove(pos, 0.1f).SetEase(Ease.Linear);
+        characterList[connectionID].transform.DOLocalRotate(rot, 0.1f).SetEase(Ease.Linear);
     }
 
     /// <summary>
@@ -386,7 +393,7 @@ public class GameDirector : MonoBehaviour
         exitButton.SetActive(false);
         CancelInvoke("CountDown");
         isFinish = true;
-        InvokeRepeating("TimeUp", 0.1f, 2f);   
+        InvokeRepeating("TimeUp", 0.1f, 2f);
     }
 
     public async void JoinRoom()
@@ -411,11 +418,19 @@ public class GameDirector : MonoBehaviour
         CancelInvoke("Move");
 
         countText.text = "";
-     
+
         // 退室
         await roomModel.LeaveAsync(SendData.roomName, SendData.userID);
         Initiate.DoneFading();
         Initiate.Fade("Result", Color.black, 0.7f);
+    }
+
+    public async void BackTitle()
+    {
+        // 退室
+        await roomModel.LeaveAsync(SendData.roomName, SendData.userID);
+        Initiate.DoneFading();
+        Initiate.Fade("Title", Color.black, 0.7f);
     }
 
     /// <summary>
@@ -458,7 +473,12 @@ public class GameDirector : MonoBehaviour
 
             if (health <= 0)
             {
-                characterList[connectionID].SetActive(false);
+                for (int i = 0; i < coundDownObjects.Length; i++)
+                {
+                    coundDownObjects[i].SetActive(false);
+                }
+                characterList[connectionID].transform.GetChild(1).gameObject.SetActive(false);
+                characterList[connectionID].transform.GetChild(2).gameObject.SetActive(false);
                 resultObjects[1].SetActive(true);
                 Finish();
             }
@@ -470,6 +490,10 @@ public class GameDirector : MonoBehaviour
 
             if (health <= 0)
             {
+                for (int i = 0; i < coundDownObjects.Length; i++)
+                {
+                    coundDownObjects[i].SetActive(false);
+                }
                 characterList[connectionID].transform.GetChild(2).gameObject.SetActive(false);
                 resultObjects[0].SetActive(true);
                 Finish();
@@ -483,6 +507,7 @@ public class GameDirector : MonoBehaviour
     void MovePlayer()
     {
         // 開始前とゲーム終了後は移動させない
+        if (isStop == true) return;
         if (isStart != true) return;
         if (isFinish == true) return;
         Rigidbody rb = characterList[roomModel.ConnectionID].GetComponent<Rigidbody>();  // rigidbodyを取得
@@ -490,7 +515,7 @@ public class GameDirector : MonoBehaviour
         float axisZ = joystick.Vertical;
         float axisX = joystick.Horizontal;
 
-        rb.AddRelativeForce(new Vector3((90 * moveSpeed) * axisX, 0, (90 * moveSpeed)* axisZ));
+        rb.AddRelativeForce(new Vector3((90 * moveSpeed) * axisX, 0, (90 * moveSpeed) * axisZ));
 
         // RightArrowキーまたはDキーを押した場合
         if (Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.D))
@@ -538,7 +563,7 @@ public class GameDirector : MonoBehaviour
                 Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero);
 
             nowItemName = name;
-        }   
+        }
         await roomModel.StompItemAsync(name);
     }
 
@@ -557,6 +582,7 @@ public class GameDirector : MonoBehaviour
     /// </summary>
     public async void UseItem()
     {
+        if (isStop == true) return;
         if (isStart != true) return;
         if (isFinish == true) return;
 
@@ -583,7 +609,7 @@ public class GameDirector : MonoBehaviour
             case "Compass": // コンパスの場合
                 // 相手の位置をマップに3秒間表示する
                 audioSource.PlayOneShot(compassSE);
-                
+
                 //ライバルの位置を表示
                 rivalObj.transform.GetChild(3).GetComponent<MeshRenderer>().enabled = true;
                 localizationEffect.SetActive(true);
@@ -612,7 +638,7 @@ public class GameDirector : MonoBehaviour
                 GameObject trapObj = Instantiate(trapPrefabs);
                 trapObj.name = "Trap(active)";
                 // 生成位置を設定
-                trapObj.transform.position = new Vector3(playerPos.x, playerPos.y + 1.0f, playerPos.z + 3.0f); 
+                trapObj.transform.position = new Vector3(playerPos.x, playerPos.y + 1.0f, playerPos.z + 3.0f);
 
                 await roomModel.UseItemAsync(roomModel.ConnectionID, nowItemName);
                 break;
@@ -674,7 +700,7 @@ public class GameDirector : MonoBehaviour
     public async void OnUseItemUser(Guid connectionID, string itemName)
     {
         Vector3 playerPos = characterList[connectionID].transform.position;
-        
+
         switch (itemName)
         {
             case "Trap": // トラップの場合
@@ -759,7 +785,7 @@ public class GameDirector : MonoBehaviour
                 // カウントダウン処理を停止
                 CancelInvoke("CountDown");
 
-                if(playerHP < rivalHP) resultObjects[1].SetActive(true);
+                if (playerHP < rivalHP) resultObjects[1].SetActive(true);
                 else if (playerHP > rivalHP) resultObjects[0].SetActive(true);
                 else resultObjects[2].SetActive(true);
                 // ゲームエンド処理を呼ぶ
@@ -775,16 +801,19 @@ public class GameDirector : MonoBehaviour
 
     void OnChangeSkinUser(int userID, string skinName)
     {
-        // 取得したこの数分ループ
-        foreach (Transform ob in GameObject.Find(userID.ToString()).transform.GetChild(2))
+        if (GameObject.Find(userID.ToString()).transform.GetChild(2) != null)
         {
-            // ロビーで設定したスキン名と一致しない場合
-            if (skinName != ob.name)
+            // 取得したこの数分ループ
+            foreach (Transform ob in GameObject.Find(userID.ToString()).transform.GetChild(2))
             {
-                // コライダーを消す
-                ob.GetComponent<BoxCollider>().enabled = false;
-                // 透明度を0にする
-                ob.GetComponent<Renderer>().material.color = new Color(255, 255, 255, 0);
+                // ロビーで設定したスキン名と一致しない場合
+                if (skinName != ob.name)
+                {
+                    // コライダーを消す
+                    ob.GetComponent<BoxCollider>().enabled = false;
+                    // 透明度を0にする
+                    ob.GetComponent<Renderer>().material.color = new Color(255, 255, 255, 0);
+                }
             }
         }
     }
@@ -805,6 +834,7 @@ public class GameDirector : MonoBehaviour
     /// </summary>
     public void OnButtonDown()
     {
+        if (isStop == true) return;
         if (isStart != true) return;
         if (isFinish == true) return;
 
@@ -846,7 +876,7 @@ public class GameDirector : MonoBehaviour
 
         // リソースから、アイコンを取得
         Texture2D texture = Resources.Load("UI/eye_close") as Texture2D;
-        
+
         Image buttonTexture = viewButton.GetComponent<Image>();
 
         buttonTexture.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
@@ -889,5 +919,17 @@ public class GameDirector : MonoBehaviour
         StompItem(fakeObj.name);
 
         spawnShadowEffect.SetActive(false);
+    }
+
+    /// <summary>
+    /// 途中退室処理
+    /// </summary>
+    void CheckExit()
+    {
+        isStop = true;
+        // 各繰り返しを停止
+        CancelInvoke("ViewCooldown");
+        CancelInvoke("Move");
+        warningPanel.SetActive(true);
     }
 }

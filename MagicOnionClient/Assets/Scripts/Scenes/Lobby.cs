@@ -70,6 +70,7 @@ public class Lobby : MonoBehaviour
     // Start is called before the first frame update
     async void Start()
     {
+        SendData.userID = 0;
         audioSource = GetComponent<AudioSource>();
         // 非表示にする
         loadingPanel.SetActive(false);
@@ -104,18 +105,19 @@ public class Lobby : MonoBehaviour
         // 左クリックもしくは画面タップ時クリックSEを出す
         if (Input.GetMouseButtonUp(0)) audioSource.PlayOneShot(clickSE);
 
+        // 操作説明を閲覧中の場合一時文字を消す
         if (isExplain == true)
         {
             userCount.text = "";
         }
-        else
+        else // 現在の参加人数の表示
         {
-            // 現在の参加人数の表示
             userCount.text = "現在" + idList.Count.ToString() + "人が待機中";
         }
 
+        // 参加者が2人に満たない場合、準備完了ボタンを表示しない
         if (idList.Count < 2) readyButton.SetActive(false);
-        else if(isReady == false) readyButton.SetActive(true);
+        else if(isReady == false) readyButton.SetActive(true); // 準備完了していない場合表示する
     }
 
     /// <summary>
@@ -124,10 +126,12 @@ public class Lobby : MonoBehaviour
     /// <param name="user"></param>
     void OnJoinedUser(JoinedUser user)
     {
-        // 参加者IDリストに入れる
+        //同一ユーザがいる場合処理しない
         if (idList.Contains(user.ConnectionID)) return;
 
+        //  参加者IDリストに入れる
         idList.Add(user.ConnectionID);
+        // 自身のIDをローカルに保存
         SendData.userID = user.JoinOrder;
     }
 
@@ -137,8 +141,10 @@ public class Lobby : MonoBehaviour
     /// <param name="connectionID"></param>
     void OnLeavedUser(Guid connectionID)
     {
+        // 退室者のIDを除去
         idList.Remove(connectionID);
-        readyButton.SetActive(false);
+        // 準備完了ボタンを非表示に
+        if(readyButton != null) readyButton.SetActive(false);
     }
 
     /// <summary>
@@ -164,6 +170,7 @@ public class Lobby : MonoBehaviour
         // 退室
         await roomModel.LeaveAsync("Lobby", SendData.userID);
 
+        // タイトルへ遷移
         Initiate.DoneFading();
         Initiate.Fade("Title", Color.black, 0.7f);
     }
@@ -196,6 +203,7 @@ public class Lobby : MonoBehaviour
 
         // 送信用スキン名に代入
         SendData.skinName = sendStr;
+        // 準備完了に
         isReady = true;
         // 準備完了処理
         await roomModel.ReadyAsync();
@@ -225,9 +233,11 @@ public class Lobby : MonoBehaviour
                 // 送るデータを代入
                 SendData.roomName = roomName;
 
+                // ロードを挟む
                 Loading();
                 await Task.Delay(800);
 
+                // ゲームシーンへ遷移
                 Initiate.DoneFading();
                 Initiate.Fade("Game", Color.black, 0.7f);
             }
@@ -239,8 +249,10 @@ public class Lobby : MonoBehaviour
     /// </summary>
     async void Loading()
     {
+        // 待機処理を停止
         CancelInvoke("Waiting");
         wait.text = "";
+
         loadingPanel.SetActive(true);
         headers[0].SetActive(false);
         headers[1].SetActive(true);
