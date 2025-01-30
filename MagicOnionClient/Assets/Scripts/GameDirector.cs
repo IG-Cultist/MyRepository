@@ -1,6 +1,6 @@
 /// ==============================
-/// ƒQ[ƒ€ƒfƒBƒŒƒNƒ^[ƒXƒNƒŠƒvƒg
-/// Name:¼‰YW‘¾ Update:1/24
+/// ã‚²ãƒ¼ãƒ ãƒ‡ã‚£ãƒ¬ã‚¯ã‚¿ãƒ¼ã‚¹ã‚¯ãƒªãƒ—ãƒˆ
+/// Name:è¥¿æµ¦æ™ƒå¤ª Update:1/24
 /// ==============================
 using DG.Tweening;
 using Shared.Interfaces.Services;
@@ -21,125 +21,125 @@ using static UnityEngine.EventSystems.StandaloneInputModule;
 
 public class GameDirector : MonoBehaviour
 {
-    // ¶¬‚·‚éƒ†[ƒUƒvƒŒƒnƒu
+    // ç”Ÿæˆã™ã‚‹ãƒ¦ãƒ¼ã‚¶ãƒ—ãƒ¬ãƒãƒ–
     [SerializeField] GameObject characterPrefabs; 
-    // ¶¬‚·‚éƒgƒ‰ƒbƒvƒvƒŒƒnƒu
+    // ç”Ÿæˆã™ã‚‹ãƒˆãƒ©ãƒƒãƒ—ãƒ—ãƒ¬ãƒãƒ–
     [SerializeField] GameObject trapPrefabs;
-    // ¶¬‚·‚é‹U‰eƒvƒŒƒnƒu
+    // ç”Ÿæˆã™ã‚‹å½å½±ãƒ—ãƒ¬ãƒãƒ–
     [SerializeField] GameObject fakeShadowPrefabs;
-    // ‘Şºƒ{ƒ^ƒ“
+    // é€€å®¤ãƒœã‚¿ãƒ³
     [SerializeField] GameObject exitButton;
-    // ƒJƒEƒ“ƒgƒ_ƒEƒ“•\¦ƒpƒlƒ‹
+    // ã‚«ã‚¦ãƒ³ãƒˆãƒ€ã‚¦ãƒ³è¡¨ç¤ºãƒ‘ãƒãƒ«
     [SerializeField] GameObject countPanel;
-    // ƒJƒEƒ“ƒgƒ_ƒEƒ“ƒQ[ƒ€ƒIƒuƒWƒFƒNƒg
+    // ã‚«ã‚¦ãƒ³ãƒˆãƒ€ã‚¦ãƒ³ã‚²ãƒ¼ãƒ ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
     [SerializeField] GameObject[] coundDownObjects;
-    // ŠJn‡}ƒQ[ƒ€ƒIƒuƒWƒFƒNƒg
+    // é–‹å§‹åˆå›³ã‚²ãƒ¼ãƒ ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
     [SerializeField] GameObject[] readyTextObjects;
-    // ƒQ[ƒ€Œ‹‰ÊƒIƒuƒWƒFƒNƒg
+    // ã‚²ãƒ¼ãƒ çµæœã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
     [SerializeField] GameObject[] resultObjects;
 
-    // ˆÚ“®‘¬“xã¸ƒAƒCƒRƒ“
+    // ç§»å‹•é€Ÿåº¦ä¸Šæ˜‡ã‚¢ã‚¤ã‚³ãƒ³
     [SerializeField] GameObject speedUpEffect;
-    // ˆÊ’u•\¦ƒAƒCƒRƒ“
+    // ä½ç½®è¡¨ç¤ºã‚¢ã‚¤ã‚³ãƒ³
     [SerializeField] GameObject localizationEffect;
-    // ‰e¶¬ƒAƒCƒRƒ“
+    // å½±ç”Ÿæˆã‚¢ã‚¤ã‚³ãƒ³
     [SerializeField] GameObject spawnShadowEffect;
 
-    // ‹“_•ÏXƒ{ƒ^ƒ“
+    // è¦–ç‚¹å¤‰æ›´ãƒœã‚¿ãƒ³
     [SerializeField] GameObject viewButton;
-    // ƒJƒEƒ“ƒgƒ_ƒEƒ“ƒeƒLƒXƒg
+    // ã‚«ã‚¦ãƒ³ãƒˆãƒ€ã‚¦ãƒ³ãƒ†ã‚­ã‚¹ãƒˆ
     [SerializeField] Text countText;
-    // Š—LƒAƒCƒeƒ€ƒpƒlƒ‹
+    // æ‰€æœ‰ã‚¢ã‚¤ãƒ†ãƒ ãƒ‘ãƒãƒ«
     [SerializeField] Image itemPanel;
-    // ‘€ì—pƒWƒ‡ƒCƒXƒeƒBƒbƒN
+    // æ“ä½œç”¨ã‚¸ãƒ§ã‚¤ã‚¹ãƒ†ã‚£ãƒƒã‚¯
     [SerializeField] FixedJoystick joystick;
 
-    // ¶¬ƒ†[ƒU‚ÌƒfƒBƒNƒVƒ‡ƒiƒŠ[
+    // ç”Ÿæˆãƒ¦ãƒ¼ã‚¶ã®ãƒ‡ã‚£ã‚¯ã‚·ãƒ§ãƒŠãƒªãƒ¼
     Dictionary<Guid, GameObject> characterList = new Dictionary<Guid, GameObject>();
-    // •”‰®ƒ‚ƒfƒ‹
+    // éƒ¨å±‹ãƒ¢ãƒ‡ãƒ«
     [SerializeField] RoomHubModel roomModel;
 
-    // ƒXƒgƒbƒvƒEƒHƒbƒ`g—pSE
+    // ã‚¹ãƒˆãƒƒãƒ—ã‚¦ã‚©ãƒƒãƒä½¿ç”¨SE
     [SerializeField] AudioClip stopWatchSE;
-    // “¥‚İ‚Â‚¯SE
+    // è¸ã¿ã¤ã‘æ™‚SE
     [SerializeField] AudioClip stompSE;
-    // ƒvƒƒWƒFƒNƒ^[g—pSE
+    // ãƒ—ãƒ­ã‚¸ã‚§ã‚¯ã‚¿ãƒ¼ä½¿ç”¨SE
     [SerializeField] AudioClip projectorSE;
-    // ƒgƒ‰ƒbƒvg—pSE
+    // ãƒˆãƒ©ãƒƒãƒ—ä½¿ç”¨SE
     [SerializeField] AudioClip trapSE;
-    // ƒ^ƒCƒ€ƒAƒbƒvSE
+    // ã‚¿ã‚¤ãƒ ã‚¢ãƒƒãƒ—SE
     [SerializeField] AudioClip timeUpSE;
-    // Œv‚ÌjSE
+    // æ™‚è¨ˆã®é‡SE
     [SerializeField] AudioClip clockSE;
-    // ƒgƒ‰ƒbƒv”­“®SE
+    // ãƒˆãƒ©ãƒƒãƒ—ç™ºå‹•SE
     [SerializeField] AudioClip trapBiteSE;
     // SE
     [SerializeField] AudioClip compassSE;
-    // ƒ[ƒ‰ƒuƒŒ[ƒhg—pSE
+    // ãƒ­ãƒ¼ãƒ©ãƒ–ãƒ¬ãƒ¼ãƒ‰ä½¿ç”¨SE
     [SerializeField] AudioClip rollerBladeSE;
 
-    // ƒI[ƒfƒBƒIƒ\[ƒX
+    // ã‚ªãƒ¼ãƒ‡ã‚£ã‚ªã‚½ãƒ¼ã‚¹
     AudioSource audioSource;
-    // ©•ª‚ÌƒJƒƒ‰
+    // è‡ªåˆ†ã®ã‚«ãƒ¡ãƒ©
     GameObject myCamera;
 
-    // ƒvƒŒƒCƒ„[‚ÌHPƒŠƒXƒg
+    // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®HPãƒªã‚¹ãƒˆ
     List<GameObject> heartList;
     List<GameObject> rivalHeartList;
 
-    // ƒvƒŒƒCƒ„[‚ÌHP
+    // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®HP
     int playerHP = 3;
     int rivalHP = 3;
     
-    // ƒvƒŒƒCƒ„[ƒXƒNƒŠƒvƒg
+    // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã‚¹ã‚¯ãƒªãƒ—ãƒˆ
     Player playerScript;
-    // ƒAƒCƒeƒ€ƒXƒNƒŠƒvƒg
+    // ã‚¢ã‚¤ãƒ†ãƒ ã‚¹ã‚¯ãƒªãƒ—ãƒˆ
     Item itemScript;
 
-    // ƒQ[ƒ€ŠJn”»’è•Ï”
+    // ã‚²ãƒ¼ãƒ é–‹å§‹åˆ¤å®šå¤‰æ•°
     bool isStart = false;
-    // ƒQ[ƒ€I—¹”»’è•Ï”
+    // ã‚²ãƒ¼ãƒ çµ‚äº†åˆ¤å®šå¤‰æ•°
     bool isFinish = false;
 
     float defaultSpeed = 1.5f;
 
-    // ˆÚ“®‘¬“x
+    // ç§»å‹•é€Ÿåº¦
     public float moveSpeed;
 
     public int userID;
 
-    // “Š‰e‹@g—p‰ñ”ƒJƒEƒ“ƒg
+    // æŠ•å½±æ©Ÿä½¿ç”¨å›æ•°ã‚«ã‚¦ãƒ³ãƒˆ
     int useProjector = 0;
 
-    // Œ»İŠ—L‚µ‚Ä‚¢‚éƒAƒCƒeƒ€–¼
+    // ç¾åœ¨æ‰€æœ‰ã—ã¦ã„ã‚‹ã‚¢ã‚¤ãƒ†ãƒ å
     string nowItemName = "";
 
-    // ˆÚ“®‘¬“xƒu[ƒXƒg”»’è
+    // ç§»å‹•é€Ÿåº¦ãƒ–ãƒ¼ã‚¹ãƒˆåˆ¤å®š
     bool isBoost = false;
 
-    // ˆÊ’u“Á’è”»’è
+    // ä½ç½®ç‰¹å®šåˆ¤å®š
     bool isLocate = false;
 
-    // ƒ}ƒXƒ^[ƒNƒ‰ƒCƒAƒ“ƒg”»’è
+    // ãƒã‚¹ã‚¿ãƒ¼ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆåˆ¤å®š
     bool isMaster;
 
-    // §ŒÀŠÔ
+    // åˆ¶é™æ™‚é–“
     public int time = 31;
-    // ƒ^ƒCƒ€ƒAƒbƒvSEÄ¶‰ñ”—p•Ï”
+    // ã‚¿ã‚¤ãƒ ã‚¢ãƒƒãƒ—æ™‚SEå†ç”Ÿå›æ•°ç”¨å¤‰æ•°
     int timeUpCnt = 0;
 
-    // ‹“_•ÏX—p•Ï”
+    // è¦–ç‚¹å¤‰æ›´ç”¨å¤‰æ•°
     int viewCount = 2;
     bool isCooldown = false;
 
-    // ƒ{ƒ^ƒ“‚ğ‰Ÿ‚µ‚½‚Æ‚«trueA—£‚µ‚½‚Æ‚«false‚É‚È‚éƒtƒ‰ƒO
+    // ãƒœã‚¿ãƒ³ã‚’æŠ¼ã—ãŸã¨ãtrueã€é›¢ã—ãŸã¨ãfalseã«ãªã‚‹ãƒ•ãƒ©ã‚°
     bool buttonDownFlag = false;
 
     // Start is called before the first frame update
     async void Start()
     {
 #if UNITY_EDITOR
-        //ƒGƒfƒBƒ^[Às
+        //ã‚¨ãƒ‡ã‚£ã‚¿ãƒ¼å®Ÿè¡Œæ™‚
         if (SendData.roomName == null) 
         {
             SendData.roomName = "RoomRoom"; 
@@ -148,17 +148,17 @@ public class GameDirector : MonoBehaviour
 
 #endif
         if (Input.GetKey(KeyCode.Escape))
-        {//ESC‰Ÿ‚µ‚½Û‚Ìˆ—
+        {//ESCæŠ¼ã—ãŸéš›ã®å‡¦ç†
 #if UNITY_EDITOR
-            //ƒGƒfƒBƒ^[Às
+            //ã‚¨ãƒ‡ã‚£ã‚¿ãƒ¼å®Ÿè¡Œæ™‚
             UnityEditor.EditorApplication.isPlaying = false;
 #else
-            //ƒrƒ‹ƒh
+            //ãƒ“ãƒ«ãƒ‰æ™‚
             Application.Quit();
 #endif
         }
 
-        // ƒ†[ƒU‚ª“üº‚µ‚½‚Æ‚«‚Éƒƒ\ƒbƒh‚ğÀs‚·‚é‚æ‚¤ƒ‚ƒfƒ‹‚É“o˜^
+        // ãƒ¦ãƒ¼ã‚¶ãŒå…¥å®¤ã—ãŸã¨ãã«ãƒ¡ã‚½ãƒƒãƒ‰ã‚’å®Ÿè¡Œã™ã‚‹ã‚ˆã†ãƒ¢ãƒ‡ãƒ«ã«ç™»éŒ²
         roomModel.OnJoinedUser += this.OnJoinedUser;
         roomModel.OnLeavedUser += this.OnLeavedUser;
         roomModel.OnMovedUser += this.OnMovedUser;
@@ -168,45 +168,45 @@ public class GameDirector : MonoBehaviour
         roomModel.OnChangeSkinUser += this.OnChangeSkinUser;
         roomModel.OnUseItemUser += this.OnUseItemUser;
         roomModel.OnStompItemUser += this.OnStompItemUser;
-        // ƒI[ƒfƒBƒIƒ\[ƒX‚ÌƒRƒ“ƒ|ƒlƒ“ƒgæ“¾
+        // ã‚ªãƒ¼ãƒ‡ã‚£ã‚ªã‚½ãƒ¼ã‚¹ã®ã‚³ãƒ³ãƒãƒãƒ³ãƒˆå–å¾—
         audioSource = GetComponent<AudioSource>();
 
         itemScript = GameObject.Find("ItemManager").GetComponent<Item>();
 
         moveSpeed = defaultSpeed;
 
-        // ”ñ•\¦‚É‚·‚é
+        // éè¡¨ç¤ºã«ã™ã‚‹
         exitButton.SetActive(false);
         spawnShadowEffect.SetActive(false);
         localizationEffect.SetActive(false);
         speedUpEffect.SetActive(false);
 
-        // ƒJƒEƒ“ƒgƒ_ƒEƒ“—pƒeƒLƒXƒg‚ğ”ñ•\¦
+        // ã‚«ã‚¦ãƒ³ãƒˆãƒ€ã‚¦ãƒ³ç”¨ãƒ†ã‚­ã‚¹ãƒˆã‚’éè¡¨ç¤º
         for (int i = 0; i < coundDownObjects.Length; i++)
         {
             coundDownObjects[i].SetActive(false);
         }
-        // ŠJn’Ê’m—pƒeƒLƒXƒg‚ğ”ñ•\¦
+        // é–‹å§‹é€šçŸ¥ç”¨ãƒ†ã‚­ã‚¹ãƒˆã‚’éè¡¨ç¤º
         for (int i = 0; i < readyTextObjects.Length; i++)
         {
             readyTextObjects[i].SetActive(false);
         }
-        // Ÿ”s”»’è—pƒeƒLƒXƒg‚ğ”ñ•\¦
+        // å‹æ•—åˆ¤å®šç”¨ãƒ†ã‚­ã‚¹ãƒˆã‚’éè¡¨ç¤º
         for (int i = 0; i < resultObjects.Length; i++)
         {
             resultObjects[i].SetActive(false);
         }
-        // ƒn[ƒg‚ÌƒQ[ƒ€ƒIƒuƒWƒFƒNƒg‚ğæ“¾
+        // ãƒãƒ¼ãƒˆã®ã‚²ãƒ¼ãƒ ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’å–å¾—
         heartList = new List<GameObject>();
         rivalHeartList = new List<GameObject>();
-        // Šeƒn[ƒg‚ğƒŠƒXƒg‚É“ü‚ê‚é
+        // å„ãƒãƒ¼ãƒˆã‚’ãƒªã‚¹ãƒˆã«å…¥ã‚Œã‚‹
         for (int i = 0; i < 3; i++)
         {
             rivalHeartList.Add(GameObject.Find("Rival_Heart_" + (i + 1)));
             heartList.Add(GameObject.Find("Heart_" + (i + 1)));
         }
 
-        // Ú‘±
+        // æ¥ç¶š
         await roomModel.ConnectAsync();
 
         await Task.Delay(600);
@@ -218,14 +218,14 @@ public class GameDirector : MonoBehaviour
     {
         MovePlayer();
 
-        // ‰Ÿ‰º’†ˆ—
+        // æŠ¼ä¸‹ä¸­å‡¦ç†
         if (buttonDownFlag)
         {
-            // ŠÔØ‚ê‚É‚È‚Á‚½‚ç‹­§“I‚É‹“_‚ğ–ß‚·
+            // æ™‚é–“åˆ‡ã‚Œã«ãªã£ãŸã‚‰å¼·åˆ¶çš„ã«è¦–ç‚¹ã‚’æˆ»ã™
             if (viewCount <= 0) OnButtonUp();
         }
 
-        // ƒQ[ƒ€I—¹ó‘Ô‚©‚Â‰æ–Êƒ^ƒbƒv‚ğ‚µ‚½ê‡
+        // ã‚²ãƒ¼ãƒ çµ‚äº†çŠ¶æ…‹ã‹ã¤ç”»é¢ã‚¿ãƒƒãƒ—ã‚’ã—ãŸå ´åˆ
         if (isFinish == true && Input.GetMouseButtonDown(0))
         {
             LeaveRoom();
@@ -235,7 +235,7 @@ public class GameDirector : MonoBehaviour
 
         if(this.time > 3)
         {
-            // ƒJƒEƒ“ƒgƒ_ƒEƒ“—pƒeƒLƒXƒg‚ğ”ñ•\¦
+            // ã‚«ã‚¦ãƒ³ãƒˆãƒ€ã‚¦ãƒ³ç”¨ãƒ†ã‚­ã‚¹ãƒˆã‚’éè¡¨ç¤º
             for (int i = 0; i < coundDownObjects.Length; i++)
             {
                 coundDownObjects[i].SetActive(false);
@@ -244,40 +244,40 @@ public class GameDirector : MonoBehaviour
     }
 
     /// <summary>
-    /// ƒ†[ƒU“üºˆ—
+    /// ãƒ¦ãƒ¼ã‚¶å…¥å®¤å‡¦ç†
     /// </summary>
     /// <param name="user"></param>
     void OnJoinedUser(JoinedUser user)
     {  
-        // ƒCƒ“ƒXƒ^ƒ“ƒX¶¬
+        // ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ç”Ÿæˆ
         GameObject characterGameObject = Instantiate(characterPrefabs); 
 
-        // ƒvƒŒƒCƒ„[ƒXƒNƒŠƒvƒgæ“¾
+        // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã‚¹ã‚¯ãƒªãƒ—ãƒˆå–å¾—
         playerScript =  characterGameObject.GetComponent<Player>();
 
-        // ¶¬ˆÊ’u‚ğİ’è
+        // ç”Ÿæˆä½ç½®ã‚’è¨­å®š
         characterGameObject.transform.position = new Vector3(-7.5f + (2 * user.JoinOrder), 2f, -10f);
 
         characterGameObject.name = user.JoinOrder.ToString();
 
-        // ©•ªˆÈŠO‚ÌŠeƒIƒuƒWƒFƒNƒg‚ğ”ñƒAƒNƒeƒBƒu‚É‚·‚é
+        // è‡ªåˆ†ä»¥å¤–ã®å„ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’éã‚¢ã‚¯ãƒ†ã‚£ãƒ–ã«ã™ã‚‹
         if (roomModel.ConnectionID != user.ConnectionID)
         { 
-            // ‘ÎÛ‚Ì‚ÌƒJƒƒ‰‚ğæ“¾
+            // å¯¾è±¡ã®ã®ã‚«ãƒ¡ãƒ©ã‚’å–å¾—
             GameObject obj = characterGameObject.transform.GetChild(0).gameObject;
 
-            // ƒJƒƒ‰‚ğ”ñƒAƒNƒeƒBƒu‰»
+            // ã‚«ãƒ¡ãƒ©ã‚’éã‚¢ã‚¯ãƒ†ã‚£ãƒ–åŒ–
             obj.SetActive(false);
-            // ƒAƒ^ƒbƒNƒ][ƒ“‚ğ”ñƒAƒNƒeƒBƒu‰»
+            // ã‚¢ã‚¿ãƒƒã‚¯ã‚¾ãƒ¼ãƒ³ã‚’éã‚¢ã‚¯ãƒ†ã‚£ãƒ–åŒ–
             GameObject zone = characterGameObject.transform.GetChild(1).gameObject;
             zone.SetActive(false);
 
-            // ©g‚Ì‰e‚Æ‹æ•Ê‚·‚é‚½‚ßƒ^ƒO‚ğ•ÏX
+            // è‡ªèº«ã®å½±ã¨åŒºåˆ¥ã™ã‚‹ãŸã‚ã‚¿ã‚°ã‚’å¤‰æ›´
             foreach (Transform item in characterGameObject.transform.GetChild(2))
             {
                 item.tag = "Shadow_Rival";
             }
-            // ƒ}ƒbƒv‚©‚ç”ñ•\¦‚É
+            // ãƒãƒƒãƒ—ã‹ã‚‰éè¡¨ç¤ºã«
             characterGameObject.transform.GetChild(3).GetComponent<MeshRenderer>().enabled = false;
             obj.tag = "Camera_Rival";
             characterGameObject.tag = "Rival";
@@ -289,67 +289,67 @@ public class GameDirector : MonoBehaviour
                 isMaster = true;
             }
 
-            // ©g‚ÌƒJƒƒ‰‚ğæ“¾
+            // è‡ªèº«ã®ã‚«ãƒ¡ãƒ©ã‚’å–å¾—
             GameObject obj = characterGameObject.transform.GetChild(0).gameObject;
             myCamera = obj;
-            // ƒJƒƒ‰‚ÌƒRƒ“ƒ|ƒlƒ“ƒg‚ğæ“¾
+            // ã‚«ãƒ¡ãƒ©ã®ã‚³ãƒ³ãƒãƒãƒ³ãƒˆã‚’å–å¾—
             Camera camera = obj.GetComponent<Camera>();
-            // ƒJƒƒ‰‚ÌƒRƒ“ƒ|ƒlƒ“ƒg‚©‚çƒf[ƒ^‚ğæ“¾
+            // ã‚«ãƒ¡ãƒ©ã®ã‚³ãƒ³ãƒãƒãƒ³ãƒˆã‹ã‚‰ãƒ‡ãƒ¼ã‚¿ã‚’å–å¾—
             var cameraData = camera.GetUniversalAdditionalCameraData();
-            // ƒV[ƒ““à‚É‚ ‚éƒwƒ‹ƒXƒJƒƒ‰‚ğæ“¾
+            // ã‚·ãƒ¼ãƒ³å†…ã«ã‚ã‚‹ãƒ˜ãƒ«ã‚¹ã‚«ãƒ¡ãƒ©ã‚’å–å¾—
             GameObject stackObj = GameObject.Find("HealthCamera");
-            // ƒn[ƒgƒJƒƒ‰‚ÌƒRƒ“ƒ|ƒlƒ“ƒg‚ğæ“¾
+            // ãƒãƒ¼ãƒˆã‚«ãƒ¡ãƒ©ã®ã‚³ãƒ³ãƒãƒãƒ³ãƒˆã‚’å–å¾—
             Camera stackCamera = stackObj.GetComponent<Camera>();
-            // ©g‚ÌƒJƒƒ‰‚Éƒn[ƒgƒJƒƒ‰‚ğƒXƒ^ƒbƒN‚³‚¹‚é
+            // è‡ªèº«ã®ã‚«ãƒ¡ãƒ©ã«ãƒãƒ¼ãƒˆã‚«ãƒ¡ãƒ©ã‚’ã‚¹ã‚¿ãƒƒã‚¯ã•ã›ã‚‹
             cameraData.cameraStack.Add(stackCamera);
 
-            // ƒAƒCƒeƒ€ƒXƒNƒŠƒvƒg‚Ö©g‚ÌƒJƒƒ‰‚ğ“n‚·
+            // ã‚¢ã‚¤ãƒ†ãƒ ã‚¹ã‚¯ãƒªãƒ—ãƒˆã¸è‡ªèº«ã®ã‚«ãƒ¡ãƒ©ã‚’æ¸¡ã™
             itemScript.playerCam = camera;
 
-            // ‰ğ‘œ“xİ’è‚ğ¶¬‚µ‚½ƒJƒƒ‰‚Éİ’è
+            // è§£åƒåº¦è¨­å®šã‚’ç”Ÿæˆã—ãŸã‚«ãƒ¡ãƒ©ã«è¨­å®š
             RectScalerWithViewport rectScalerWithViewport = GameObject.Find("RectScalerPanel").GetComponent<RectScalerWithViewport>();
             rectScalerWithViewport.refCamera = camera;
         }
 
         ChangeSkin(user.JoinOrder, user.SkinName);
 
-        characterList[user.ConnectionID] = characterGameObject; // ƒtƒB[ƒ‹ƒh‚Å•Û
+        characterList[user.ConnectionID] = characterGameObject; // ãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰ã§ä¿æŒ
         playerScript.connectionID = user.ConnectionID;
     }
 
     /// <summary>
-    /// ƒ†[ƒU‘Şºˆ—
+    /// ãƒ¦ãƒ¼ã‚¶é€€å®¤å‡¦ç†
     /// </summary>
     /// <param name="connectionID"></param>
     void OnLeavedUser(Guid connectionID)
     {
-        // ó‚¯æ‚Á‚½Ú‘±ID‚Æ©g‚ÌÚ‘±ID‚ªˆê’v‚µ‚Ä‚¢‚éê‡
+        // å—ã‘å–ã£ãŸæ¥ç¶šIDã¨è‡ªèº«ã®æ¥ç¶šIDãŒä¸€è‡´ã—ã¦ã„ã‚‹å ´åˆ
         if (connectionID == roomModel.ConnectionID)
         {
-            // •\¦‚³‚ê‚Ä‚¢‚é‚·‚×‚Ä‚ÌƒIƒuƒWƒFƒNƒg‚ğ”j‰ó
+            // è¡¨ç¤ºã•ã‚Œã¦ã„ã‚‹ã™ã¹ã¦ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ç ´å£Š
             foreach (var character in characterList.Values)
             {
                 Destroy(character);
             }
         }
-        // ‘Şºƒ†[ƒU‚ÌƒIƒuƒWƒFƒNƒg‚Ì‚İ”j‰ó
+        // é€€å®¤ãƒ¦ãƒ¼ã‚¶ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ã¿ç ´å£Š
         else Destroy(characterList[connectionID]);
     }
 
     /// <summary>
-    /// ƒ†[ƒUˆÚ“®ˆ—
+    /// ãƒ¦ãƒ¼ã‚¶ç§»å‹•å‡¦ç†
     /// </summary>
-    /// <param name="pos">ˆÊ’u</param>
+    /// <param name="pos">ä½ç½®</param>
     void OnMovedUser(Guid connectionID, Vector3 pos, Vector3 rot, IRoomHubReceiver.PlayerState state)
     {
         if(characterList.Count == 0) return;
-        // Šeƒgƒ‰ƒ“ƒXƒtƒH[ƒ€‚ğƒAƒjƒ[ƒVƒ‡ƒ“
+        // å„ãƒˆãƒ©ãƒ³ã‚¹ãƒ•ã‚©ãƒ¼ãƒ ã‚’ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³
         characterList[connectionID].transform.DOLocalMove(pos,0.1f).SetEase(Ease.Linear);
         characterList[connectionID].transform.DOLocalRotate(rot,0.1f).SetEase(Ease.Linear);
     }
 
     /// <summary>
-    /// ƒ†[ƒUƒQ[ƒ€I—¹ˆ—
+    /// ãƒ¦ãƒ¼ã‚¶ã‚²ãƒ¼ãƒ çµ‚äº†å‡¦ç†
     /// </summary>
     void OnFinishUser()
     {
@@ -357,7 +357,7 @@ public class GameDirector : MonoBehaviour
     }
 
     /// <summary>
-    /// ƒQ[ƒ€ŠJnˆ—
+    /// ã‚²ãƒ¼ãƒ é–‹å§‹å‡¦ç†
     /// </summary>
     void StartGame()
     {
@@ -379,7 +379,7 @@ public class GameDirector : MonoBehaviour
     }
 
     /// <summary>
-    /// ƒQ[ƒ€I—¹ˆ—
+    /// ã‚²ãƒ¼ãƒ çµ‚äº†å‡¦ç†
     /// </summary>
     void FinishGame()
     {
@@ -404,7 +404,7 @@ public class GameDirector : MonoBehaviour
     }
 
     /// <summary>
-    /// ‘Şºƒ{ƒ^ƒ“ˆ—
+    /// é€€å®¤ãƒœã‚¿ãƒ³å‡¦ç†
     /// </summary>
     public async void LeaveRoom()
     {
@@ -412,19 +412,19 @@ public class GameDirector : MonoBehaviour
 
         countText.text = "";
      
-        // ‘Şº
+        // é€€å®¤
         await roomModel.LeaveAsync(SendData.roomName, SendData.userID);
         Initiate.DoneFading();
         Initiate.Fade("Result", Color.black, 0.7f);
     }
 
     /// <summary>
-    /// ˆÚ“®ƒL[ˆ—
+    /// ç§»å‹•ã‚­ãƒ¼å‡¦ç†
     /// </summary>
     public async void Move()
     {
         if (characterList[roomModel.ConnectionID] == null) return;
-        // ˆÚ“®
+        // ç§»å‹•
         await roomModel.MoveAsync(characterList[roomModel.ConnectionID].transform.position,
             characterList[roomModel.ConnectionID].transform.eulerAngles,
             IRoomHubReceiver.PlayerState.Move);
@@ -441,16 +441,16 @@ public class GameDirector : MonoBehaviour
     }
 
     /// <summary>
-    /// ƒ†[ƒUUŒ‚’Ê’m
+    /// ãƒ¦ãƒ¼ã‚¶æ”»æ’ƒé€šçŸ¥
     /// </summary>
     void OnAttackUser(Guid connectionID, int health)
     {
-        Debug.Log(characterList[roomModel.ConnectionID] + "‚ÌHPF" + health);
+        Debug.Log(characterList[roomModel.ConnectionID] + "ã®HPï¼š" + health);
 
-        // ó‚¯æ‚Á‚½Ú‘±ID‚Æ©g‚ÌÚ‘±ID‚ªˆê’v‚µ‚Ä‚¢‚éê‡
+        // å—ã‘å–ã£ãŸæ¥ç¶šIDã¨è‡ªèº«ã®æ¥ç¶šIDãŒä¸€è‡´ã—ã¦ã„ã‚‹å ´åˆ
         if (connectionID == roomModel.ConnectionID)
         {
-            // ƒJƒƒ‰‚ğ—h‚ç‚·
+            // ã‚«ãƒ¡ãƒ©ã‚’æºã‚‰ã™
             characterList[roomModel.ConnectionID].transform.GetChild(0).DOShakePosition(0.6f, 1.5f, 45, 15, false, true);
 
             Destroy(heartList[health]);
@@ -478,60 +478,60 @@ public class GameDirector : MonoBehaviour
     }
 
     /// <summary>
-    /// ƒL[“ü—ÍˆÚ“®ˆ—
+    /// ã‚­ãƒ¼å…¥åŠ›ç§»å‹•å‡¦ç†
     /// </summary>
     void MovePlayer()
     {
-        // ŠJn‘O‚ÆƒQ[ƒ€I—¹Œã‚ÍˆÚ“®‚³‚¹‚È‚¢
+        // é–‹å§‹å‰ã¨ã‚²ãƒ¼ãƒ çµ‚äº†å¾Œã¯ç§»å‹•ã•ã›ãªã„
         if (isStart != true) return;
         if (isFinish == true) return;
-        Rigidbody rb = characterList[roomModel.ConnectionID].GetComponent<Rigidbody>();  // rigidbody‚ğæ“¾
+        Rigidbody rb = characterList[roomModel.ConnectionID].GetComponent<Rigidbody>();  // rigidbodyã‚’å–å¾—
 
         float axisZ = joystick.Vertical;
         float axisX = joystick.Horizontal;
 
         rb.AddRelativeForce(new Vector3((90 * moveSpeed) * axisX, 0, (90 * moveSpeed)* axisZ));
 
-        // RightArrowƒL[‚Ü‚½‚ÍDƒL[‚ğ‰Ÿ‚µ‚½ê‡
+        // RightArrowã‚­ãƒ¼ã¾ãŸã¯Dã‚­ãƒ¼ã‚’æŠ¼ã—ãŸå ´åˆ
         if (Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.D))
         {
-            // ©g‚ÌƒIƒuƒWƒFƒNƒg‚Ì“Œ•û–Ê‚É—Í‚ğ‰Á‚¦‚é
+            // è‡ªèº«ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®æ±æ–¹é¢ã«åŠ›ã‚’åŠ ãˆã‚‹
             rb.AddForce(new Vector3(moveSpeed, 0f, 0f), ForceMode.Impulse);
         }
 
-        // LeftArrowƒL[‚Ü‚½‚ÍAƒL[‚ğ‰Ÿ‚µ‚½ê‡
+        // LeftArrowã‚­ãƒ¼ã¾ãŸã¯Aã‚­ãƒ¼ã‚’æŠ¼ã—ãŸå ´åˆ
         if (Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.A))
         {
-            // ©g‚ÌƒIƒuƒWƒFƒNƒg‚Ì¼•û–Ê‚É—Í‚ğ‰Á‚¦‚é
+            // è‡ªèº«ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®è¥¿æ–¹é¢ã«åŠ›ã‚’åŠ ãˆã‚‹
             rb.AddForce(new Vector3(-moveSpeed, 0f, 0f), ForceMode.Impulse);
         }
 
-        // UpArrowƒL[‚Ü‚½‚ÍWƒL[‚ğ‰Ÿ‚µ‚½ê‡
+        // UpArrowã‚­ãƒ¼ã¾ãŸã¯Wã‚­ãƒ¼ã‚’æŠ¼ã—ãŸå ´åˆ
         if (Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.W))
         {
-            // ©g‚ÌƒIƒuƒWƒFƒNƒg‚Ì“ì•û–Ê‚É—Í‚ğ‰Á‚¦‚é
+            // è‡ªèº«ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®å—æ–¹é¢ã«åŠ›ã‚’åŠ ãˆã‚‹
             rb.AddForce(new Vector3(0f, 0f, moveSpeed), ForceMode.Impulse);
         }
 
-        // DownArrowƒL[‚Ü‚½‚ÍSƒL[‚ğ‰Ÿ‚µ‚½ê‡
+        // DownArrowã‚­ãƒ¼ã¾ãŸã¯Sã‚­ãƒ¼ã‚’æŠ¼ã—ãŸå ´åˆ
         if (Input.GetKey(KeyCode.DownArrow) || Input.GetKey(KeyCode.S))
         {
-            // ©g‚ÌƒIƒuƒWƒFƒNƒg‚Ì–k•û–Ê‚É—Í‚ğ‰Á‚¦‚é
+            // è‡ªèº«ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®åŒ—æ–¹é¢ã«åŠ›ã‚’åŠ ãˆã‚‹
             rb.AddForce(new Vector3(0f, 0f, -moveSpeed), ForceMode.Impulse);
         }
     }
 
     /// <summary>
-    /// ƒAƒCƒeƒ€‚ğ“¥‚ñ‚¾Û‚Ìˆ—
+    /// ã‚¢ã‚¤ãƒ†ãƒ ã‚’è¸ã‚“ã éš›ã®å‡¦ç†
     /// </summary>
     public async void StompItem(string name)
     {
         string[] words = name.Split("_");
 
-        // “¥‚ñ‚¾‚Ì‚ª‹U‰e‚Å‚È‚¢ê‡
+        // è¸ã‚“ã ã®ãŒå½å½±ã§ãªã„å ´åˆ
         if (words[0] != "Fake")
         {
-            // ƒŠƒ\[ƒX‚©‚çAƒAƒCƒeƒ€ƒeƒNƒXƒ`ƒƒ‚ğæ“¾
+            // ãƒªã‚½ãƒ¼ã‚¹ã‹ã‚‰ã€ã‚¢ã‚¤ãƒ†ãƒ ãƒ†ã‚¯ã‚¹ãƒãƒ£ã‚’å–å¾—
             Texture2D texture = Resources.Load("Items/" + words[0]) as Texture2D;
 
             itemPanel.sprite =
@@ -543,7 +543,7 @@ public class GameDirector : MonoBehaviour
     }
 
     /// <summary>
-    /// “¥‚ñ‚¾ƒAƒCƒeƒ€”j‰ó’Ê’m
+    /// è¸ã‚“ã ã‚¢ã‚¤ãƒ†ãƒ ç ´å£Šé€šçŸ¥
     /// </summary>
     /// <param name="itemName"></param>
     async void OnStompItemUser(string itemName)
@@ -553,7 +553,7 @@ public class GameDirector : MonoBehaviour
     }
 
     /// <summary>
-    /// ƒAƒCƒeƒ€•ÊŒø‰Êˆ—
+    /// ã‚¢ã‚¤ãƒ†ãƒ åˆ¥åŠ¹æœå‡¦ç†
     /// </summary>
     public async void UseItem()
     {
@@ -565,7 +565,7 @@ public class GameDirector : MonoBehaviour
         GameObject rivalObj = new GameObject();
         Destroy(rivalObj);
 
-        // ©•ª‚Å‚È‚¢ƒvƒŒƒCƒ„[‚ÌƒQ[ƒ€ƒIƒuƒWƒFƒNƒg‚ğæ“¾
+        // è‡ªåˆ†ã§ãªã„ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®ã‚²ãƒ¼ãƒ ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’å–å¾—
         foreach (var id in characterList.Keys)
         {
             if (id != roomModel.ConnectionID)
@@ -574,61 +574,61 @@ public class GameDirector : MonoBehaviour
                 break;
             }
         }
-        // ©g‚ÌˆÊ’u‚ğæ“¾
+        // è‡ªèº«ã®ä½ç½®ã‚’å–å¾—
         Vector3 playerPos = characterList[roomModel.ConnectionID].transform.position;
 
-        // ƒAƒCƒeƒ€•Êˆ—
+        // ã‚¢ã‚¤ãƒ†ãƒ åˆ¥å‡¦ç†
         switch (words[0])
         {
-            case "Compass": // ƒRƒ“ƒpƒX‚Ìê‡
-                // ‘Šè‚ÌˆÊ’u‚ğƒ}ƒbƒv‚É3•bŠÔ•\¦‚·‚é
+            case "Compass": // ã‚³ãƒ³ãƒ‘ã‚¹ã®å ´åˆ
+                // ç›¸æ‰‹ã®ä½ç½®ã‚’ãƒãƒƒãƒ—ã«3ç§’é–“è¡¨ç¤ºã™ã‚‹
                 audioSource.PlayOneShot(compassSE);
                 
-                //ƒ‰ƒCƒoƒ‹‚ÌˆÊ’u‚ğ•\¦
+                //ãƒ©ã‚¤ãƒãƒ«ã®ä½ç½®ã‚’è¡¨ç¤º
                 rivalObj.transform.GetChild(3).GetComponent<MeshRenderer>().enabled = true;
                 localizationEffect.SetActive(true);
                 isLocate = true;
                 break;
 
-            case "RollerBlade": // ƒ[ƒ‰[ƒuƒŒ[ƒh‚Ìê‡
+            case "RollerBlade": // ãƒ­ãƒ¼ãƒ©ãƒ¼ãƒ–ãƒ¬ãƒ¼ãƒ‰ã®å ´åˆ
                 audioSource.PlayOneShot(rollerBladeSE);
                 speedUpEffect.SetActive(true);
-                // ˆÚ“®‘¬“x‚ğ3•bŠÔ2”{‚É‚·‚é
+                // ç§»å‹•é€Ÿåº¦ã‚’3ç§’é–“2å€ã«ã™ã‚‹
                 moveSpeed = 2.0f;
                 isBoost = true;
                 break;
 
-            case "StopWatch": // ƒXƒgƒbƒvƒEƒHƒbƒ`‚Ìê‡
-                // ƒQ[ƒ€ŠÔ‚ğ3•b‰„’·‚·‚é
+            case "StopWatch": // ã‚¹ãƒˆãƒƒãƒ—ã‚¦ã‚©ãƒƒãƒã®å ´åˆ
+                // ã‚²ãƒ¼ãƒ æ™‚é–“ã‚’3ç§’å»¶é•·ã™ã‚‹
                 audioSource.PlayOneShot(stopWatchSE);
                 time += 3;
                 await roomModel.CountTimer(time);
                 break;
 
-            case "Trap": // ƒgƒ‰ƒbƒv‚Ìê‡
+            case "Trap": // ãƒˆãƒ©ãƒƒãƒ—ã®å ´åˆ
                 audioSource.PlayOneShot(trapSE);
 
-                // ƒCƒ“ƒXƒ^ƒ“ƒX¶¬
+                // ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ç”Ÿæˆ
                 GameObject trapObj = Instantiate(trapPrefabs);
                 trapObj.name = "Trap(active)";
-                // ¶¬ˆÊ’u‚ğİ’è
+                // ç”Ÿæˆä½ç½®ã‚’è¨­å®š
                 trapObj.transform.position = new Vector3(playerPos.x, playerPos.y + 1.0f, playerPos.z + 3.0f); 
 
                 await roomModel.UseItemAsync(roomModel.ConnectionID, nowItemName);
                 break;
 
-            case "Projector": // “Š‰e‹@‚Ìê‡
+            case "Projector": // æŠ•å½±æ©Ÿã®å ´åˆ
 
                 useProjector++;
-                // 5•bŠÔ©—R‚É“®‚­‹U‚Ì‰e‚ğ¢Š«‚·‚é
+                // 5ç§’é–“è‡ªç”±ã«å‹•ãå½ã®å½±ã‚’å¬å–šã™ã‚‹
                 audioSource.PlayOneShot(projectorSE);
 
-                // ƒCƒ“ƒXƒ^ƒ“ƒX¶¬
+                // ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ç”Ÿæˆ
                 GameObject fakeObj = Instantiate(fakeShadowPrefabs);
 
                 fakeObj.name = "Fake_Shadow" + "_" + useProjector;
 
-                // ¶¬ˆÊ’u‚ğİ’è
+                // ç”Ÿæˆä½ç½®ã‚’è¨­å®š
                 fakeObj.transform.position = new Vector3(playerPos.x, 1.7f, playerPos.z + 3.0f);
 
                 spawnShadowEffect.SetActive(true);
@@ -640,30 +640,30 @@ public class GameDirector : MonoBehaviour
                 break;
         }
 
-        // Œ»İŠ—L‚µ‚Ä‚¢‚éƒAƒCƒeƒ€‚Ì–¼‘O‚ğ‰Šú‰»
+        // ç¾åœ¨æ‰€æœ‰ã—ã¦ã„ã‚‹ã‚¢ã‚¤ãƒ†ãƒ ã®åå‰ã‚’åˆæœŸåŒ–
         nowItemName = "";
 
-        // ƒŠƒ\[ƒX‚©‚çAƒAƒCƒeƒ€ƒeƒNƒXƒ`ƒƒ‚ğæ“¾
+        // ãƒªã‚½ãƒ¼ã‚¹ã‹ã‚‰ã€ã‚¢ã‚¤ãƒ†ãƒ ãƒ†ã‚¯ã‚¹ãƒãƒ£ã‚’å–å¾—
         Texture2D texture = Resources.Load("Items/None") as Texture2D;
 
-        // ƒAƒCƒeƒ€ƒeƒNƒXƒ`ƒƒ‚ğ–¢Š‚ÌƒeƒNƒXƒ`ƒƒ‚É•ÏX
+        // ã‚¢ã‚¤ãƒ†ãƒ ãƒ†ã‚¯ã‚¹ãƒãƒ£ã‚’æœªæ‰€æŒã®ãƒ†ã‚¯ã‚¹ãƒãƒ£ã«å¤‰æ›´
         itemPanel.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
                                Vector2.zero);
 
-        // ƒ[ƒ‰[ƒuƒŒ[ƒh‚ğg—p‚µ‚Ä‚¢‚½ê‡
+        // ãƒ­ãƒ¼ãƒ©ãƒ¼ãƒ–ãƒ¬ãƒ¼ãƒ‰ã‚’ä½¿ç”¨ã—ã¦ã„ãŸå ´åˆ
         if (isBoost == true)
         {
-            // 3•bŒã‚É‘¬“x‚ğ–ß‚·
+            // 3ç§’å¾Œã«é€Ÿåº¦ã‚’æˆ»ã™
             await Task.Delay(1800);
             speedUpEffect.SetActive(false);
             moveSpeed = defaultSpeed;
             isBoost = false;
         }
 
-        // ƒRƒ“ƒpƒX‚ğg—p‚µ‚Ä‚¢‚½ê‡
+        // ã‚³ãƒ³ãƒ‘ã‚¹ã‚’ä½¿ç”¨ã—ã¦ã„ãŸå ´åˆ
         if (isLocate == true)
         {
-            // 3•bŒã‚ÉˆÊ’u“Á’è‚ğ‰ğœ
+            // 3ç§’å¾Œã«ä½ç½®ç‰¹å®šã‚’è§£é™¤
             await Task.Delay(1800);
             rivalObj.transform.GetChild(3).GetComponent<MeshRenderer>().enabled = false;
             localizationEffect.SetActive(false);
@@ -677,32 +677,32 @@ public class GameDirector : MonoBehaviour
         
         switch (itemName)
         {
-            case "Trap": // ƒgƒ‰ƒbƒv‚Ìê‡
+            case "Trap": // ãƒˆãƒ©ãƒƒãƒ—ã®å ´åˆ
                 audioSource.PlayOneShot(trapSE);
-                // ƒCƒ“ƒXƒ^ƒ“ƒX¶¬
+                // ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ç”Ÿæˆ
                 GameObject trapObj = Instantiate(trapPrefabs);
                 trapObj.name = "Trap(active)";
-                // ¶¬ˆÊ’u‚ğİ’è
+                // ç”Ÿæˆä½ç½®ã‚’è¨­å®š
                 trapObj.transform.position = new Vector3(playerPos.x, playerPos.y + 1.0f, playerPos.z + 3.0f);
 
                 break;
 
-            case "Projector": // “Š‰e‹@‚Ìê‡
+            case "Projector": // æŠ•å½±æ©Ÿã®å ´åˆ
                 useProjector++;
-                // 5•bŠÔ©—R‚É“®‚­‹U‚Ì‰e‚ğ¢Š«‚·‚é
+                // 5ç§’é–“è‡ªç”±ã«å‹•ãå½ã®å½±ã‚’å¬å–šã™ã‚‹
                 audioSource.PlayOneShot(projectorSE);
 
-                // ƒCƒ“ƒXƒ^ƒ“ƒX¶¬
+                // ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ç”Ÿæˆ
                 GameObject fakeObj = Instantiate(fakeShadowPrefabs);
 
                 fakeObj.name = "Fake_Shadow" + "_" + useProjector;
 
-                // ¶¬ˆÊ’u‚ğİ’è
+                // ç”Ÿæˆä½ç½®ã‚’è¨­å®š
                 fakeObj.transform.position = new Vector3(playerPos.x, 1.7f, playerPos.z + 3.0f);
                 break;
 
-            case "Trap(active)": //ƒgƒ‰ƒbƒv(ƒAƒNƒeƒBƒu)‚Ìê‡
-                // ”j‰ó
+            case "Trap(active)": //ãƒˆãƒ©ãƒƒãƒ—(ã‚¢ã‚¯ãƒ†ã‚£ãƒ–)ã®å ´åˆ
+                // ç ´å£Š
                 audioSource.PlayOneShot(trapBiteSE);
                 GameObject obj = GameObject.Find(itemName);
                 if (obj != null) Destroy(obj);
@@ -714,60 +714,60 @@ public class GameDirector : MonoBehaviour
     }
 
     /// <summary>
-    /// ƒJƒEƒ“ƒgƒ_ƒEƒ“ˆ—
+    /// ã‚«ã‚¦ãƒ³ãƒˆãƒ€ã‚¦ãƒ³å‡¦ç†
     /// </summary>
     async void CountDown()
     {
-        // §ŒÀŠÔ‚ğ-1
+        // åˆ¶é™æ™‚é–“ã‚’-1
         time -= 1;
-        // c‚èŠÔ‚ğ‘Sƒ†[ƒU‚É’Ê’m
+        // æ®‹ã‚Šæ™‚é–“ã‚’å…¨ãƒ¦ãƒ¼ã‚¶ã«é€šçŸ¥
         await roomModel.CountTimer(time);
     }
 
     /// <summary>
-    /// ƒJƒEƒ“ƒgƒ_ƒEƒ“’Ê’m
+    /// ã‚«ã‚¦ãƒ³ãƒˆãƒ€ã‚¦ãƒ³é€šçŸ¥
     /// </summary>
     /// <param name="time"></param>
     void OnCountUser(int time)
     {
         isStart = true;
 
-        // §ŒÀŠÔ‚ğ‘—‚ç‚ê‚Ä‚«‚½ŠÔ‚Æ“¯Šú‚·‚é
+        // åˆ¶é™æ™‚é–“ã‚’é€ã‚‰ã‚Œã¦ããŸæ™‚é–“ã¨åŒæœŸã™ã‚‹
         this.time = time;
 
         switch (this.time)
         {
-            case 3: // 3‚ğ‹­’² ƒJƒEƒ“ƒgƒ_ƒEƒ“—pƒIƒuƒWƒFƒNƒg‚ğ‹ó‚É‚·‚é
+            case 3: // 3ã‚’å¼·èª¿ ã‚«ã‚¦ãƒ³ãƒˆãƒ€ã‚¦ãƒ³ç”¨ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ç©ºã«ã™ã‚‹
                 countText.text = "";
                 coundDownObjects[0].SetActive(true);
                 break;
 
-            case 2: // 2‚ğ‹­’²
+            case 2: // 2ã‚’å¼·èª¿
                 coundDownObjects[0].SetActive(false);
                 coundDownObjects[1].SetActive(true);
                 break;
 
-            case 1: // 1‚ğ‹­’²
+            case 1: // 1ã‚’å¼·èª¿
                 coundDownObjects[1].SetActive(false);
                 coundDownObjects[2].SetActive(true);
                 break;
 
-            case <= 0: // ƒ^ƒCƒ€ƒAƒbƒv
+            case <= 0: // ã‚¿ã‚¤ãƒ ã‚¢ãƒƒãƒ—
                 coundDownObjects[2].SetActive(false);
-                // UI‚Éƒ^ƒCƒ€ƒAƒbƒv‚Æ•\‹L‚·‚é
+                // UIã«ã‚¿ã‚¤ãƒ ã‚¢ãƒƒãƒ—ã¨è¡¨è¨˜ã™ã‚‹
                 countText.text = "Time UP";
-                // ƒJƒEƒ“ƒgƒ_ƒEƒ“ˆ—‚ğ’â~
+                // ã‚«ã‚¦ãƒ³ãƒˆãƒ€ã‚¦ãƒ³å‡¦ç†ã‚’åœæ­¢
                 CancelInvoke("CountDown");
 
                 if(playerHP < rivalHP) resultObjects[1].SetActive(true);
                 else if (playerHP > rivalHP) resultObjects[0].SetActive(true);
                 else resultObjects[2].SetActive(true);
-                // ƒQ[ƒ€ƒGƒ“ƒhˆ—‚ğŒÄ‚Ô
+                // ã‚²ãƒ¼ãƒ ã‚¨ãƒ³ãƒ‰å‡¦ç†ã‚’å‘¼ã¶
                 Finish();
                 break;
 
-            default: // ‚»‚êˆÈŠO‚ÍƒJƒEƒ“ƒg‚ğ‰æ–Ê‚É”½‰f
-                // Œ¸ZŒ‹‰Ê‚ğUI‚É“K‰
+            default: // ãã‚Œä»¥å¤–ã¯ã‚«ã‚¦ãƒ³ãƒˆã‚’ç”»é¢ã«åæ˜ 
+                // æ¸›ç®—çµæœã‚’UIã«é©å¿œ
                 countText.text = this.time.ToString();
                 break;
         }
@@ -775,15 +775,15 @@ public class GameDirector : MonoBehaviour
 
     void OnChangeSkinUser(int userID, string skinName)
     {
-        // æ“¾‚µ‚½‚±‚Ì”•ªƒ‹[ƒv
+        // å–å¾—ã—ãŸã“ã®æ•°åˆ†ãƒ«ãƒ¼ãƒ—
         foreach (Transform ob in GameObject.Find(userID.ToString()).transform.GetChild(2))
         {
-            // ƒƒr[‚Åİ’è‚µ‚½ƒXƒLƒ“–¼‚Æˆê’v‚µ‚È‚¢ê‡
+            // ãƒ­ãƒ“ãƒ¼ã§è¨­å®šã—ãŸã‚¹ã‚­ãƒ³åã¨ä¸€è‡´ã—ãªã„å ´åˆ
             if (skinName != ob.name)
             {
-                // ƒRƒ‰ƒCƒ_[‚ğÁ‚·
+                // ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼ã‚’æ¶ˆã™
                 ob.GetComponent<BoxCollider>().enabled = false;
-                // “§–¾“x‚ğ0‚É‚·‚é
+                // é€æ˜åº¦ã‚’0ã«ã™ã‚‹
                 ob.GetComponent<Renderer>().material.color = new Color(255, 255, 255, 0);
             }
         }
@@ -801,50 +801,50 @@ public class GameDirector : MonoBehaviour
     }
 
     /// <summary>
-    /// ‹“_•ÏXƒ{ƒ^ƒ“‰Ÿ‰ºˆ—
+    /// è¦–ç‚¹å¤‰æ›´ãƒœã‚¿ãƒ³æŠ¼ä¸‹æ™‚å‡¦ç†
     /// </summary>
     public void OnButtonDown()
     {
         if (isStart != true) return;
         if (isFinish == true) return;
 
-        if (isCooldown) return; // ƒN[ƒ‹ƒ_ƒEƒ“’†‚Ìê‡Aˆ—‚µ‚È‚¢
+        if (isCooldown) return; // ã‚¯ãƒ¼ãƒ«ãƒ€ã‚¦ãƒ³ä¸­ã®å ´åˆã€å‡¦ç†ã—ãªã„
 
-        // ‹“_•ÏXŠÔ‚ğ‰Šú‰»
+        // è¦–ç‚¹å¤‰æ›´æ™‚é–“ã‚’åˆæœŸåŒ–
         viewCount = 3;
-        // ‰Ÿ‰ºƒtƒ‰ƒO‚ğtrue‚É
+        // æŠ¼ä¸‹ãƒ•ãƒ©ã‚°ã‚’trueã«
         buttonDownFlag = true;
 
-        // ƒJƒƒ‰‚ğŒ©ã‚°‚é‹“_‚É‰ñ“]
+        // ã‚«ãƒ¡ãƒ©ã‚’è¦‹ä¸Šã’ã‚‹è¦–ç‚¹ã«å›è»¢
         myCamera.transform.DOLocalRotate(new Vector3(5f, 0f, 0f), 0.1f).SetEase(Ease.Linear);
-        // ˆÚ“®‘¬“x‚ğ­‚µ‰º‚°‚é
+        // ç§»å‹•é€Ÿåº¦ã‚’å°‘ã—ä¸‹ã’ã‚‹
         moveSpeed = 0.2f;
-        // ‹“_•ÏXŠÔ‚ğƒJƒEƒ“ƒgƒ_ƒEƒ“
+        // è¦–ç‚¹å¤‰æ›´æ™‚é–“ã‚’ã‚«ã‚¦ãƒ³ãƒˆãƒ€ã‚¦ãƒ³
         InvokeRepeating("ViewTime", 0.1f, 1f);
     }
     /// <summary>
-    /// ‹“_•ÏX‰ğœˆ—
+    /// è¦–ç‚¹å¤‰æ›´è§£é™¤å‡¦ç†
     /// </summary>
     public void OnButtonUp()
     {
         if (isStart != true) return;
         if (isFinish == true) return;
 
-        if (isCooldown) return; // ƒN[ƒ‹ƒ_ƒEƒ“’†‚Ìê‡Aˆ—‚µ‚È‚¢
+        if (isCooldown) return; // ã‚¯ãƒ¼ãƒ«ãƒ€ã‚¦ãƒ³ä¸­ã®å ´åˆã€å‡¦ç†ã—ãªã„
 
-        // ƒN[ƒ‹ƒ_ƒEƒ“’†‚É‚·‚é
+        // ã‚¯ãƒ¼ãƒ«ãƒ€ã‚¦ãƒ³ä¸­ã«ã™ã‚‹
         isCooldown = true;
-        // ƒJƒEƒ“ƒgƒ_ƒEƒ“‚ğ’â~
+        // ã‚«ã‚¦ãƒ³ãƒˆãƒ€ã‚¦ãƒ³ã‚’åœæ­¢
         CancelInvoke("ViewTime");
-        // ‰Ÿ‰ºƒtƒ‰ƒO‚ğfalse‚É
+        // æŠ¼ä¸‹ãƒ•ãƒ©ã‚°ã‚’falseã«
         buttonDownFlag = false;
 
-        // ƒJƒƒ‰‚Ì‰ñ“]‚ğŒ³‚É–ß‚·
+        // ã‚«ãƒ¡ãƒ©ã®å›è»¢ã‚’å…ƒã«æˆ»ã™
         myCamera.transform.DOLocalRotate(new Vector3(30f, 0f, 0f), 0.1f).SetEase(Ease.Linear);
-        //ˆÚ“®‘¬“x‚ğŒ³‚É–ß‚·
+        //ç§»å‹•é€Ÿåº¦ã‚’å…ƒã«æˆ»ã™
         moveSpeed = defaultSpeed;
 
-        // ƒŠƒ\[ƒX‚©‚çAƒAƒCƒRƒ“‚ğæ“¾
+        // ãƒªã‚½ãƒ¼ã‚¹ã‹ã‚‰ã€ã‚¢ã‚¤ã‚³ãƒ³ã‚’å–å¾—
         Texture2D texture = Resources.Load("UI/eye_close") as Texture2D;
         
         Image buttonTexture = viewButton.GetComponent<Image>();
@@ -865,7 +865,7 @@ public class GameDirector : MonoBehaviour
     {
         CancelInvoke("ViewCooldown");
 
-        // ƒŠƒ\[ƒX‚©‚çAƒAƒCƒRƒ“‚ğæ“¾
+        // ãƒªã‚½ãƒ¼ã‚¹ã‹ã‚‰ã€ã‚¢ã‚¤ã‚³ãƒ³ã‚’å–å¾—
         Texture2D texture = Resources.Load("UI/eye_open") as Texture2D;
 
         Image buttonTexture = viewButton.GetComponent<Image>();
@@ -876,15 +876,15 @@ public class GameDirector : MonoBehaviour
     }
 
     /// <summary>
-    /// ‹U‰eíœˆ—
+    /// å½å½±å‰Šé™¤å‡¦ç†
     /// </summary>
     /// <param name="fakeObj"></param>
     async void KillFake(GameObject fakeObj)
     {
-        // 10•bŒã‚É‰e‚ğíœ
+        // 10ç§’å¾Œã«å½±ã‚’å‰Šé™¤
         await Task.Delay(6000);
 
-        // íœ’Ê’m
+        // å‰Šé™¤é€šçŸ¥
         Destroy(fakeObj);
         StompItem(fakeObj.name);
 
