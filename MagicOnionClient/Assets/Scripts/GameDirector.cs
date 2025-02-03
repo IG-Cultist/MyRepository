@@ -1,6 +1,6 @@
 /// ==============================
 /// ゲームディレクタースクリプト
-/// Name:西浦晃太 Update:1/24
+/// Name:西浦晃太 Update:02/03
 /// ==============================
 using DG.Tweening;
 using Shared.Interfaces.Services;
@@ -12,27 +12,34 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using TedLab;
 using UnityEngine;
+using UnityEngine.Experimental.GlobalIllumination;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.UI;
 
 public class GameDirector : MonoBehaviour
 {
-    // 生成するユーザプレハブ
-    [SerializeField] GameObject characterPrefabs;
-    // 生成するトラッププレハブ
-    [SerializeField] GameObject trapPrefabs;
-    // 生成する偽影プレハブ
-    [SerializeField] GameObject fakeShadowPrefabs;
-    // 退室ボタン
-    [SerializeField] GameObject exitButton;
-    // カウントダウン表示パネル
-    [SerializeField] GameObject countPanel;
     // カウントダウンゲームオブジェクト
     [SerializeField] GameObject[] coundDownObjects;
     // 開始合図ゲームオブジェクト
     [SerializeField] GameObject[] readyTextObjects;
     // ゲーム結果オブジェクト
     [SerializeField] GameObject[] resultObjects;
+
+    // 生成するユーザプレハブ
+    [SerializeField] GameObject characterPrefabs;
+    // 生成するトラッププレハブ
+    [SerializeField] GameObject trapPrefabs;
+    // 生成する偽影プレハブ
+    [SerializeField] GameObject fakeShadowPrefabs;
+
+    // 退室ボタン
+    [SerializeField] GameObject exitButton;
+    // 視点変更ボタン
+    [SerializeField] GameObject viewButton;
+    // カウントダウン表示パネル
+    [SerializeField] GameObject countPanel;
+    // 警告パネル
+    [SerializeField] GameObject warningPanel;
 
     // 移動速度上昇アイコン
     [SerializeField] GameObject speedUpEffect;
@@ -41,21 +48,12 @@ public class GameDirector : MonoBehaviour
     // 影生成アイコン
     [SerializeField] GameObject spawnShadowEffect;
 
-    // 視点変更ボタン
-    [SerializeField] GameObject viewButton;
     // カウントダウンテキスト
     [SerializeField] Text countText;
     // 所有アイテムパネル
     [SerializeField] Image itemPanel;
     // 操作用ジョイスティック
     [SerializeField] FixedJoystick joystick;
-    // 警告パネル
-    [SerializeField] GameObject warningPanel;
-
-    // 生成ユーザのディクショナリー
-    Dictionary<Guid, GameObject> characterList = new Dictionary<Guid, GameObject>();
-    // 部屋モデル
-    [SerializeField] RoomHubModel roomModel;
 
     // ストップウォッチ使用SE
     [SerializeField] AudioClip stopWatchSE;
@@ -71,10 +69,18 @@ public class GameDirector : MonoBehaviour
     [SerializeField] AudioClip clockSE;
     // トラップ発動SE
     [SerializeField] AudioClip trapBiteSE;
-    // SE
+    // コンパス使用SE
     [SerializeField] AudioClip compassSE;
     // ローラブレード使用SE
     [SerializeField] AudioClip rollerBladeSE;
+
+    [SerializeField] Light Light;
+
+    // 部屋モデル
+    [SerializeField] RoomHubModel roomModel;
+    
+    // 生成ユーザのディクショナリー
+    Dictionary<Guid, GameObject> characterList = new Dictionary<Guid, GameObject>();
 
     // オーディオソース
     AudioSource audioSource;
@@ -85,53 +91,48 @@ public class GameDirector : MonoBehaviour
     List<GameObject> heartList;
     List<GameObject> rivalHeartList;
 
-    // プレイヤーのHP
-    int playerHP = 3;
-    int rivalHP = 3;
-
     // プレイヤースクリプト
     Player playerScript;
     // アイテムスクリプト
     Item itemScript;
 
-    // ゲーム開始判定変数
-    bool isStart = false;
-    // ゲーム終了判定変数
-    bool isFinish = false;
-
-    float defaultSpeed = 1.2f;
-
     // 移動速度
     public float moveSpeed;
+    // 通常の移動速度
+    float defaultSpeed = 1.2f;
 
+    // ユーザID
     public int userID;
-
+    // 制限時間
+    public int time = 61;
+    // プレイヤーのHP
+    int playerHP = 3;
+    // ライバルのHP
+    int rivalHP = 3;
+    // タイムアップ時SE再生回数用変数
+    int timeUpCnt = 0;
+    // 視点変更用変数
+    int viewCount = 2;
     // 投影機使用回数カウント
     int useProjector = 0;
 
     // 現在所有しているアイテム名
-    string nowItemName = "";
+    public string nowItemName = "";
 
+    // ゲーム開始判定変数
+    bool isStart = false;
+    // ゲーム終了判定変数
+    bool isFinish = false;
     // 移動速度ブースト判定
     bool isBoost = false;
-
     // 位置特定判定
     bool isLocate = false;
-
     // マスタークライアント判定
     bool isMaster;
-
+    // 相手切断判定
     bool isStop = false;
-
-    // 制限時間
-    public int time = 31;
-    // タイムアップ時SE再生回数用変数
-    int timeUpCnt = 0;
-
-    // 視点変更用変数
-    int viewCount = 2;
+    // クールダウン判定
     bool isCooldown = false;
-
     // ボタンを押したときtrue、離したときfalseになるフラグ
     bool buttonDownFlag = false;
 
@@ -145,19 +146,7 @@ public class GameDirector : MonoBehaviour
             SendData.roomName = "RoomRoom";
             SendData.userID = 1;
         }
-
 #endif
-        if (Input.GetKey(KeyCode.Escape))
-        {//ESC押した際の処理
-#if UNITY_EDITOR
-            //エディター実行時
-            UnityEditor.EditorApplication.isPlaying = false;
-#else
-            //ビルド時
-            Application.Quit();
-#endif
-        }
-
         // ユーザが入室したときにメソッドを実行するようモデルに登録
         roomModel.OnJoinedUser += this.OnJoinedUser;
         roomModel.OnLeavedUser += this.OnLeavedUser;
@@ -168,38 +157,42 @@ public class GameDirector : MonoBehaviour
         roomModel.OnChangeSkinUser += this.OnChangeSkinUser;
         roomModel.OnUseItemUser += this.OnUseItemUser;
         roomModel.OnStompItemUser += this.OnStompItemUser;
+
         // オーディオソースのコンポネント取得
         audioSource = GetComponent<AudioSource>();
 
+        // アイテムスクリプトをフィールド内から取得
         itemScript = GameObject.Find("ItemManager").GetComponent<Item>();
 
+        // 移動速度の初期化
         moveSpeed = defaultSpeed;
 
-        // 非表示にする
+        // ライト強度の初期値を設定
+        Light.intensity = 2.2f;
+
+        // 各画像を非表示にする
         exitButton.SetActive(false);
         spawnShadowEffect.SetActive(false);
         localizationEffect.SetActive(false);
         speedUpEffect.SetActive(false);
         warningPanel.SetActive(false);
 
-        // カウントダウン用テキストを非表示
-        for (int i = 0; i < coundDownObjects.Length; i++)
+        // カウントダウン用テキスト、勝敗判定用テキストを非表示
+        for (int i = 0; i < 3; i++)
         {
             coundDownObjects[i].SetActive(false);
+            resultObjects[i].SetActive(false);
         }
         // 開始通知用テキストを非表示
         for (int i = 0; i < readyTextObjects.Length; i++)
         {
             readyTextObjects[i].SetActive(false);
         }
-        // 勝敗判定用テキストを非表示
-        for (int i = 0; i < resultObjects.Length; i++)
-        {
-            resultObjects[i].SetActive(false);
-        }
+
         // ハートのゲームオブジェクトを取得
         heartList = new List<GameObject>();
         rivalHeartList = new List<GameObject>();
+
         // 各ハートをリストに入れる
         for (int i = 0; i < 3; i++)
         {
@@ -210,16 +203,19 @@ public class GameDirector : MonoBehaviour
         // 接続
         await roomModel.ConnectAsync();
 
+        // 1秒待機
         await Task.Delay(600);
 
+        // 部屋に参加
         JoinRoom();
     }
 
     void Update()
     {
+        // 移動処理
         MovePlayer();
 
-        // 押下中処理
+        // 見上げボタン押下中処理
         if (buttonDownFlag)
         {
             // 時間切れになったら強制的に視点を戻す
@@ -229,15 +225,18 @@ public class GameDirector : MonoBehaviour
         // ゲーム終了状態かつ画面タップをした場合
         if (isFinish == true && Input.GetMouseButtonDown(0))
         {
+            //ルームから退室
             LeaveRoom();
         }
 
+        // タイムアップSEが4回鳴ったらSE再生ループ処理を停止
         if (timeUpCnt >= 4) CancelInvoke("TimeUp");
 
+        // 残り時間が3秒を超えている場合
         if (this.time > 3)
         {
             // カウントダウン用テキストを非表示
-            for (int i = 0; i < coundDownObjects.Length; i++)
+            for (int i = 0; i < coundDownObjects.Length; i++)　// 3秒を強調しているときにストップウォッチで時間を延長した際に表示を消すため
             {
                 coundDownObjects[i].SetActive(false);
             }
@@ -259,6 +258,7 @@ public class GameDirector : MonoBehaviour
         // 生成位置を設定
         characterGameObject.transform.position = new Vector3(-7.5f + (2 * user.JoinOrder), 2f, -10f);
 
+        // ユーザオブジェクト名を参加順にする
         characterGameObject.name = user.JoinOrder.ToString();
 
         // 自分以外の各オブジェクトを非アクティブにする
@@ -280,18 +280,23 @@ public class GameDirector : MonoBehaviour
             }
             // マップから非表示に
             characterGameObject.transform.GetChild(3).GetComponent<MeshRenderer>().enabled = false;
+            // カメラのタグを変更
             obj.tag = "Camera_Rival";
+            // ライバルオブジェクトのタグを変更
             characterGameObject.tag = "Rival";
         }
-        else if (roomModel.ConnectionID == user.ConnectionID)
+        else if (roomModel.ConnectionID == user.ConnectionID) // 送信されてきた接続IDと自身の接続IDが一致していた場合
         {
+            // 参加順が最初の場合
             if (user.JoinOrder == 1)
             {
+                //自身をマスターとする
                 isMaster = true;
             }
 
             // 自身のカメラを取得
             GameObject obj = characterGameObject.transform.GetChild(0).gameObject;
+            // カメラを保存
             myCamera = obj;
             // カメラのコンポネントを取得
             Camera camera = obj.GetComponent<Camera>();
@@ -312,9 +317,11 @@ public class GameDirector : MonoBehaviour
             rectScalerWithViewport.refCamera = camera;
         }
 
+        // ユーザの設定したスキン反映処理
         ChangeSkin(user.JoinOrder, user.SkinName);
 
         characterList[user.ConnectionID] = characterGameObject; // フィールドで保持
+        // プレイヤースクリプトに接続IDを渡す
         playerScript.connectionID = user.ConnectionID;
     }
 
@@ -333,11 +340,14 @@ public class GameDirector : MonoBehaviour
                 Destroy(character);
             }
         }
-        else // 退室ユーザのオブジェクトのみ破壊
+        else 
         {
+            // 退室ユーザのオブジェクトのみ破壊
             Destroy(characterList[connectionID]);
+            // ゲームが開始されているかつまだゲームが終了していない場合
             if (isStart == true && isFinish == false)
             {
+                // 退室確認処理
                 CheckExit();
             }
         }
@@ -346,9 +356,13 @@ public class GameDirector : MonoBehaviour
     /// <summary>
     /// ユーザ移動処理
     /// </summary>
+    /// <param name="connectionID">接続ID</param>
     /// <param name="pos">位置</param>
+    /// <param name="rot">回転</param>
+    /// <param state="rot">プレイヤー状態</param>   
     void OnMovedUser(Guid connectionID, Vector3 pos, Vector3 rot, IRoomHubReceiver.PlayerState state)
     {
+        // プレイヤーがいない場合、処理しない
         if (characterList.Count == 0) return;
         // 各トランスフォームをアニメーション
         characterList[connectionID].transform.DOLocalMove(pos, 0.1f).SetEase(Ease.Linear);
@@ -360,6 +374,7 @@ public class GameDirector : MonoBehaviour
     /// </summary>
     void OnFinishUser()
     {
+        // ゲーム終了処理
         FinishGame();
     }
 
@@ -368,20 +383,29 @@ public class GameDirector : MonoBehaviour
     /// </summary>
     void StartGame()
     {
+        // アイテム生成処理
         itemScript.StartSpawn();
+        // カウントダウンパネルを表示
         countPanel.SetActive(true);
+        // カウントダウン処理をループさせる
         InvokeRepeating("CountDown", 0.1f, 1f);
     }
 
+    /// <summary>
+    /// ゲーム開始合図処理
+    /// </summary>
     async void ReadyGo()
     {
+        // Readyを表示
         readyTextObjects[0].SetActive(true);
-        await Task.Delay(1200);
+        await Task.Delay(1200); // 2秒待つ
 
+        // Ready江尾非表示にし、Goを表示
         readyTextObjects[0].SetActive(false);
         readyTextObjects[1].SetActive(true);
 
-        await Task.Delay(800);
+        await Task.Delay(800); // 1.2秒待つ
+        // Goを非表示
         readyTextObjects[1].SetActive(false);
     }
 
@@ -391,21 +415,32 @@ public class GameDirector : MonoBehaviour
     void FinishGame()
     {
         exitButton.SetActive(false);
+        // カウントダウンを停止
         CancelInvoke("CountDown");
+        // ゲーム終了をtrueに
         isFinish = true;
+        // ゲーム終了SEをループ
         InvokeRepeating("TimeUp", 0.1f, 2f);
     }
 
+    /// <summary>
+    /// 入室処理
+    /// </summary>
     public async void JoinRoom()
     {
+        // 自身の参加をサーバに送信
         await roomModel.JoinAsync(SendData.roomName, SendData.skinName);
 
+        // 移動同期をループ
         InvokeRepeating("Move", 0.1f, 0.1f);
-
+        // ゲーム開始合図表示処理
         ReadyGo();
-        //isStart = true;
+
+        InvokeRepeating("DecreaseIntensity", 0.1f, 0.3f);
+        // 自身がマスターである場合
         if (isMaster == true)
         {
+            // ゲーム開始処理
             StartGame();
         }
     }
@@ -415,20 +450,27 @@ public class GameDirector : MonoBehaviour
     /// </summary>
     public async void LeaveRoom()
     {
+        // 移動同期を停止
         CancelInvoke("Move");
 
+        // カウントダウンテキストを空に
         countText.text = "";
 
         // 退室
         await roomModel.LeaveAsync(SendData.roomName, SendData.userID);
+        // リザルトシーンへ遷移
         Initiate.DoneFading();
         Initiate.Fade("Result", Color.black, 0.7f);
     }
 
+    /// <summary>
+    /// タイトル遷移処理
+    /// </summary>
     public async void BackTitle()
     {
         // 退室
         await roomModel.LeaveAsync(SendData.roomName, SendData.userID);
+        // タイトルシーンへ遷移
         Initiate.DoneFading();
         Initiate.Fade("Title", Color.black, 0.7f);
     }
@@ -438,20 +480,30 @@ public class GameDirector : MonoBehaviour
     /// </summary>
     public async void Move()
     {
+        // 自身のキャラが生成されていない場合、処理しない
         if (characterList[roomModel.ConnectionID] == null) return;
-        // 移動
+        // 自身の移動をサーバに送信
         await roomModel.MoveAsync(characterList[roomModel.ConnectionID].transform.position,
             characterList[roomModel.ConnectionID].transform.eulerAngles,
             IRoomHubReceiver.PlayerState.Move);
     }
 
+    /// <summary>
+    /// ゲーム終了処理
+    /// </summary>
     public async void Finish()
     {
+        // ゲーム終了をサーバに送信
         await roomModel.FinishAsync();
     }
 
+    /// <summary>
+    /// 攻撃処理
+    /// </summary>
+    /// <param name="connectionID"></param>
     public async void Attack(Guid connectionID)
     {
+        // 攻撃の処理結果をサーバに送信
         await roomModel.AttackAsync(connectionID);
     }
 
@@ -460,44 +512,44 @@ public class GameDirector : MonoBehaviour
     /// </summary>
     void OnAttackUser(Guid connectionID, int health)
     {
-        Debug.Log(characterList[roomModel.ConnectionID] + "のHP：" + health);
-
         // 受け取った接続IDと自身の接続IDが一致している場合
         if (connectionID == roomModel.ConnectionID)
         {
             // カメラを揺らす
             characterList[roomModel.ConnectionID].transform.GetChild(0).DOShakePosition(0.6f, 1.5f, 45, 15, false, true);
 
+            // HPオブジェクトを破壊
             Destroy(heartList[health]);
+            // 現在のHPを保存
             playerHP = health;
 
-            if (health <= 0)
-            {
-                for (int i = 0; i < coundDownObjects.Length; i++)
-                {
-                    coundDownObjects[i].SetActive(false);
-                }
-                characterList[connectionID].transform.GetChild(1).gameObject.SetActive(false);
-                characterList[connectionID].transform.GetChild(2).gameObject.SetActive(false);
-                resultObjects[1].SetActive(true);
-                Finish();
-            }
+            // 結果を表示
+            resultObjects[1].SetActive(true);
         }
         else
         {
+            // ライバルのHPオブジェクトを破壊
             Destroy(rivalHeartList[health]);
+            // ライバルのHPを保存
             rivalHP = health;
+            // 結果を表示
+            resultObjects[0].SetActive(true);
 
-            if (health <= 0)
+        }
+
+        // 被弾対象のHPが0以下の場合
+        if (health <= 0)
+        {
+            for (int i = 0; i < coundDownObjects.Length; i++)
             {
-                for (int i = 0; i < coundDownObjects.Length; i++)
-                {
-                    coundDownObjects[i].SetActive(false);
-                }
-                characterList[connectionID].transform.GetChild(2).gameObject.SetActive(false);
-                resultObjects[0].SetActive(true);
-                Finish();
+                coundDownObjects[i].SetActive(false);
             }
+
+            // 影と踏みつけエリアを非表示
+            characterList[connectionID].transform.GetChild(1).gameObject.SetActive(false);
+            characterList[connectionID].transform.GetChild(2).gameObject.SetActive(false);
+
+            Finish();
         }
     }
 
@@ -507,11 +559,11 @@ public class GameDirector : MonoBehaviour
     void MovePlayer()
     {
         // 開始前とゲーム終了後は移動させない
-        if (isStop == true) return;
-        if (isStart != true) return;
-        if (isFinish == true) return;
+        if (isStop == true || isStart != true || isFinish == true) return;
+
         Rigidbody rb = characterList[roomModel.ConnectionID].GetComponent<Rigidbody>();  // rigidbodyを取得
 
+        //ジョイスティックの位置を代入
         float axisZ = joystick.Vertical;
         float axisX = joystick.Horizontal;
 
@@ -551,6 +603,7 @@ public class GameDirector : MonoBehaviour
     /// </summary>
     public async void StompItem(string name)
     {
+        // 受け取った文字列を_で分割
         string[] words = name.Split("_");
 
         // 踏んだのが偽影でない場合
@@ -559,11 +612,14 @@ public class GameDirector : MonoBehaviour
             // リソースから、アイテムテクスチャを取得
             Texture2D texture = Resources.Load("Items/" + words[0]) as Texture2D;
 
+            // 取得したスプライトを反映
             itemPanel.sprite =
                 Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero);
 
+            // 現在所持しているアイテム名を保存
             nowItemName = name;
         }
+        // 踏んだことをサーバに送信
         await roomModel.StompItemAsync(name);
     }
 
@@ -582,10 +638,10 @@ public class GameDirector : MonoBehaviour
     /// </summary>
     public async void UseItem()
     {
-        if (isStop == true) return;
-        if (isStart != true) return;
-        if (isFinish == true) return;
+        // 開始前とゲーム終了後はアイテムを使用させない
+        if (isStop == true || isStart != true || isFinish == true) return;
 
+        // 受け取った文字列を_で分割
         string[] words = nowItemName.Split("_");
 
         GameObject rivalObj = new GameObject();
@@ -639,7 +695,7 @@ public class GameDirector : MonoBehaviour
                 trapObj.name = "Trap(active)";
                 // 生成位置を設定
                 trapObj.transform.position = new Vector3(playerPos.x, playerPos.y + 1.0f, playerPos.z + 3.0f);
-
+                // アイテム使用をサーバに送信
                 await roomModel.UseItemAsync(roomModel.ConnectionID, nowItemName);
                 break;
 
@@ -651,14 +707,16 @@ public class GameDirector : MonoBehaviour
 
                 // インスタンス生成
                 GameObject fakeObj = Instantiate(fakeShadowPrefabs);
-
+                // オブジェクト名を変更
                 fakeObj.name = "Fake_Shadow" + "_" + useProjector;
 
                 // 生成位置を設定
                 fakeObj.transform.position = new Vector3(playerPos.x, 1.7f, playerPos.z + 3.0f);
-
+                // 影生成判定をtrueに
                 spawnShadowEffect.SetActive(true);
+                // 影破壊処理
                 KillFake(fakeObj);
+                // アイテム使用をサーバに送信
                 await roomModel.UseItemAsync(roomModel.ConnectionID, nowItemName);
                 break;
 
@@ -784,7 +842,8 @@ public class GameDirector : MonoBehaviour
                 countText.text = "Time UP";
                 // カウントダウン処理を停止
                 CancelInvoke("CountDown");
-
+                // ライト強度低下処理を停止
+                CancelInvoke("DecreaseIntensity");
                 if (playerHP < rivalHP) resultObjects[1].SetActive(true);
                 else if (playerHP > rivalHP) resultObjects[0].SetActive(true);
                 else resultObjects[2].SetActive(true);
@@ -833,12 +892,9 @@ public class GameDirector : MonoBehaviour
     /// 視点変更ボタン押下時処理
     /// </summary>
     public void OnButtonDown()
-    {
-        if (isStop == true) return;
-        if (isStart != true) return;
-        if (isFinish == true) return;
-
-        if (isCooldown) return; // クールダウン中の場合、処理しない
+    {  
+        // 開始前とゲーム終了後はアイテムを使用させない
+        if (isStop == true || isStart != true || isFinish == true || isCooldown) return;
 
         // 視点変更時間を初期化
         viewCount = 3;
@@ -857,8 +913,8 @@ public class GameDirector : MonoBehaviour
     /// </summary>
     public void OnButtonUp()
     {
-        if (isStart != true) return;
-        if (isFinish == true) return;
+        // まだ開始していない、またはゲームが終了している場合処理しない
+        if (isStart != true　|| isFinish == true) return;
 
         if (isCooldown) return; // クールダウン中の場合、処理しない
 
@@ -870,7 +926,7 @@ public class GameDirector : MonoBehaviour
         buttonDownFlag = false;
 
         // カメラの回転を元に戻す
-        myCamera.transform.DOLocalRotate(new Vector3(30f, 0f, 0f), 0.1f).SetEase(Ease.Linear);
+        myCamera.transform.DOLocalRotate(new Vector3(27f, 0f, 0f), 0.1f).SetEase(Ease.Linear);
         //移動速度を元に戻す
         moveSpeed = defaultSpeed;
 
@@ -882,17 +938,24 @@ public class GameDirector : MonoBehaviour
         buttonTexture.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
                                        Vector2.zero);
 
+        // カウントダウン処理のループを開始
         InvokeRepeating("ViewCooldown", 3f, 1f);
-
     }
 
+    /// <summary>
+    /// 見上げ視点制限時間カウント処理
+    /// </summary>
     void ViewTime()
     {
         viewCount--;
     }
 
+    /// <summary>
+    /// 見上げ視点クールダウン処理
+    /// </summary>
     void ViewCooldown()
     {
+        // クールダウンのループ処理を停止
         CancelInvoke("ViewCooldown");
 
         // リソースから、アイコンを取得
@@ -902,6 +965,7 @@ public class GameDirector : MonoBehaviour
 
         buttonTexture.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
                                        Vector2.zero);
+        // クールダウンしていない状態に
         isCooldown = false;
     }
 
@@ -918,6 +982,7 @@ public class GameDirector : MonoBehaviour
         Destroy(fakeObj);
         StompItem(fakeObj.name);
 
+        // 影生成確認用アイコンを非表示
         spawnShadowEffect.SetActive(false);
     }
 
@@ -930,6 +995,17 @@ public class GameDirector : MonoBehaviour
         // 各繰り返しを停止
         CancelInvoke("ViewCooldown");
         CancelInvoke("Move");
+        // 警告パネルを表示
         warningPanel.SetActive(true);
+    }
+
+    /// <summary>
+    /// ライト強度減少処理
+    /// </summary>
+    void DecreaseIntensity()
+    {  
+        // ライトの強度が0以下になった場合、処理を停止
+        if (Light.intensity <= 0) CancelInvoke("DecreaseIntensity");
+        else Light.intensity -= 0.01f; // ライトの強度を少し減らす
     }
 }

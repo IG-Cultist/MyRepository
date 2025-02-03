@@ -1,18 +1,12 @@
 /// ==============================
 /// プレイヤースクリプト
-/// Name:西浦晃太 Update:1/24
+/// Name:西浦晃太 Update:02/03
 /// ==============================
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using DG.Tweening;
-using Shared.Interfaces.StreamingHubs;
-using Shared.Model.Entity;
 using Unity.VisualScripting;
-using UnityEditor.Rendering;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 public class Player : MonoBehaviour
 {
@@ -38,10 +32,9 @@ public class Player : MonoBehaviour
     void Start()
     {
         audioSource = GetComponent<AudioSource>();
+        // ゲームディレクタースクリプトをフィールド内オブジェクトから取得
         gameDirector = GameObject.Find("GameDirector").GetComponent<GameDirector>();
     }
-
-
 
     /// <summary>
     /// 被弾処理
@@ -52,8 +45,10 @@ public class Player : MonoBehaviour
         // 踏んだ相手の接続IDを取得
         otherConnectionID = obj.transform.parent.parent.GetComponent<Player>().connectionID;
 
+        // 攻撃処理
         gameDirector.Attack(otherConnectionID);
 
+        // 被弾エフェクト処理
         DamageEffect(obj.transform);
     }
 
@@ -62,28 +57,31 @@ public class Player : MonoBehaviour
     /// </summary>
     public async void Stomp()
     {
+        // 自身のカメラを取得
         Camera camera = this.transform.GetChild(0).GetComponent<Camera>();
 
-        // Shot Ray from Touch Point
+        // タッチした場所にカメラからレイを発射
         Vector3 worldPosition = camera.ScreenToWorldPoint(Input.mousePosition);
 
-        // 第二引数 レイはどの方向に進むか(zero=指定点)
-        bool isHit = Physics.Raycast(camera.transform.position, worldPosition - camera.transform.position, out RaycastHit hitInfo);
         Ray rayray = camera.ScreenPointToRay(Input.mousePosition);
-        Debug.DrawRay(rayray.origin, rayray.direction * 100, Color.red, 0.5f, false);
-
+        Debug.DrawRay(rayray.origin, rayray.direction * 100, Color.red, 4, false);
         RaycastHit hitted = new RaycastHit();
-        if (Physics.Raycast(rayray, out hitted, 100))
+
+        if (Physics.Raycast(rayray, out hitted, 100, 1 << 6))
         {
+            // レイの当たったオブジェクトを取得
             GameObject hitObject = hitted.collider.gameObject;
+   
+            // オブジェクトが踏みつけ可能エリアの場合
             if (hitObject.name == "StompZone")
             {
+                // 踏みつけSEを鳴らす
                 audioSource.PlayOneShot(stompSE);
                 // カメラを揺らす
                 this.transform.GetChild(0).DOShakePosition(0.2f, 0.1f, 20, 15, false, true);
-
+                // 移動速度を低下
                 gameDirector.moveSpeed = 0.4f;
-                Debug.Log("name" + hitObject.name);
+
                 // すでに足跡がある場合それを破壊する
                 if (footPrintObj != null) Destroy(footPrintObj);
 
@@ -100,11 +98,14 @@ public class Player : MonoBehaviour
                     footPrintObj.transform.position = new Vector3(hit.point.x, 0.64f, hit.point.z);
                 }
 
+                // 0.5秒後、足跡を破壊
                 await Task.Delay(300);
-                // 数秒後、足跡を破壊
                 if (footPrintObj != null) Destroy(footPrintObj);
-                gameDirector.moveSpeed = 1f;
+                // 移動速度を戻す
+                gameDirector.moveSpeed = 1.5f;
             }
+
+            // レイの当たったオブジェクトを初期化
             if (hitObject != null) hitObject = null;
         }
     }
@@ -120,6 +121,7 @@ public class Player : MonoBehaviour
             // トラップを破壊
             Destroy(collision.gameObject);
 
+            // アイテム使用同期処理
             gameDirector.OnUseItemUser(this.GetComponent<Player>().connectionID, collision.gameObject.name);
         }
     }
@@ -135,8 +137,9 @@ public class Player : MonoBehaviour
         {
             // カメラを揺らす
             transform.GetChild(0).DOShakePosition(0.9f, 1.5f, 45, 15, false, true);
-
+            // 2秒遅延
             await Task.Delay(1200);
+           　// 被弾判定をfalseに
             isHit = false;
         }
         else
@@ -144,7 +147,9 @@ public class Player : MonoBehaviour
             // 被弾をわかりやすくするよう透明度をあげる
             transform.GetComponent<SpriteRenderer>().color = new Color32(255, 255, 255, 100);
 
+            // 2秒遅延
             await Task.Delay(1200);
+           　// 被弾判定をfalseに
             isHit = false;
             // 透明度を元に戻す
             transform.GetComponent<SpriteRenderer>().color = new Color32(255, 255, 255, 220);

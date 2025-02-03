@@ -1,53 +1,51 @@
 /// ==============================
 /// ロビースクリプト
-/// Name:西浦晃太 Update:01/29
+/// Name:西浦晃太 Update:02/03
 /// ==============================
-using Cysharp.Threading.Tasks.Triggers;
-using DG.Tweening;
-using Shared.Interfaces.Services;
 using Shared.Interfaces.StreamingHubs;
-using Shared.Model.Entity;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Rendering;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class Lobby : MonoBehaviour
 {
+    // 部屋モデル
+    [SerializeField] RoomHubModel roomModel;  
+    
+    // スキン変更ボタン
+    [SerializeField] GameObject[] changeButton;
     // 退室ボタン
     [SerializeField] GameObject exitButton;
     // 準備ボタン
     [SerializeField] GameObject readyButton;
-    // 部屋モデル
-    [SerializeField] RoomHubModel roomModel;
-    // ロードパネル
-    [SerializeField] GameObject loadingPanel;
-    // 説明パネル
-    [SerializeField] GameObject explainPanel;
+
     // 説明画像
     [SerializeField] GameObject[] explainImages;
     // 説明画像
     [SerializeField] GameObject[] explainTitles;
-    // ロードアイコン
-    [SerializeField] GameObject loadingIcon;
-    // スキン変更パネル
-    [SerializeField] GameObject skinPanel;
-    // スキン変更ボタン
-    [SerializeField] GameObject[] changeButton;
     // ヘッダーテキスト
     [SerializeField] GameObject[] headers;
+    // ロードパネル
+    [SerializeField] GameObject loadingPanel;
+    // 説明パネル
+    [SerializeField] GameObject explainPanel;
+    // スキン変更パネル
+    [SerializeField] GameObject skinPanel;
+    // ロードアイコン
+    [SerializeField] GameObject loadingIcon;
+    // 準備完了オブジェクト
+    [SerializeField] GameObject ready;
 
+    // 参加ユーザ人数テキスト
     [SerializeField] Text userCount;
-
+    // 待機促しテキスト
     [SerializeField] Text wait;
 
-    [SerializeField] GameObject ready;
+    // クリックorタップSE
+    [SerializeField] AudioClip clickSE;
 
     // 参加ユーザの接続ID保存リスト
     List<Guid> idList = new List<Guid>();
@@ -62,23 +60,24 @@ public class Lobby : MonoBehaviour
     // 説明画像用変数
     int imageCnt = 0;
 
-    // クリックorタップSE
-    [SerializeField] AudioClip clickSE;
-
     AudioSource audioSource;
 
     // Start is called before the first frame update
     async void Start()
     {
-        SendData.userID = 0;
         audioSource = GetComponent<AudioSource>();
-        // 非表示にする
+
+        // 各UIを非表示にする
         loadingPanel.SetActive(false);
         skinPanel.SetActive(false);
         readyButton.SetActive(false);
         explainPanel.SetActive(false);
         ready.SetActive(false);
 
+        // ローカルのユーザIDを初期化
+        SendData.userID = 0;
+
+        // 各ヘッダーオブジェクトを非表示に
         for(int i = 0; i < headers.Length; i++)
         {
             headers[i].SetActive(false);
@@ -88,7 +87,6 @@ public class Lobby : MonoBehaviour
         roomModel.OnJoinedUser += this.OnJoinedUser;
         roomModel.OnLeavedUser += this.OnLeavedUser;
         roomModel.OnMatchingUser += this.OnMatchingUser;
-        roomModel.OnReadyUser += this.OnReadyUser;
 
         // 接続
         await roomModel.ConnectAsync();
@@ -216,13 +214,6 @@ public class Lobby : MonoBehaviour
         ready.SetActive(true);
     }
 
-    /// <summary>
-    /// ゲーム開始
-    /// </summary>
-    void OnReadyUser(Guid connectionID)
-    {
-
-    }
 
     async void OnMatchingUser(string roomName, string[] userList)
     {
@@ -331,7 +322,8 @@ public class Lobby : MonoBehaviour
     /// </summary>
     public void closeExplain()
     {
-        ready.SetActive(true);
+        if(isReady == true) ready.SetActive(true);
+       
         isExplain = false;
         explainPanel.SetActive(false);
     }

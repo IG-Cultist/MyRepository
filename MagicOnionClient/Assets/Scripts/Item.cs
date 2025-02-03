@@ -1,8 +1,7 @@
 /// ==============================
 /// アイテムスクリプト
-/// Name:西浦晃太 Update:1/24
+/// Name:西浦晃太 Update:02/03
 /// ==============================
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -17,6 +16,7 @@ public class Item : MonoBehaviour
     // 現在存在しているアイテム配列
     GameObject[] nowItems = new GameObject[3];
 
+    // 現在存在しているアイテム配列(同期用)
     GameObject[] nowItems_rival = new GameObject[3];
 
     // 操作するプレイヤーのカメラ

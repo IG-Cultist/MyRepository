@@ -1,6 +1,6 @@
 /// ==============================
 /// ルームハブモデルスクリプト
-/// Name:西浦晃太 Update:11/26
+/// Name:西浦晃太 Update:02/03
 /// ==============================
 using Cysharp.Net.Http;
 using Cysharp.Threading.Tasks;
@@ -100,7 +100,6 @@ public class RoomHubModel : BaseModel, IRoomHubReceiver
 
         // 自分の接続IDを保存
         this.ConnectionID =  await roomHub.GetConID();
-        Debug.Log(this.ConnectionID);
 
         foreach (var user in users)
         {
