@@ -92,7 +92,7 @@ public class Player : MonoBehaviour
                 Ray ray = camera.ScreenPointToRay(Input.mousePosition);
                 RaycastHit hit = new RaycastHit();
 
-                if (Physics.Raycast(ray, out hit))
+                if (Physics.Raycast(ray, out hit,10, 1 << 6))
                 {
                     // ¶¬ˆÊ’u‚ðÝ’è
                     footPrintObj.transform.position = new Vector3(hit.point.x, 0.64f, hit.point.z);

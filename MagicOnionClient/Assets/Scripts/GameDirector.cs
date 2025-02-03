@@ -403,10 +403,17 @@ public class GameDirector : MonoBehaviour
         // Ready江尾非表示にし、Goを表示
         readyTextObjects[0].SetActive(false);
         readyTextObjects[1].SetActive(true);
-
+        InvokeRepeating("DecreaseIntensity", 0.1f, 0.3f);
+        // 自身がマスターである場合
+        if (isMaster == true)
+        {
+            // ゲーム開始処理
+            StartGame();
+        }
         await Task.Delay(800); // 1.2秒待つ
         // Goを非表示
         readyTextObjects[1].SetActive(false);
+
     }
 
     /// <summary>
@@ -436,13 +443,7 @@ public class GameDirector : MonoBehaviour
         // ゲーム開始合図表示処理
         ReadyGo();
 
-        InvokeRepeating("DecreaseIntensity", 0.1f, 0.3f);
-        // 自身がマスターである場合
-        if (isMaster == true)
-        {
-            // ゲーム開始処理
-            StartGame();
-        }
+  
     }
 
     /// <summary>
