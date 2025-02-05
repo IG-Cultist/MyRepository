@@ -191,7 +191,7 @@ namespace Server.StreamingHubs
         {
             // 受け取ったIDのHPを-1
             var roomDataStorage = this.room.GetInMemoryStorage<RoomData>();
-            var roomData = roomDataStorage.Get(this.ConnectionId);
+            var roomData = roomDataStorage.Get(connectionID);
 
             if (roomData.Health > 0)
             {
@@ -208,7 +208,7 @@ namespace Server.StreamingHubs
             } 
             
             // ルーム参加者全員に、ユーザの通知を送信
-            this.Broadcast(room).OnAttack(connectionID, roomData.Health);
+            this.BroadcastExceptSelf(room).OnAttack(connectionID, roomData.Health);
 
             return roomData.Health;
         }

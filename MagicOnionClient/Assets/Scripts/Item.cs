@@ -1,6 +1,6 @@
 /// ==============================
 /// アイテムスクリプト
-/// Name:西浦晃太 Update:02/03
+/// Name:西浦晃太 Update:02/05
 /// ==============================
 using System.Collections.Generic;
 using UnityEngine;
@@ -38,14 +38,14 @@ public class Item : MonoBehaviour
     void Update()
     {
         // 生成回数が9以上になった場合生成を停止
-        if(itemCount >=9) CancelInvoke("SpawnItem");
+        if(itemCount >=18) CancelInvoke("SpawnItem");
     }
 
+    /// <summary>
+    /// アイテム生成処理
+    /// </summary>
     void SpawnItem()
     {
-        // 生成上限を加算
-        itemCount++; 
-
         System.Random rand = new System.Random();
 
         // 生成位置番号のランダム設定
@@ -62,6 +62,7 @@ public class Item : MonoBehaviour
             Destroy(nowItems[num]);
         }
 
+        // 選ばれたスポーンポイントの持つアイテムに、生成したものを入れる
         nowItems[num] = itemObj;
 
         // 名前を訂正
@@ -76,6 +77,9 @@ public class Item : MonoBehaviour
         itemObj.GetComponent<LookAtCamera>().GetCamera(playerCam);
 
         SpawnItem(num, itemNum);
+        
+        // 生成上限を加算
+        itemCount++; 
     }
 
     /// <summary>
@@ -88,7 +92,7 @@ public class Item : MonoBehaviour
     }
 
     /// <summary>
-    /// アイテム生成
+    /// アイテム生成同期処理
     /// </summary>
     /// <param name="spawnPoint">生成位置</param>
     /// <param name="itemNumber">アイテム値</param>
@@ -97,6 +101,11 @@ public class Item : MonoBehaviour
         await roomModel.SpawnItemAsync(spawnPoint, itemNumber);
     }
 
+    /// <summary>
+    /// アイテム生成通知
+    /// </summary>
+    /// <param name="spawnPoint">生成位置</param>
+    /// <param name="itemNumber">生成アイテム識別番号</param>
     void OnSpawnItemUser(int spawnPoint, int itemNumber)
     {
         // インスタンス生成
@@ -109,10 +118,11 @@ public class Item : MonoBehaviour
             Destroy(nowItems[spawnPoint]);
         }
 
+        // 選ばれたスポーンポイントの持つアイテムに、生成したものを入れる
         nowItems[spawnPoint] = itemObj;
 
         // 名前を訂正
-        itemObj.name = itemPrefabs[itemNumber].name;
+        itemObj.name = itemPrefabs[itemNumber].name + "_" + itemCount;
 
         // 生成位置のポジションを代入
         Vector3 pos = spawnPointObject[spawnPoint].transform.position;

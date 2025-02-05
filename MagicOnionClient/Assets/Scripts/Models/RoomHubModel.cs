@@ -172,7 +172,7 @@ public class RoomHubModel : BaseModel, IRoomHubReceiver
     /// </summary>
     public void OnReady(Guid connectionID)
     {
-        OnReadyUser(connectionID);
+        //OnReadyUser(connectionID);
     }
 
     /// <summary>
@@ -195,7 +195,6 @@ public class RoomHubModel : BaseModel, IRoomHubReceiver
     /// <summary>
     /// UŒ‚ˆ—
     /// </summary>
-    /// <param name="roomName">•”‰®–¼</param>
     /// <param name="userID">ƒ†[ƒUID</param>
     /// <returns></returns>
     public async UniTask AttackAsync(Guid connectionID)

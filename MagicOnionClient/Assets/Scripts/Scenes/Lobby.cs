@@ -228,6 +228,8 @@ public class Lobby : MonoBehaviour
                 Loading();
                 await Task.Delay(800);
 
+                // 退室
+                await roomModel.LeaveAsync("Lobby", SendData.userID);
                 // ゲームシーンへ遷移
                 Initiate.DoneFading();
                 Initiate.Fade("Game", Color.black, 0.7f);

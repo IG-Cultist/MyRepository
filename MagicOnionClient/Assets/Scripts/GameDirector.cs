@@ -115,6 +115,8 @@ public class GameDirector : MonoBehaviour
     int viewCount = 2;
     // 投影機使用回数カウント
     int useProjector = 0;
+    // トラップ使用回数カウント
+    int useTrap = 0;
 
     // 現在所有しているアイテム名
     public string nowItemName = "";
@@ -220,13 +222,6 @@ public class GameDirector : MonoBehaviour
         {
             // 時間切れになったら強制的に視点を戻す
             if (viewCount <= 0) OnButtonUp();
-        }
-
-        // ゲーム終了状態かつ画面タップをした場合
-        if (isFinish == true && Input.GetMouseButtonDown(0))
-        {
-            //ルームから退室
-            LeaveRoom();
         }
 
         // タイムアップSEが4回鳴ったらSE再生ループ処理を停止
@@ -421,7 +416,7 @@ public class GameDirector : MonoBehaviour
     /// </summary>
     void FinishGame()
     {
-        exitButton.SetActive(false);
+        exitButton.SetActive(true);
         // カウントダウンを停止
         CancelInvoke("CountDown");
         // ゲーム終了をtrueに
@@ -442,8 +437,6 @@ public class GameDirector : MonoBehaviour
         InvokeRepeating("Move", 0.1f, 0.1f);
         // ゲーム開始合図表示処理
         ReadyGo();
-
-  
     }
 
     /// <summary>
@@ -516,26 +509,28 @@ public class GameDirector : MonoBehaviour
         // 受け取った接続IDと自身の接続IDが一致している場合
         if (connectionID == roomModel.ConnectionID)
         {
-            // カメラを揺らす
-            characterList[roomModel.ConnectionID].transform.GetChild(0).DOShakePosition(0.6f, 1.5f, 45, 15, false, true);
+            // HPオブジェクトのリジットボディを取得
+            Rigidbody heartRb = heartList[health].GetComponent<Rigidbody>();
+            // キネマティックをオフにする
+            heartRb.isKinematic = false;
+            // 上に飛ばす
+            heartRb.AddForce(new Vector3(0f, 7f, 0f), ForceMode.Impulse);
 
-            // HPオブジェクトを破壊
-            Destroy(heartList[health]);
             // 現在のHPを保存
             playerHP = health;
-
-            // 結果を表示
-            resultObjects[1].SetActive(true);
         }
         else
         {
-            // ライバルのHPオブジェクトを破壊
-            Destroy(rivalHeartList[health]);
+            // HPオブジェクトのリジットボディを取得
+            Rigidbody heartRb = rivalHeartList[health].GetComponent<Rigidbody>();
+            // キネマティックをオフにする
+            heartRb.isKinematic = false;
+
+            // 上に飛ばす
+            heartRb.AddForce(new Vector3(0f, 7f, 0f), ForceMode.Impulse);
+
             // ライバルのHPを保存
             rivalHP = health;
-            // 結果を表示
-            resultObjects[0].SetActive(true);
-
         }
 
         // 被弾対象のHPが0以下の場合
@@ -544,6 +539,16 @@ public class GameDirector : MonoBehaviour
             for (int i = 0; i < coundDownObjects.Length; i++)
             {
                 coundDownObjects[i].SetActive(false);
+            }
+
+            // ライバルのHPが尽きた場合
+            if (rivalHP <= 0)
+            { // プレイヤーの勝利
+                resultObjects[0].SetActive(true);
+            }
+            else if(playerHP <= 0) // プレイヤーのHPが尽きた場合
+            { // ライバルの勝利
+                resultObjects[1].SetActive(true);
             }
 
             // 影と踏みつけエリアを非表示
@@ -618,7 +623,7 @@ public class GameDirector : MonoBehaviour
                 Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero);
 
             // 現在所持しているアイテム名を保存
-            nowItemName = name;
+            nowItemName = words[0];
         }
         // 踏んだことをサーバに送信
         await roomModel.StompItemAsync(name);
@@ -630,6 +635,7 @@ public class GameDirector : MonoBehaviour
     /// <param name="itemName"></param>
     async void OnStompItemUser(string itemName)
     {
+        // 受け取った名前のオブジェクトが存在している場合、それを破壊する
         GameObject obj = GameObject.Find(itemName);
         if (obj != null) Destroy(obj);
     }
@@ -642,17 +648,16 @@ public class GameDirector : MonoBehaviour
         // 開始前とゲーム終了後はアイテムを使用させない
         if (isStop == true || isStart != true || isFinish == true) return;
 
-        // 受け取った文字列を_で分割
-        string[] words = nowItemName.Split("_");
-
         GameObject rivalObj = new GameObject();
         Destroy(rivalObj);
 
         // 自分でないプレイヤーのゲームオブジェクトを取得
         foreach (var id in characterList.Keys)
         {
+            // そのIDが自身と異なる場合
             if (id != roomModel.ConnectionID)
             {
+                // そのIDのユーザをライバルオブジェクトとする
                 rivalObj = characterList[id];
                 break;
             }
@@ -661,7 +666,7 @@ public class GameDirector : MonoBehaviour
         Vector3 playerPos = characterList[roomModel.ConnectionID].transform.position;
 
         // アイテム別処理
-        switch (words[0])
+        switch (nowItemName)
         {
             case "Compass": // コンパスの場合
                 // 相手の位置をマップに3秒間表示する
@@ -689,11 +694,14 @@ public class GameDirector : MonoBehaviour
                 break;
 
             case "Trap": // トラップの場合
-                audioSource.PlayOneShot(trapSE);
+                // 使用回数を加算
+                useTrap++;
 
+                audioSource.PlayOneShot(trapSE);
                 // インスタンス生成
                 GameObject trapObj = Instantiate(trapPrefabs);
-                trapObj.name = "Trap(active)";
+                // 名前を訂正し、使用回数を名前に加える
+                trapObj.name = "Trap(active)" + "_" + useTrap;
                 // 生成位置を設定
                 trapObj.transform.position = new Vector3(playerPos.x, playerPos.y + 1.0f, playerPos.z + 3.0f);
                 // アイテム使用をサーバに送信
@@ -701,18 +709,16 @@ public class GameDirector : MonoBehaviour
                 break;
 
             case "Projector": // 投影機の場合
-
+                // 使用回数を加算
                 useProjector++;
-                // 5秒間自由に動く偽の影を召喚する
-                audioSource.PlayOneShot(projectorSE);
 
+                audioSource.PlayOneShot(projectorSE);
                 // インスタンス生成
                 GameObject fakeObj = Instantiate(fakeShadowPrefabs);
-                // オブジェクト名を変更
+                // 名前を訂正し、使用回数を名前に加える
                 fakeObj.name = "Fake_Shadow" + "_" + useProjector;
-
                 // 生成位置を設定
-                fakeObj.transform.position = new Vector3(playerPos.x, 1.7f, playerPos.z + 3.0f);
+                fakeObj.transform.position = new Vector3(playerPos.x, 1.4f, playerPos.z + 3.0f);
                 // 影生成判定をtrueに
                 spawnShadowEffect.SetActive(true);
                 // 影破壊処理
@@ -758,38 +764,43 @@ public class GameDirector : MonoBehaviour
 
     public async void OnUseItemUser(Guid connectionID, string itemName)
     {
+        // 受け取ったIDのプレイヤーポジションを取得
         Vector3 playerPos = characterList[connectionID].transform.position;
 
+        // 受け取ったアイテム名で処理を判定
         switch (itemName)
         {
             case "Trap": // トラップの場合
+                useTrap++; // 使用回数を加算
+
                 audioSource.PlayOneShot(trapSE);
                 // インスタンス生成
                 GameObject trapObj = Instantiate(trapPrefabs);
-                trapObj.name = "Trap(active)";
+                // 名前を訂正し、使用回数を名前に加える
+                trapObj.name = "Trap(active)" + "_" + useTrap;
                 // 生成位置を設定
                 trapObj.transform.position = new Vector3(playerPos.x, playerPos.y + 1.0f, playerPos.z + 3.0f);
-
                 break;
 
             case "Projector": // 投影機の場合
-                useProjector++;
-                // 5秒間自由に動く偽の影を召喚する
+                useProjector++; // 使用回数を加算
                 audioSource.PlayOneShot(projectorSE);
 
                 // インスタンス生成
                 GameObject fakeObj = Instantiate(fakeShadowPrefabs);
-
+                // 名前を訂正し、使用回数を名前に加える
                 fakeObj.name = "Fake_Shadow" + "_" + useProjector;
 
                 // 生成位置を設定
-                fakeObj.transform.position = new Vector3(playerPos.x, 1.7f, playerPos.z + 3.0f);
+                fakeObj.transform.position = new Vector3(playerPos.x, 1.4f, playerPos.z + 3.0f);
                 break;
 
             case "Trap(active)": //トラップ(アクティブ)の場合
                 // 破壊
                 audioSource.PlayOneShot(trapBiteSE);
+                // 受け取った名前でゲームオブジェクトを検索
                 GameObject obj = GameObject.Find(itemName);
+                // 検索して発見した場合それを破壊
                 if (obj != null) Destroy(obj);
                 break;
 
