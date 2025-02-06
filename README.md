@@ -1,6 +1,10 @@
 # カゲフミ
-MagicOnionとUnityを用いて制作された作品
+MagicOnionとUnityを用いて制作された作品  
+1分で影踏み遊びをし、相手を倒すかHPの高い方の勝ちとなるマルチプレイ専用ゲーム  
+マスタークライアント方式で他プレイヤーとの同期を実現  
+HTTP/2での効率的な通信を実現　RPCを用いり開発の負担を軽減  
 
+開発期間:2024/12/02～2025/1/30
 ![ゲームのスクリーンショット000](https://github.com/IG-Cultist/MyRepository/blob/main/Images/Title.png)
 ![ゲームのスクリーンショット001](https://github.com/IG-Cultist/MyRepository/blob/main/Images/Sample000.png)
 ![ゲームのスクリーンショット002](https://github.com/IG-Cultist/MyRepository/blob/main/Images/Sample001.png)
