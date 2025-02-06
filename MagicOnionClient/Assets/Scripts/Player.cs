@@ -139,6 +139,8 @@ public class Player : MonoBehaviour
     /// <param name="renderer"></param>
     async void DamageEffect(Transform transform)
     {
+        // 受け取ったトランスフォームがnullでない場合のみ処理する
+        if (transform == null) return;
         // 被弾したのが自分である場合
         if (transform.tag != "Shadow_Rival")
         {

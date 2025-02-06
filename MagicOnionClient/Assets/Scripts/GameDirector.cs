@@ -279,6 +279,8 @@ public class GameDirector : MonoBehaviour
             obj.tag = "Camera_Rival";
             // ライバルオブジェクトのタグを変更
             characterGameObject.tag = "Rival";
+            // ユーザの設定したスキン反映処理
+            ChangeSkin(user.JoinOrder, user.SkinName);
         }
         else if (roomModel.ConnectionID == user.ConnectionID) // 送信されてきた接続IDと自身の接続IDが一致していた場合
         {
@@ -310,10 +312,9 @@ public class GameDirector : MonoBehaviour
             // 解像度設定を生成したカメラに設定
             RectScalerWithViewport rectScalerWithViewport = GameObject.Find("RectScalerPanel").GetComponent<RectScalerWithViewport>();
             rectScalerWithViewport.refCamera = camera;
+            // ユーザの設定したスキン反映処理
+            ChangeSkin(user.JoinOrder, user.SkinName);
         }
-
-        // ユーザの設定したスキン反映処理
-        ChangeSkin(user.JoinOrder, user.SkinName);
 
         characterList[user.ConnectionID] = characterGameObject; // フィールドで保持
         // プレイヤースクリプトに接続IDを渡す
