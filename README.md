@@ -1,9 +1,9 @@
 # カゲフミ
 MagicOnionとUnityを用いて制作された作品
 
-![ゲームのスクリーンショット000](https://github.com/IG-Cultist/puzzle_admin_console/blob/main/images/Sample000.png)
-![ゲームのスクリーンショット001](https://github.com/IG-Cultist/puzzle_admin_console/blob/main/images/Sample001.png)
-![ゲームのスクリーンショット002](https://github.com/IG-Cultist/puzzle_admin_console/blob/main/images/Sample002.png)
+![ゲームのスクリーンショット000](https://github.com/IG-Cultist/MyRepository/blob/main/Images/Title.png)
+![ゲームのスクリーンショット001](https://github.com/IG-Cultist/MyRepository/blob/main/Images/Sample000.png)
+![ゲームのスクリーンショット002](https://github.com/IG-Cultist/MyRepository/blob/main/Images/Sample001.png)
 # URL
 * 準備中
 * 
