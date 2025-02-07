@@ -118,18 +118,20 @@ public class Player : MonoBehaviour
         if (words[0] == "Trap(active)" && isHit == false)
         {   
             isHit = true;
+            // ダメージ処理をする
+            DamageEffect(this.transform);
+
+            HitTrap(collision.gameObject.name);
+            
             // 自分自身である場合
             if (this.GetComponent<Player>().connectionID == roomModel.ConnectionID)
             {
-
                 // ダメージ処理をする
-                DamageEffect(this.transform);
                 gameDirector.Attack(this.GetComponent<Player>().connectionID);
                 // トラップを破壊
                 Destroy(collision.gameObject);
             }
-            // アイテム使用同期処理
-            gameDirector.OnUseItemUser(this.GetComponent<Player>().connectionID, words[0]);
+
         }
     }
 
@@ -163,5 +165,10 @@ public class Player : MonoBehaviour
             // 透明度を元に戻す
             transform.GetComponent<SpriteRenderer>().color = new Color32(255, 255, 255, 220);
         }
+    }
+
+    async void HitTrap(string itemName)
+    {
+        await roomModel.UseItemAsync(this.GetComponent<Player>().connectionID, itemName);
     }
 }

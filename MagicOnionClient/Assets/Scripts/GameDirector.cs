@@ -763,13 +763,20 @@ public class GameDirector : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// アイテム使用通知
+    /// </summary>
+    /// <param name="connectionID"></param>
+    /// <param name="itemName"></param>
     public async void OnUseItemUser(Guid connectionID, string itemName)
     {
         // 受け取ったIDのプレイヤーポジションを取得
         Vector3 playerPos = characterList[connectionID].transform.position;
 
+        // 取得オブジェクトの名前を_で分割
+        string[] words = itemName.Split("_");
         // 受け取ったアイテム名で処理を判定
-        switch (itemName)
+        switch (words[0])
         {
             case "Trap": // トラップの場合
                 useTrap++; // 使用回数を加算
@@ -871,6 +878,11 @@ public class GameDirector : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// スキン変更通知
+    /// </summary>
+    /// <param name="userID"></param>
+    /// <param name="skinName"></param>
     void OnChangeSkinUser(int userID, string skinName)
     {
         if (GameObject.Find(userID.ToString()).transform.GetChild(2) != null)
