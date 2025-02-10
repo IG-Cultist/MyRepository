@@ -19,8 +19,6 @@ HTTP/2での効率的な通信を実現　RPCを用いり開発の負担を軽�
 * C#
 * Docker
 
-# システム構成図
-
 # フォルダ構成説明
 
 gitフォルダ\  
@@ -65,8 +63,7 @@ gitフォルダ\
 ││ └ 01_GameDBContext.cs  # DB関連スクリプト  
 │├ 02_Properties\         # コンテナレジストリの設定情報の格納先  
 │├ 03_Services\           # 各サービスの格納先 
-││ ├ 01_MyFirstService.cs # テスト用スクリプト  
-││ └ 02_UseService.cs     # ユーザ関連スクリプト  
+││ └ 01_UseService.cs     # ユーザ関連スクリプト  
 │└ 04_StreamingHubs\      # ストリーミングハブフォルダ  
 │  ├ 01_RoomData.cs       # ルーム情報スクリプト  
 │  └ 02_RoomHub.cs        # 同期処理関連スクリプト  
