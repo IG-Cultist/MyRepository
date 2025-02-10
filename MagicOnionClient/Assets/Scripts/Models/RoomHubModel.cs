@@ -114,7 +114,7 @@ public class RoomHubModel : BaseModel, IRoomHubReceiver
     /// <param name="user"></param>
     public void OnJoin(JoinedUser user)
     {
-        OnJoinedUser(user);
+        OnJoinedUser?.Invoke(user);
     }
 
     /// <summary>
@@ -136,7 +136,7 @@ public class RoomHubModel : BaseModel, IRoomHubReceiver
     /// <param name="user"></param>
     public void OnLeave(Guid connectionID)
     {
-        OnLeavedUser(connectionID);
+        OnLeavedUser?.Invoke(connectionID);
     }
 
     /// <summary>
@@ -155,7 +155,7 @@ public class RoomHubModel : BaseModel, IRoomHubReceiver
     /// </summary>
     public void OnMove(Guid connectionID, Vector3 pos, Vector3 rot, IRoomHubReceiver.PlayerState state)
     {
-        OnMovedUser(connectionID, pos, rot, state);
+        OnMovedUser?.Invoke(connectionID, pos, rot, state);
     }
 
     /// <summary>
@@ -172,7 +172,7 @@ public class RoomHubModel : BaseModel, IRoomHubReceiver
     /// </summary>
     public void OnReady(Guid connectionID)
     {
-        //OnReadyUser(connectionID);
+        //OnReadyUser?.Invoke(connectionID);
     }
 
     /// <summary>
@@ -189,7 +189,7 @@ public class RoomHubModel : BaseModel, IRoomHubReceiver
     /// </summary>
     public void OnFinish()
     {
-        OnFinishUser();
+        OnFinishUser?.Invoke();
     }
 
     /// <summary>
@@ -210,7 +210,7 @@ public class RoomHubModel : BaseModel, IRoomHubReceiver
     /// <param name="connectionID"></param>
     public void OnAttack(Guid connectionID, int health)
     {
-        OnAttackUser(connectionID, health);
+        OnAttackUser?.Invoke(connectionID, health);
     }
 
     /// <summary>
@@ -230,7 +230,7 @@ public class RoomHubModel : BaseModel, IRoomHubReceiver
     /// <param name="roomName"></param>
     public void OnMatching(string roomName, string[] userList)
     {
-        OnMatchingUser(roomName, userList);
+        OnMatchingUser?.Invoke(roomName, userList);
     }
 
     /// <summary>
@@ -249,7 +249,7 @@ public class RoomHubModel : BaseModel, IRoomHubReceiver
     /// <param name="roomName"></param>
     public void OnCount(int time)
     {
-        OnCountUser(time);
+        OnCountUser?.Invoke(time);
     }
 
     /// <summary>
@@ -269,7 +269,7 @@ public class RoomHubModel : BaseModel, IRoomHubReceiver
     /// <returns></returns>
     public void OnChangeSkin(int userID, string skinName)
     {
-        OnChangeSkinUser(userID, skinName);
+        OnChangeSkinUser?.Invoke(userID, skinName);
     }
 
     /// <summary>
@@ -290,7 +290,7 @@ public class RoomHubModel : BaseModel, IRoomHubReceiver
     /// <param name="itemNumber">アイテム値</param>
     public void OnSpawnItem(int spawnPoint, int itemNumber)
     {
-        OnSpawnItemUser(spawnPoint, itemNumber);
+        OnSpawnItemUser?.Invoke(spawnPoint, itemNumber);
     }
 
     /// <summary>
@@ -310,7 +310,7 @@ public class RoomHubModel : BaseModel, IRoomHubReceiver
     /// <returns></returns>
     public void OnStompItem(string itemName)
     {
-        OnStompItemUser(itemName);
+        OnStompItemUser?.Invoke(itemName);
     }
 
     /// <summary>
@@ -331,6 +331,6 @@ public class RoomHubModel : BaseModel, IRoomHubReceiver
     /// <param name="itemName"></param>
     public void OnUseItem(Guid connectionID, string itemName)
     {
-        OnUseItemUser(connectionID, itemName);
+        OnUseItemUser?.Invoke(connectionID, itemName);
     }
 }

@@ -150,7 +150,7 @@ public class Player : MonoBehaviour
             transform.GetChild(0).DOShakePosition(1.5f, 1.5f, 45, 15, false, true);
             // 2•b’x‰„
             await Task.Delay(1200);
-           @// ”í’e”»’è‚ğfalse‚É
+            // ”í’e”»’è‚ğfalse‚É
             isHit = false;
         }
         else
@@ -160,7 +160,7 @@ public class Player : MonoBehaviour
 
             // 2•b’x‰„
             await Task.Delay(1200);
-           @// ”í’e”»’è‚ğfalse‚É
+            // ”í’e”»’è‚ğfalse‚É
             isHit = false;
             // “§–¾“x‚ğŒ³‚É–ß‚·
             transform.GetComponent<SpriteRenderer>().color = new Color32(255, 255, 255, 220);

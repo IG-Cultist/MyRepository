@@ -98,6 +98,14 @@ public class Lobby : MonoBehaviour
         JoinRoom();
     }
 
+    void OnDestroy()
+    {
+        // 登録した各通知を解除
+        roomModel.OnJoinedUser -= this.OnJoinedUser;
+        roomModel.OnLeavedUser -= this.OnLeavedUser;
+        roomModel.OnMatchingUser -= this.OnMatchingUser;
+    }
+
     void Update()
     {
         // 左クリックもしくは画面タップ時クリックSEを出す

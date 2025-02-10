@@ -33,6 +33,11 @@ public class Item : MonoBehaviour
         roomModel = GameObject.Find("RoomHubModel").GetComponent<RoomHubModel>();
         roomModel.OnSpawnItemUser += this.OnSpawnItemUser;
     }
+    void OnDestroy()
+    {
+        // ìoò^ÇµÇΩäeí ímÇâèú
+        roomModel.OnSpawnItemUser -= this.OnSpawnItemUser;
+    }
 
     // Update is called once per frame
     void Update()

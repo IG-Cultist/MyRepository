@@ -238,6 +238,20 @@ public class GameDirector : MonoBehaviour
         }
     }
 
+    void OnDestroy()
+    {
+        // 登録した各通知を解除
+        roomModel.OnJoinedUser -= this.OnJoinedUser;
+        roomModel.OnLeavedUser -= this.OnLeavedUser;
+        roomModel.OnMovedUser -= this.OnMovedUser;
+        roomModel.OnFinishUser -= this.OnFinishUser;
+        roomModel.OnAttackUser -= this.OnAttackUser;
+        roomModel.OnCountUser -= this.OnCountUser;
+        roomModel.OnChangeSkinUser -= this.OnChangeSkinUser;
+        roomModel.OnUseItemUser -= this.OnUseItemUser;
+        roomModel.OnStompItemUser -= this.OnStompItemUser;
+    }
+
     /// <summary>
     /// ユーザ入室処理
     /// </summary>
