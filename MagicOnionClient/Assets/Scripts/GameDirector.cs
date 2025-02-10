@@ -1,6 +1,6 @@
 /// ==============================
 /// ゲームディレクタースクリプト
-/// Name:西浦晃太 Update:02/03
+/// Author: Nishiura Kouta
 /// ==============================
 using DG.Tweening;
 using Shared.Interfaces.Services;
@@ -16,6 +16,9 @@ using UnityEngine.Experimental.GlobalIllumination;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.UI;
 
+/// <summary>
+/// ゲームの中枢処理を管理するクラス
+/// </summary>
 public class GameDirector : MonoBehaviour
 {
     // カウントダウンゲームオブジェクト
@@ -54,6 +57,8 @@ public class GameDirector : MonoBehaviour
     [SerializeField] Image itemPanel;
     // 操作用ジョイスティック
     [SerializeField] FixedJoystick joystick;
+    // 街頭の光
+    [SerializeField] Light Light;
 
     // ストップウォッチ使用SE
     [SerializeField] AudioClip stopWatchSE;
@@ -73,8 +78,6 @@ public class GameDirector : MonoBehaviour
     [SerializeField] AudioClip compassSE;
     // ローラブレード使用SE
     [SerializeField] AudioClip rollerBladeSE;
-
-    [SerializeField] Light Light;
 
     // 部屋モデル
     [SerializeField] RoomHubModel roomModel;
@@ -138,7 +141,9 @@ public class GameDirector : MonoBehaviour
     // ボタンを押したときtrue、離したときfalseになるフラグ
     bool buttonDownFlag = false;
 
-    // Start is called before the first frame update
+    /// <summary>
+    /// 開始処理
+    /// </summary>
     async void Start()
     {
 #if UNITY_EDITOR
@@ -212,6 +217,9 @@ public class GameDirector : MonoBehaviour
         JoinRoom();
     }
 
+    /// <summary>
+    /// 更新処理
+    /// </summary>
     void Update()
     {
         // 移動処理
@@ -238,6 +246,9 @@ public class GameDirector : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// このオブジェクトが破壊された際の処理
+    /// </summary>
     void OnDestroy()
     {
         // 登録した各通知を解除

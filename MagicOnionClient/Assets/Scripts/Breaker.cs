@@ -1,11 +1,18 @@
 /// ==============================
 /// オブジェクト破壊エリアスクリプト
-/// Name:西浦晃太 Update:02/03
+/// Author: Nishiura Kouta
 /// ==============================
 using UnityEngine;
 
+/// <summary>
+/// オブジェクト破壊管理クラス
+/// </summary>
 public class Breaker : MonoBehaviour
 {
+    /// <summary>
+    /// トリガー内オブジェクト処理
+    /// </summary>
+    /// <param name="other"></param>
     private void OnTriggerEnter(Collider other)
     {
         // 触れたオブジェクトがヘルスの場合、それを破壊

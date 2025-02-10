@@ -1,10 +1,13 @@
 /// ==============================
 /// アイテムスクリプト
-/// Name:西浦晃太 Update:02/05
+/// Author: Nishiura Kouta
 /// ==============================
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// アイテムの処理を管理するクラス
+/// </summary>
 public class Item : MonoBehaviour
 {
     // 生成するアイテムのプレハブリスト
@@ -27,19 +30,29 @@ public class Item : MonoBehaviour
 
     RoomHubModel roomModel;
 
-    // Start is called before the first frame update
+    /// <summary>
+    /// 開始処理
+    /// </summary>
     void Start()
     {
+        // ルームモデルスクリプトをフィールド内オブジェクトから取得
         roomModel = GameObject.Find("RoomHubModel").GetComponent<RoomHubModel>();
+        // 通知を設定
         roomModel.OnSpawnItemUser += this.OnSpawnItemUser;
     }
+
+    /// <summary>
+    /// このオブジェクトが破壊された際の処理
+    /// </summary>
     void OnDestroy()
     {
         // 登録した各通知を解除
         roomModel.OnSpawnItemUser -= this.OnSpawnItemUser;
     }
 
-    // Update is called once per frame
+    /// <summary>
+    /// 更新処理
+    /// </summary>
     void Update()
     {
         // 生成回数が9以上になった場合生成を停止

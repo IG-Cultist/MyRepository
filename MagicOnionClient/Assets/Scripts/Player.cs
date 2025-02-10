@@ -1,22 +1,22 @@
 /// ==============================
 /// プレイヤースクリプト
-/// Name:西浦晃太 Update:02/03
+/// Author: Nishiura Kouta
 /// ==============================
 using System;
 using System.Threading.Tasks;
 using DG.Tweening;
-using Unity.VisualScripting;
 using UnityEngine;
 
+/// <summary>
+/// プレイヤーの行動管理をするクラス
+/// </summary>
 public class Player : MonoBehaviour
 {
     // 足跡のプレハブ
     [SerializeField] GameObject footPrintPrefabs;
+    // 踏みつけ時SE
+    [SerializeField] AudioClip stompSE;
 
-    // 接続ID
-    public Guid connectionID;
-    // 被弾判定
-    public bool isHit = false;
     // 生成足跡オブジェクト
     GameObject footPrintObj;
     // ゲームディレクタースクリプト
@@ -24,17 +24,24 @@ public class Player : MonoBehaviour
 
     // 部屋モデル
     RoomHubModel roomModel;
-
-    // 踏みつけ時SE
-    [SerializeField] AudioClip stompSE;
-
+    // オーディオソース
     AudioSource audioSource;
 
+    // 接続ID
+    public Guid connectionID;
+    // 被弾判定
+    public bool isHit = false;
+
+    /// <summary>
+    /// 開始処理
+    /// </summary>
     void Start()
     {
+        // オープンソースを取得
         audioSource = GetComponent<AudioSource>();
         // ゲームディレクタースクリプトをフィールド内オブジェクトから取得
         gameDirector = GameObject.Find("GameDirector").GetComponent<GameDirector>();
+        // ルームモデルスクリプトをフィールド内オブジェクトから取得
         roomModel = GameObject.Find("RoomHubModel").GetComponent<RoomHubModel>();
     }
 
@@ -131,7 +138,6 @@ public class Player : MonoBehaviour
                 // トラップを破壊
                 Destroy(collision.gameObject);
             }
-
         }
     }
 

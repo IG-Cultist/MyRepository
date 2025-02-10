@@ -47,12 +47,11 @@ namespace MessagePack.Resolvers
 
         static GeneratedResolverGetFormatterHelper()
         {
-            lookup = new global::System.Collections.Generic.Dictionary<global::System.Type, int>(4)
+            lookup = new global::System.Collections.Generic.Dictionary<global::System.Type, int>(3)
             {
-                { typeof(global::Shared.Interfaces.Services.Number), 0 },
-                { typeof(global::Shared.Interfaces.Services.UserInfo), 1 },
-                { typeof(global::Shared.Interfaces.StreamingHubs.JoinedUser), 2 },
-                { typeof(global::Shared.Model.Entity.User), 3 },
+                { typeof(global::Shared.Interfaces.Services.UserInfo), 0 },
+                { typeof(global::Shared.Interfaces.StreamingHubs.JoinedUser), 1 },
+                { typeof(global::Shared.Model.Entity.User), 2 },
             };
         }
 
@@ -66,10 +65,9 @@ namespace MessagePack.Resolvers
 
             switch (key)
             {
-                case 0: return new MessagePack.Formatters.Shared.Interfaces.Services.NumberFormatter();
-                case 1: return new MessagePack.Formatters.Shared.Interfaces.Services.UserInfoFormatter();
-                case 2: return new MessagePack.Formatters.Shared.Interfaces.StreamingHubs.JoinedUserFormatter();
-                case 3: return new MessagePack.Formatters.Shared.Model.Entity.UserFormatter();
+                case 0: return new MessagePack.Formatters.Shared.Interfaces.Services.UserInfoFormatter();
+                case 1: return new MessagePack.Formatters.Shared.Interfaces.StreamingHubs.JoinedUserFormatter();
+                case 2: return new MessagePack.Formatters.Shared.Model.Entity.UserFormatter();
                 default: return null;
             }
         }
@@ -105,54 +103,6 @@ namespace MessagePack.Resolvers
 
 namespace MessagePack.Formatters.Shared.Interfaces.Services
 {
-    public sealed class NumberFormatter : global::MessagePack.Formatters.IMessagePackFormatter<global::Shared.Interfaces.Services.Number>
-    {
-
-        public void Serialize(ref global::MessagePack.MessagePackWriter writer, global::Shared.Interfaces.Services.Number value, global::MessagePack.MessagePackSerializerOptions options)
-        {
-            if (value == null)
-            {
-                writer.WriteNil();
-                return;
-            }
-
-            writer.WriteArrayHeader(2);
-            writer.Write(value.x);
-            writer.Write(value.y);
-        }
-
-        public global::Shared.Interfaces.Services.Number Deserialize(ref global::MessagePack.MessagePackReader reader, global::MessagePack.MessagePackSerializerOptions options)
-        {
-            if (reader.TryReadNil())
-            {
-                return null;
-            }
-
-            options.Security.DepthStep(ref reader);
-            var length = reader.ReadArrayHeader();
-            var ____result = new global::Shared.Interfaces.Services.Number();
-
-            for (int i = 0; i < length; i++)
-            {
-                switch (i)
-                {
-                    case 0:
-                        ____result.x = reader.ReadSingle();
-                        break;
-                    case 1:
-                        ____result.y = reader.ReadSingle();
-                        break;
-                    default:
-                        reader.Skip();
-                        break;
-                }
-            }
-
-            reader.Depth--;
-            return ____result;
-        }
-    }
-
     public sealed class UserInfoFormatter : global::MessagePack.Formatters.IMessagePackFormatter<global::Shared.Interfaces.Services.UserInfo>
     {
 

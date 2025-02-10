@@ -1,9 +1,12 @@
 /// ==============================
 /// アタックスクリプト
-/// Name:西浦晃太 Update:02/03
+/// Author: Nishiura Kouta
 /// ==============================
 using UnityEngine;
 
+/// <summary>
+/// 攻撃時に生成されるオブジェクトの当たり判定処理クラス
+/// </summary>
 public class Attack : MonoBehaviour
 {
     // ゲームディレクタースクリプト
@@ -11,6 +14,9 @@ public class Attack : MonoBehaviour
     // プレイヤースクリプト
     Player player;
 
+    /// <summary>
+    /// 開始処理
+    /// </summary>
     void Start()
     {
         // 各スクリプトをフィールド内オブジェクトから取得
@@ -18,6 +24,10 @@ public class Attack : MonoBehaviour
         player = GameObject.Find(SendData.userID.ToString()).GetComponent<Player>();
     }
 
+    /// <summary>
+    /// コライダー侵入処理
+    /// </summary>
+    /// <param name="other"></param>
     private void OnTriggerEnter(Collider other)
     {
         // 踏んだのがアイテムの場合

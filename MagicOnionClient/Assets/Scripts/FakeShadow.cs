@@ -1,6 +1,6 @@
 /// ==============================
 /// フェイクシャドウスクリプト
-/// Name:西浦晃太 Update:1/24
+/// Author: Nishiura Kouta
 /// ==============================
 using UnityEngine;
 
@@ -13,6 +13,9 @@ public class FakeShadow : MonoBehaviour
     // 表示スキン
     [SerializeField] GameObject[] shadows;
 
+    /// <summary>
+    /// 開始処理
+    /// </summary>
     void Start()
     {
         rand = new System.Random();
