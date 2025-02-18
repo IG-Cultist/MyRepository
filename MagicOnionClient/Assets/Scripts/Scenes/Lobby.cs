@@ -1,6 +1,6 @@
 /// ==============================
 /// ロビースクリプト
-/// Name:西浦晃太 Update:02/03
+/// Author: Nishiura Kouta
 /// ==============================
 using Shared.Interfaces.StreamingHubs;
 using System;
@@ -10,6 +10,9 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// ロビーの処理を管理するクラス
+/// </summary>
 public class Lobby : MonoBehaviour
 {
     // 部屋モデル
@@ -50,12 +53,15 @@ public class Lobby : MonoBehaviour
     // 参加ユーザの接続ID保存リスト
     List<Guid> idList = new List<Guid>();
 
+    // スキン番号判定変数
     int count = 0;
 
+    // 待機時間加算用変数
     int waitCount = 0;
 
+    // 準備完了判別変数
     bool isReady = false;
-
+    // 説明パネル展開判定変数
     bool isExplain = false;
     // 説明画像用変数
     int imageCnt = 0;
@@ -223,10 +229,17 @@ public class Lobby : MonoBehaviour
     }
 
 
+    /// <summary>
+    /// ユーザマッチング通知
+    /// </summary>
+    /// <param name="roomName">部屋名</param>
+    /// <param name="userList">参加ユーザリスト</param>
     async void OnMatchingUser(string roomName, string[] userList)
     {
+        // 参加者人数分ループ
         foreach (string conID in userList)
         {
+            // 取り出した接続IDと自身の接続IDが一致していた場合
             if (roomModel.ConnectionID.ToString() == conID)
             {
                 // 送るデータを代入
@@ -384,6 +397,9 @@ public class Lobby : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 待機テキスト処理
+    /// </summary>
     void Waiting()
     {
         switch (waitCount)

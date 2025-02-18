@@ -1,10 +1,13 @@
 /// ==============================
 /// タイトルスクリプト
-/// Name:西浦晃太 Update:02/03
+/// Author: Nishiura Kouta
 /// ==============================
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// タイトルシーンの処理を管理するクラス
+/// </summary>
 public class Title : MonoBehaviour
 {
     // ゲーム開始促し画像
@@ -14,14 +17,20 @@ public class Title : MonoBehaviour
 
     // クリックorタップSE
     [SerializeField] AudioClip clickSE;
-
+    // オーディオソース
     AudioSource audioSource;
 
+    /// <summary>
+    /// 最速処理
+    /// </summary>
     void Awake()
     {
         Application.targetFrameRate = 60; // 初期状態は-1になっている
     }
 
+    /// <summary>
+    /// 開始処理
+    /// </summary>
     void Start()
     {
         audioSource = GetComponent<AudioSource>();
@@ -30,6 +39,10 @@ public class Title : MonoBehaviour
         // 初期表示の影を設定
         ChangeShadow();
     }
+
+    /// <summary>
+    /// 更新処理
+    /// </summary>
     void Update()
     {
         // 画像をゆっくり点滅させる

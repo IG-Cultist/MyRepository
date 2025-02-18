@@ -864,6 +864,7 @@ public class GameDirector : MonoBehaviour
         // 制限時間を送られてきた時間と同期する
         this.time = time;
 
+        // 時間に応じた処理分岐
         switch (this.time)
         {
             case 3: // 3を強調 カウントダウン用オブジェクトを空にする
@@ -910,6 +911,7 @@ public class GameDirector : MonoBehaviour
     /// <param name="skinName"></param>
     void OnChangeSkinUser(int userID, string skinName)
     {
+        // 受け取ったIDのユーザがゲームフィールド内に存在している場合
         if (GameObject.Find(userID.ToString()).transform.GetChild(2) != null)
         {
             // 取得したこの数分ループ
@@ -927,14 +929,24 @@ public class GameDirector : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// スキン変更処理
+    /// </summary>
+    /// <param name="userID">ゆーざID</param>
+    /// <param name="skinName">スキン名</param>
     async void ChangeSkin(int userID, string skinName)
     {
         await roomModel.ChangeSkinAsync(userID, skinName);
     }
 
+    /// <summary>
+    /// タイムアップ処理
+    /// </summary>
     void TimeUp()
     {
+        // タイムアップSEを鳴らす
         audioSource.PlayOneShot(timeUpSE);
+        // 鳴らす回数制御変数を加算
         timeUpCnt++;
     }
 
@@ -982,9 +994,9 @@ public class GameDirector : MonoBehaviour
 
         // リソースから、アイコンを取得
         Texture2D texture = Resources.Load("UI/eye_close") as Texture2D;
-
+        // ボタンからイメージコンポネントを取得
         Image buttonTexture = viewButton.GetComponent<Image>();
-
+        // テクスチャを取得したアイコンに変更
         buttonTexture.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
                                        Vector2.zero);
 
@@ -997,6 +1009,7 @@ public class GameDirector : MonoBehaviour
     /// </summary>
     void ViewTime()
     {
+        // 視点変更制御変数を減算
         viewCount--;
     }
 
@@ -1010,9 +1023,9 @@ public class GameDirector : MonoBehaviour
 
         // リソースから、アイコンを取得
         Texture2D texture = Resources.Load("UI/eye_open") as Texture2D;
-
+        // ボタンからイメージコンポネントを取得
         Image buttonTexture = viewButton.GetComponent<Image>();
-
+        // テクスチャを取得したアイコンに変更
         buttonTexture.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
                                        Vector2.zero);
         // クールダウンしていない状態に
@@ -1041,6 +1054,7 @@ public class GameDirector : MonoBehaviour
     /// </summary>
     void CheckExit()
     {
+        // ゲーム停止をtrueに
         isStop = true;
         // 各繰り返しを停止
         CancelInvoke("ViewCooldown");

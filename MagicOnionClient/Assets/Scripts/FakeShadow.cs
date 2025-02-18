@@ -4,6 +4,9 @@
 /// ==============================
 using UnityEngine;
 
+/// <summary>
+/// 偽の影の処理を管理するクラス
+/// </summary>
 public class FakeShadow : MonoBehaviour
 {
     // このオブジェクトのリジットボディ

@@ -116,6 +116,10 @@ public class Player : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// コリジョンヒット処理
+    /// </summary>
+    /// <param name="collision"></param>
     private void OnCollisionEnter(Collision collision)
     {
         // 取得オブジェクトの名前を_で分割
@@ -127,7 +131,7 @@ public class Player : MonoBehaviour
             isHit = true;
             // ダメージ処理をする
             DamageEffect(this.transform);
-
+            // トラップ命中を通知
             HitTrap(collision.gameObject.name);
             
             // 自分自身である場合
@@ -173,6 +177,10 @@ public class Player : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// トラップ命中通知
+    /// </summary>
+    /// <param name="itemName">アイテム名</param>
     async void HitTrap(string itemName)
     {
         await roomModel.UseItemAsync(this.GetComponent<Player>().connectionID, itemName);
