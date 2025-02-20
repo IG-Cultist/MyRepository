@@ -41,6 +41,8 @@ public class Lobby : MonoBehaviour
     [SerializeField] GameObject loadingIcon;
     // 準備完了オブジェクト
     [SerializeField] GameObject ready;
+    // ライバル待機オブジェクト
+    [SerializeField] GameObject waitRival;
 
     // 参加ユーザ人数テキスト
     [SerializeField] Text userCount;
@@ -79,6 +81,7 @@ public class Lobby : MonoBehaviour
         readyButton.SetActive(false);
         explainPanel.SetActive(false);
         ready.SetActive(false);
+        waitRival.SetActive(false);
 
         // ローカルのユーザIDを初期化
         SendData.userID = 0;
@@ -225,7 +228,11 @@ public class Lobby : MonoBehaviour
         // スキン変更ボタンを非表示に
         changeButton[0].SetActive(false);
         changeButton[1].SetActive(false);
+
+        // 準備完了テキストを表示
         ready.SetActive(true);
+        // 待機テキストを表示
+        waitRival.SetActive(true);
     }
 
 
@@ -332,6 +339,7 @@ public class Lobby : MonoBehaviour
     public void openExplain()
     {
         ready.SetActive(false);
+        waitRival.SetActive(false);
         isExplain = true;
         explainPanel.SetActive(true);
         explainImages[0].SetActive(true);
@@ -345,8 +353,11 @@ public class Lobby : MonoBehaviour
     /// </summary>
     public void closeExplain()
     {
-        if(isReady == true) ready.SetActive(true);
-       
+        if (isReady == true)
+        {
+            waitRival.SetActive(true);
+            ready.SetActive(true);
+        }
         isExplain = false;
         explainPanel.SetActive(false);
     }

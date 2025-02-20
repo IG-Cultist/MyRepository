@@ -982,6 +982,85 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 640861249}
   m_CullTransparentMesh: 1
+--- !u!1 &644521912
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 644521913}
+  - component: {fileID: 644521915}
+  - component: {fileID: 644521914}
+  m_Layer: 5
+  m_Name: WaitRival
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &644521913
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 644521912}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1826791456}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: -478}
+  m_SizeDelta: {x: 700, y: 96.18}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &644521914
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 644521912}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 0, g: 0, b: 0, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_FontData:
+    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_FontSize: 56
+    m_FontStyle: 1
+    m_BestFit: 0
+    m_MinSize: 10
+    m_MaxSize: 300
+    m_Alignment: 4
+    m_AlignByGeometry: 0
+    m_RichText: 1
+    m_HorizontalOverflow: 0
+    m_VerticalOverflow: 0
+    m_LineSpacing: 1
+  m_Text: "\u5BFE\u6226\u76F8\u624B\u3092\u5F85\u3063\u3066\u3044\u307E\u3059..."
+--- !u!222 &644521915
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 644521912}
+  m_CullTransparentMesh: 1
 --- !u!1 &673360042
 GameObject:
   m_ObjectHideFlags: 0
@@ -1667,28 +1746,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6cab99b34d0909d4a8384eab8660ba96, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  roomModel: {fileID: 379450922}
+  changeButton:
+  - {fileID: 1413357115}
+  - {fileID: 1475537562}
   exitButton: {fileID: 1653393704}
   readyButton: {fileID: 49098603}
-  roomModel: {fileID: 379450922}
-  loadingPanel: {fileID: 2004786567}
-  explainPanel: {fileID: 857551230}
   explainImages:
   - {fileID: 1816146264}
   - {fileID: 1609671318}
   explainTitles:
   - {fileID: 2011784031}
   - {fileID: 1045439135}
-  loadingIcon: {fileID: 792563636}
-  skinPanel: {fileID: 1859214653}
-  changeButton:
-  - {fileID: 1413357115}
-  - {fileID: 1475537562}
   headers:
   - {fileID: 188829095}
   - {fileID: 1385569599}
+  loadingPanel: {fileID: 2004786567}
+  explainPanel: {fileID: 857551230}
+  skinPanel: {fileID: 1859214653}
+  loadingIcon: {fileID: 792563636}
+  ready: {fileID: 1810666445}
+  waitRival: {fileID: 644521912}
   userCount: {fileID: 2010980315}
   wait: {fileID: 774685315}
-  ready: {fileID: 1810666445}
   clickSE: {fileID: 8300000, guid: 72eca8e0a334fab4ebdede3d17520201, type: 3}
 --- !u!82 &1044101736
 AudioSource:
@@ -2799,10 +2879,11 @@ RectTransform:
   - {fileID: 1859214654}
   - {fileID: 49098604}
   - {fileID: 1566109141}
-  - {fileID: 857551231}
   - {fileID: 774685317}
   - {fileID: 2010980313}
   - {fileID: 1810666448}
+  - {fileID: 644521913}
+  - {fileID: 857551231}
   m_Father: {fileID: 728934695}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
