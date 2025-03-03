@@ -10,7 +10,7 @@ HTTP/2での効率的な通信を実現　RPCを用いり開発の負担を軽�
 ![ゲームのスクリーンショット002](https://github.com/IG-Cultist/MyRepository/blob/main/Images/Sample001.png)
 # URL
 * [iOS](https://apps.apple.com/jp/app/id6741744450)
-* 
+* [Android](https://play.google.com/store/apps/details?id=com.yoshidahcc.kagehumi)
 # 使用技術
 * PHP
 * JavaScript
